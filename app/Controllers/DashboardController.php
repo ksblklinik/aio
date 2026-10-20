@@ -4,19 +4,47 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use Core\Database\TenantContext;
+use Core\Database\TenantScope;
 use Core\Http\Request;
 use Core\Http\Response;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private ?TenantContext $tenantContext = null,
+        private ?TenantScope $tenantScope = null
+    ) {
+        $this->tenantContext = $tenantContext ?? (function_exists('app') ? app(TenantContext::class) : TenantContext::getInstance());
+        $this->tenantScope = $tenantScope ?? (function_exists('app') ? app(TenantScope::class) : null);
+    }
+
     public function index(Request $request): Response
     {
+        $tenantId = $this->tenantContext->getTenantId() ?? 'tenant-acme';
+        $tenantData = $this->tenantContext->getTenantData();
+
+        // Ambil data projects yang terisolasi khusus tenant ini
+        $scopedProjects = [];
+        if ($this->tenantScope) {
+            $rows = $this->tenantScope->selectAll('projects');
+            foreach ($rows as $row) {
+                $scopedProjects[] = [
+                    'id' => (string) $row['id'],
+                    'name' => $row['name'],
+                    'status' => $row['status'],
+                    'recordsCount' => (int) $row['records_count'],
+                    'updatedAt' => $row['updated_at'] ?? 'Baru saja',
+                ];
+            }
+        }
+
         return $this->render('Dashboard', [
             'title' => 'Dashboard Overview',
             'tenant' => [
-                'id' => 'tenant-acme',
-                'name' => 'Acme Cloud Platform',
-                'plan' => 'Enterprise Tier',
+                'id' => $tenantId,
+                'name' => $tenantData['name'] ?? 'Acme Cloud Platform',
+                'plan' => $tenantData['plan'] ?? 'Enterprise Tier',
             ],
             'metrics' => [
                 'mrr' => '$28,450',
@@ -24,36 +52,7 @@ class DashboardController extends Controller
                 'apiRequests' => '12.8M req',
                 'avgLatency' => '0.8 ms',
             ],
-            'projects' => [
-                [
-                    'id' => '1',
-                    'name' => 'Customer Auth & RBAC Engine',
-                    'status' => 'Active',
-                    'recordsCount' => 24100,
-                    'updatedAt' => '2 menit yang lalu',
-                ],
-                [
-                    'id' => '2',
-                    'name' => 'Subscription Metering Pipeline',
-                    'status' => 'Active',
-                    'recordsCount' => 67300,
-                    'updatedAt' => '8 menit yang lalu',
-                ],
-                [
-                    'id' => '3',
-                    'name' => 'Realtime SSE WebSocket Push',
-                    'status' => 'Processing',
-                    'recordsCount' => 1420,
-                    'updatedAt' => '25 menit yang lalu',
-                ],
-                [
-                    'id' => '4',
-                    'name' => 'Audit Log Immutable Storage',
-                    'status' => 'Active',
-                    'recordsCount' => 189200,
-                    'updatedAt' => '1 jam yang lalu',
-                ],
-            ],
+            'projects' => $scopedProjects,
         ]);
     }
 }

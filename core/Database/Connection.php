@@ -53,6 +53,11 @@ class Connection
         return $stmt->execute($params);
     }
 
+    public function exec(string $sql): int|false
+    {
+        return $this->pdo->exec($sql);
+    }
+
     public function selectAll(string $sql, array $params = []): array
     {
         $stmt = $this->pdo->prepare($sql);

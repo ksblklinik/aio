@@ -38,7 +38,23 @@ $inertia->share([
 ]);
 $container->singleton(Inertia::class, fn() => $inertia);
 
-// 4. Initialize Router & Middlewares
+// 4. Initialize Database & Tenant Context
+$dbPath = dirname(__DIR__) . '/database.sqlite';
+$db = new \Core\Database\Connection("sqlite:{$dbPath}");
+$container->singleton(\Core\Database\Connection::class, fn() => $db);
+
+$tenantContext = \Core\Database\TenantContext::getInstance();
+// Default tenant context for demo
+$tenantContext->setTenantId('tenant-acme', [
+    'name' => 'Acme Cloud Platform',
+    'plan' => 'Enterprise Tier',
+]);
+$container->singleton(\Core\Database\TenantContext::class, fn() => $tenantContext);
+
+$tenantScope = new \Core\Database\TenantScope($tenantContext, $db);
+$container->singleton(\Core\Database\TenantScope::class, fn() => $tenantScope);
+
+// 5. Initialize Router & Middlewares
 $router = new Router($container);
 $container->singleton(Router::class, fn() => $router);
 

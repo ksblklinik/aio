@@ -35,7 +35,7 @@ class Migrator
         }
 
         $this->db->transaction(function (Connection $conn) use ($migrationName, $sql, $batch) {
-            $conn->statement($sql);
+            $conn->exec($sql);
             $conn->insert('migrations', [
                 'migration' => $migrationName,
                 'batch' => $batch,
