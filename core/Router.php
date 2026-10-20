@@ -106,6 +106,9 @@ class Router
     public function dispatch(Request $request): Response
     {
         $method = $request->method();
+        if ($method === 'HEAD') {
+            $method = 'GET';
+        }
         $path = $request->path();
         if ($path !== '/') {
             $path = rtrim($path, '/');
