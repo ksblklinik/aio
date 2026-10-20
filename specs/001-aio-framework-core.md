@@ -117,11 +117,11 @@ aio/
   - [x] 1.3 Konfigurasi `vite.config.ts` dan `tsconfig.json`.
   - [x] 1.4 Perbarui script dev/verify untuk mendukung ekosistem PHP + Node.
 
-- [ ] **Phase 2: Core HTTP Engine & Routing**
-  - [ ] 2.1 Buat `Core\Container` (PSR-11 DI container minimalis).
-  - [ ] 2.2 Buat `Core\Http\Request` dan `Core\Http\Response`.
-  - [ ] 2.3 Buat `Core\Router` dengan dukungan route parameters dan middleware pipeline.
-  - [ ] 2.4 Buat middleware dasar: Session, CSRF Protection, dan Error Handling.
+- [x] **Phase 2: Core HTTP Engine & Routing**
+  - [x] 2.1 Buat `Core\Container` (PSR-11 DI container minimalis).
+  - [x] 2.2 Buat `Core\Http\Request` dan `Core\Http\Response`.
+  - [x] 2.3 Buat `Core\Router` dengan dukungan route parameters dan middleware pipeline.
+  - [x] 2.4 Buat middleware dasar: Session, CSRF Protection, dan Error Handling.
 
 - [ ] **Phase 3: Inertia.js Bridge & View Renderer**
   - [ ] 3.1 Implementasikan `Core\Inertia\Inertia` response factory (render, share, version).
