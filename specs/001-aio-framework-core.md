@@ -128,10 +128,10 @@ aio/
   - [x] 3.2 Buat template HTML root wrapper (`resources/views/app.php`).
   - [x] 3.3 Buat helper view rendering asset Vite (`vite_asset()` untuk HMR & manifest prod).
 
-- [ ] **Phase 4: Database & Multi-Tenant Scoping**
-  - [ ] 4.1 Buat `Core\Database` (koneksi PDO SQLite/PostgreSQL/MySQL).
-  - [ ] 4.2 Buat mekanisme Tenant Context & Scoper (`tenant_id` scope enforcement).
-  - [ ] 4.3 Buat sistem migrasi skema tabel sederhana untuk inisialisasi database.
+- [x] **Phase 4: Database & Multi-Tenant Scoping**
+  - [x] 4.1 Buat `Core\Database` (koneksi PDO SQLite/PostgreSQL/MySQL).
+  - [x] 4.2 Buat mekanisme Tenant Context & Scoper (`tenant_id` scope enforcement).
+  - [x] 4.3 Buat sistem migrasi skema tabel sederhana untuk inisialisasi database.
 
 - [ ] **Phase 5: Frontend React 19 UI & Dashboard Starter**
   - [ ] 5.1 Buat entry point React Inertia (`resources/js/app.tsx`).
