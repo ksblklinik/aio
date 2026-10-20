@@ -1,0 +1,14 @@
+#!/bin/sh
+# Git Pre-Commit Hook for jstudio
+# Otomatis mengeksekusi scripts/verify.ps1 sebelum commit diterima oleh Git.
+
+powershell.exe -ExecutionPolicy Bypass -NoProfile -File "./scripts/verify.ps1"
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+    echo ""
+    echo "[HOOK BLOCKED] Commit ditolak oleh scripts/verify.ps1. Perbaiki kesalahan di atas."
+    exit 1
+fi
+
+exit 0
