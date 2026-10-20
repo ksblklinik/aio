@@ -1,4 +1,4 @@
-# Dev Helper Script for jstudio (PowerShell)
+# Dev Helper Script for aio (PowerShell)
 # Usage:
 #   powershell -ExecutionPolicy Bypass -File ./scripts/dev.ps1
 #   powershell -ExecutionPolicy Bypass -File ./scripts/dev.ps1 -SetupOnly
@@ -11,7 +11,7 @@ param (
 $ErrorActionPreference = "Stop"
 
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "       jstudio Local Dev Environment      " -ForegroundColor Cyan
+Write-Host "         aio Local Dev Environment        " -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
 # 1. Environment & Git Hooks Setup
@@ -39,8 +39,30 @@ Write-Host "`n[2/4] Checking project stack & dependencies..." -ForegroundColor Y
 $hasDevServer = $false
 $devCommand = ""
 
+# Check PHP & Composer
+if (Test-Path "composer.json") {
+    Write-Host " Detected PHP environment..." -ForegroundColor Cyan
+    if (-not (Test-Path "vendor")) {
+        Write-Host " vendor/ belum terpasang. Menjalankan composer install..." -ForegroundColor Yellow
+        if (Test-Path "C:\laragon\bin\composer\composer.phar") {
+            php C:\laragon\bin\composer\composer.phar install --no-interaction
+        } elseif (Get-Command composer -ErrorAction SilentlyContinue) {
+            composer install --no-interaction
+        }
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host " PASS: Dependensi Composer (vendor/) berhasil dipasang." -ForegroundColor Green
+        } else {
+            Write-Host " FAIL: Gagal memasang dependensi Composer." -ForegroundColor Red
+            exit 1
+        }
+    } else {
+        Write-Host " PASS: vendor/ sudah tersedia." -ForegroundColor Green
+    }
+}
+
+# Check Node.js / Vite
 if (Test-Path "package.json") {
-    Write-Host " Detected Node.js environment..." -ForegroundColor Cyan
+    Write-Host " Detected Node.js / Vite environment..." -ForegroundColor Cyan
     $pkgJson = Get-Content "package.json" -Raw | ConvertFrom-Json
 
     # Check node_modules
@@ -61,21 +83,14 @@ if (Test-Path "package.json") {
         $hasDevServer = $true
         $devCommand = "npm run dev"
     }
-} elseif ((Test-Path "pyproject.toml") -or (Test-Path "requirements.txt")) {
-    Write-Host " Detected Python environment..." -ForegroundColor Cyan
-    if (-not (Test-Path ".venv")) {
-        Write-Host " Virtual environment (.venv) belum ada. Menyiapkan venv..." -ForegroundColor Yellow
-        python -m venv .venv
-    }
-    Write-Host " PASS: Python virtual environment siap." -ForegroundColor Green
-} else {
-    Write-Host " INFO: Belum ada runtime stack terpasang (proyek masih murni governance)." -ForegroundColor Gray
-    Write-Host "       Gunakan spec-builder untuk menginisialisasi stack aplikasi pertama Anda." -ForegroundColor Gray
 }
 
 # 3. Project Plugin & MCP Config Inspection
 Write-Host "`n[3/4] Inspecting workspace plugin & MCP configuration..." -ForegroundColor Yellow
-$pluginMcpPath = ".agents/plugins/jstudio/mcp_config.json"
+$pluginMcpPath = ".agents/plugins/aio/mcp_config.json"
+if (-not (Test-Path $pluginMcpPath)) {
+    $pluginMcpPath = ".agents/plugins/jstudio/mcp_config.json"
+}
 if (Test-Path $pluginMcpPath) {
     try {
         $mcpContent = Get-Content $pluginMcpPath -Raw | ConvertFrom-Json

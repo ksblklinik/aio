@@ -111,11 +111,11 @@ aio/
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Project Setup & Package Configurations**
-  - [ ] 1.1 Inisialisasi `composer.json` (PHP 8.3+, PSR-7/11/15, autoload `App\\` dan `Core\\`).
-  - [ ] 1.2 Inisialisasi `package.json` (React 19, @inertiajs/react, Vite, TypeScript, Tailwind).
-  - [ ] 1.3 Konfigurasi `vite.config.ts` dan `tsconfig.json`.
-  - [ ] 1.4 Perbarui script dev/verify untuk mendukung ekosistem PHP + Node.
+- [x] **Phase 1: Project Setup & Package Configurations**
+  - [x] 1.1 Inisialisasi `composer.json` (PHP 8.3+, PSR-7/11/15, autoload `App\\` dan `Core\\`).
+  - [x] 1.2 Inisialisasi `package.json` (React 19, @inertiajs/react, Vite, TypeScript, Tailwind).
+  - [x] 1.3 Konfigurasi `vite.config.ts` dan `tsconfig.json`.
+  - [x] 1.4 Perbarui script dev/verify untuk mendukung ekosistem PHP + Node.
 
 - [ ] **Phase 2: Core HTTP Engine & Routing**
   - [ ] 2.1 Buat `Core\Container` (PSR-11 DI container minimalis).

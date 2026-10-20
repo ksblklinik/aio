@@ -17,9 +17,13 @@ dist/
 build/
 out/
 target/
+public/build/
+.phpunit.cache/
 *.exe
 *.dll
 *.so
+*.db
+*.sqlite
 
 # IDE & OS
 .DS_Store
