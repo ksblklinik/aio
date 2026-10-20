@@ -22,9 +22,9 @@ $excludedDirs = @("node_modules", "dist", "build", ".venv", "venv", ".git", ".ag
 
 $filesToScan = @()
 if ($existingDirs.Count -gt 0) {
-    $filesToScan = Get-ChildItem -Path $existingDirs -Recurse -File -Include "*.ts","*.tsx","*.js","*.jsx","*.py","*.go","*.rs","*.sql" -ErrorAction SilentlyContinue
+    $filesToScan = Get-ChildItem -Path $existingDirs -Recurse -File -Include "*.php","*.ts","*.tsx","*.js","*.jsx","*.py","*.go","*.rs","*.sql" -ErrorAction SilentlyContinue
 } else {
-    $allFiles = Get-ChildItem -Path . -Recurse -File -Include "*.ts","*.tsx","*.js","*.jsx","*.py","*.go","*.rs","*.sql" -ErrorAction SilentlyContinue
+    $allFiles = Get-ChildItem -Path . -Recurse -File -Include "*.php","*.ts","*.tsx","*.js","*.jsx","*.py","*.go","*.rs","*.sql" -ErrorAction SilentlyContinue
     foreach ($f in $allFiles) {
         $skip = $false
         foreach ($exc in $excludedDirs) {
@@ -54,8 +54,13 @@ if ($filesToScan.Count -gt 0) {
             $trimmed = $line.Trim()
             $lineNum = $i + 1
 
+            # Match PHP class, interface, trait, enum, and public functions
+            if ($line -match '^(final\s+|readonly\s+|abstract\s+)*(class|interface|trait|enum)\s+([A-Za-z0-9_]+)' -or
+                $line -match '^\s*(public\s+)?function\s+([A-Za-z0-9_]+)\s*\(') {
+                $fileSymbols += "  - L${lineNum}: $trimmed"
+            }
             # Match TypeScript / JavaScript exported definitions or top-level declarations
-            if ($line -match '^export\s+(default\s+)?(class|interface|type|enum|function|const)\s+([A-Za-z0-9_]+)' -or
+            elseif ($line -match '^export\s+(default\s+)?(class|interface|type|enum|function|const)\s+([A-Za-z0-9_]+)' -or
                 $line -match '^(class|interface|type|enum|function)\s+([A-Za-z0-9_]+)') {
                 $fileSymbols += "  - L${lineNum}: $trimmed"
             }

@@ -1,6 +1,6 @@
 # SPEC-001: aio Full-Stack SaaS Framework Architecture
 
-- **Status**: `Draft`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity & User
 - **Tanggal Dibuat**: 2026-10-21
 - **Target File / Modul**: `core/`, `src/`, `config/`, `routes/`, `resources/`
@@ -133,13 +133,13 @@ aio/
   - [x] 4.2 Buat mekanisme Tenant Context & Scoper (`tenant_id` scope enforcement).
   - [x] 4.3 Buat sistem migrasi skema tabel sederhana untuk inisialisasi database.
 
-- [ ] **Phase 5: Frontend React 19 UI & Dashboard Starter**
-  - [ ] 5.1 Buat entry point React Inertia (`resources/js/app.tsx`).
-  - [ ] 5.2 Buat layout dasar dashboard SaaS (`resources/js/Layouts/AppLayout.tsx`).
-  - [ ] 5.3 Buat halaman starter: Landing Page & Dashboard SaaS (`resources/js/Pages/Dashboard.tsx`).
-  - [ ] 5.4 Konfigurasi styling Tailwind CSS dengan estetika visual modern.
+- [x] **Phase 5: Frontend React 19 UI & Dashboard Starter**
+  - [x] 5.1 Buat entry point React Inertia (`resources/js/app.tsx`).
+  - [x] 5.2 Buat layout dasar dashboard SaaS (`resources/js/Layouts/AppLayout.tsx`).
+  - [x] 5.3 Buat halaman starter: Landing Page & Dashboard SaaS (`resources/js/Pages/Dashboard.tsx`).
+  - [x] 5.4 Konfigurasi styling Tailwind CSS dengan estetika visual modern.
 
-- [ ] **Phase 6: Verification, Test Suites & Dev Tooling**
-  - [ ] 6.1 Tulis unit tests untuk Router, Container, dan Inertia Bridge.
-  - [ ] 6.2 Uji end-to-end dev server via `scripts/dev.ps1`.
-  - [ ] 6.3 Jalankan dan validasi via `scripts/verify.ps1`.
+- [x] **Phase 6: Verification, Test Suites & Dev Tooling**
+  - [x] 6.1 Tulis unit tests untuk Router, Container, dan Inertia Bridge.
+  - [x] 6.2 Uji end-to-end dev server via `scripts/dev.ps1`.
+  - [x] 6.3 Jalankan dan validasi via `scripts/verify.ps1`.
