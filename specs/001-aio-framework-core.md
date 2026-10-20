@@ -123,10 +123,10 @@ aio/
   - [x] 2.3 Buat `Core\Router` dengan dukungan route parameters dan middleware pipeline.
   - [x] 2.4 Buat middleware dasar: Session, CSRF Protection, dan Error Handling.
 
-- [ ] **Phase 3: Inertia.js Bridge & View Renderer**
-  - [ ] 3.1 Implementasikan `Core\Inertia\Inertia` response factory (render, share, version).
-  - [ ] 3.2 Buat template HTML root wrapper (`resources/views/app.php`).
-  - [ ] 3.3 Buat helper view rendering asset Vite (`vite_asset()` untuk HMR & manifest prod).
+- [x] **Phase 3: Inertia.js Bridge & View Renderer**
+  - [x] 3.1 Implementasikan `Core\Inertia\Inertia` response factory (render, share, version).
+  - [x] 3.2 Buat template HTML root wrapper (`resources/views/app.php`).
+  - [x] 3.3 Buat helper view rendering asset Vite (`vite_asset()` untuk HMR & manifest prod).
 
 - [ ] **Phase 4: Database & Multi-Tenant Scoping**
   - [ ] 4.1 Buat `Core\Database` (koneksi PDO SQLite/PostgreSQL/MySQL).
