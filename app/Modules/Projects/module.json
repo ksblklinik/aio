@@ -1,0 +1,14 @@
+{
+  "id": "projects",
+  "name": "Proyek & Tugas",
+  "version": "1.0.0",
+  "author": "aio Core",
+  "description": "Pelacak proyek terisolasi tenancy, manajemen to-do task list, dan visualisasi progress bar.",
+  "category": "Produktivitas",
+  "icon": "Layers",
+  "route": "/projects",
+  "dependencies": ["auth", "workspaces"],
+  "is_core": false,
+  "is_active": true,
+  "table_name": "projects"
+}

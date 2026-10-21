@@ -132,16 +132,23 @@ foreach ($moduleManager->getActiveModules() as $module) {
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Manifest & ModuleManager Core Service**
-  - [ ] 1.1 Buat manifesto `module.json` untuk modul yang ada (`Auth`, `Workspaces`, `Projects`).
-  - [ ] 1.2 Buat kelas `Core\Modules\ModuleManager` untuk scan, get active, toggle, create scaffold, dan delete.
-  - [ ] 1.3 Buat unit test komprehensif `ModuleManagerTest.php` untuk memvalidasi operasi modul.
+- [x] **Phase 1: Database Migration, Manifest & ModuleManager Engine (TDD)**
+  - [x] 1.1 Buat skema migrasi database `database/migrations/2026_10_21_000002_create_system_modules_table.sql`.
+  - [x] 1.2 Buat manifesto `module.json` untuk seluruh modul saat ini (`Auth`, `Workspaces`, `Projects`) dengan metadata lengkap (id, name, version, author, description, category, icon, route, dependencies, is_core).
+  - [x] 1.3 Buat engine `Core\Modules\ModuleManager` lengkap dengan:
+        - `syncFromFilesystem()`: sinkronisasi database dengan `module.json`.
+        - `listModules()`: memuat seluruh modul dan status aktifnya.
+        - `getActiveModules()` & `getActiveNavItems()`: memuat modul aktif untuk navigasi & rute.
+        - `toggleActive($id)` dengan **Dependency Guard** (menolak nonaktif jika ada modul aktif lain yang membutuhkan).
+        - `createModuleScaffold($data)`: generate template modul baru secara otomatis.
+        - `deleteModule($id)`: clean wipe (drop table modul + hapus folder backend/frontend).
+  - [x] 1.4 Buat unit test komprehensif `tests/Unit/ModuleManagerTest.php` untuk memvalidasi seluruh fungsi engine dan guard dependensi.
 
 - [ ] **Phase 2: Dynamic Routing & Nav Bar Integration**
-  - [ ] 2.1 Pindahkan rute projects dari `routes/web.php` ke `app/Modules/Projects/routes.php`.
-  - [ ] 2.2 Integrasikan dynamic route loader di `routes/web.php`.
-  - [ ] 2.3 Bagikan daftar modul aktif ke Inertia Shared Props di controller/middleware.
-  - [ ] 2.4 Perbarui `AppLayout.tsx` agar merender menu navigasi dinamis dari `props.modules`.
+  - [ ] 2.1 Pindahkan rute projects ke `app/Modules/Projects/routes.php`.
+  - [ ] 2.2 Integrasikan dynamic route loader di `routes/web.php` agar hanya memuat modul aktif.
+  - [ ] 2.3 Bagikan daftar `active_modules` secara otomatis ke Inertia Shared Props.
+  - [ ] 2.4 Perbarui `AppLayout.tsx` agar merender menu navigasi dinamis dari `props.active_modules`.
 
 - [ ] **Phase 3: Module Manager Admin UI**
   - [ ] 3.1 Buat controller `app/Modules/Modules/Controllers/ModuleManagerController.php`.
