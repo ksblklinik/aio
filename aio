@@ -1,0 +1,79 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * aio - Full-Stack Modular Enterprise SaaS Framework CLI Console
+ */
+
+define('AIO_CLI', true);
+define('AIO_START', microtime(true));
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+use App\Modules\Auth\Services\AuthService;
+use Core\Console\Commands\CreateSuperadminCommand;
+use Core\Console\Commands\ListCommand;
+use Core\Console\Commands\MakeModuleCommand;
+use Core\Console\Commands\MigrateCommand;
+use Core\Console\Commands\ModuleListCommand;
+use Core\Console\Commands\RouteListCommand;
+use Core\Console\Commands\TenantListCommand;
+use Core\Console\Kernel;
+use Core\Container;
+use Core\Database\Connection;
+use Core\Database\TenantContext;
+use Core\Database\TenantScope;
+use Core\Http\Session;
+use Core\Modules\ModuleManager;
+use Core\Router;
+
+// 1. Inisialisasi Dependency Injection Container
+$container = Container::getInstance();
+
+// 2. Inisialisasi Database SQLite
+$dbPath = __DIR__ . '/database.sqlite';
+$db = new Connection("sqlite:{$dbPath}");
+$container->singleton(Connection::class, fn() => $db);
+
+// 3. Inisialisasi TenantContext & AuthService
+$tenantContext = TenantContext::getInstance();
+$container->singleton(TenantContext::class, fn() => $tenantContext);
+
+$session = new Session();
+$container->singleton(Session::class, fn() => $session);
+
+$authService = new AuthService($db, $session, $tenantContext);
+$container->singleton(AuthService::class, fn() => $authService);
+
+$tenantScope = new TenantScope($tenantContext, $db);
+$container->singleton(TenantScope::class, fn() => $tenantScope);
+
+// 4. Inisialisasi ModuleManager
+$moduleManager = new ModuleManager($db->getPdo());
+$container->singleton(ModuleManager::class, fn() => $moduleManager);
+
+// 5. Inisialisasi Router & Load Rute
+$router = new Router($container);
+$container->singleton(Router::class, fn() => $router);
+
+if (file_exists(__DIR__ . '/routes/web.php')) {
+    require_once __DIR__ . '/routes/web.php';
+}
+
+// 6. Inisialisasi CLI Kernel & Daftarkan Perintah
+$kernel = new Kernel($container);
+$container->singleton(Kernel::class, fn() => $kernel);
+
+$kernel->register(new ListCommand())
+    ->register(new MigrateCommand())
+    ->register(new MakeModuleCommand())
+    ->register(new CreateSuperadminCommand())
+    ->register(new ModuleListCommand())
+    ->register(new TenantListCommand())
+    ->register(new RouteListCommand());
+
+// 7. Eksekusi Perintah
+$exitCode = $kernel->handle($argv);
+exit($exitCode);
