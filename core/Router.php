@@ -202,4 +202,12 @@ class Router
         $regex = '#^' . $pattern . '$#';
         return [$regex, $paramNames];
     }
+
+    /**
+     * @return array<string, array<int, array{uri: string, handler: mixed, middlewares: array<int, mixed>, regex: string, paramNames: array<int, string>}>>
+     */
+    public function getRoutes(): array
+    {
+        return $this->routes;
+    }
 }
