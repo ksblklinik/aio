@@ -10,11 +10,13 @@ use Core\Http\Response;
 use Core\Http\Session;
 use Core\Modules\CategoryRegistry;
 use Core\Modules\ModuleManager;
+use Core\Validation\ValidatesRequests;
 use DomainException;
 use Throwable;
 
 class ModuleManagerController
 {
+    use ValidatesRequests;
     private ModuleManager $moduleManager;
     private AuthService $auth;
     private Session $session;
@@ -123,16 +125,19 @@ class ModuleManagerController
             return Response::redirect('/modules');
         }
 
-        $name = trim((string) $request->input('name', ''));
-        $id = trim((string) $request->input('id', ''));
-        $description = trim((string) $request->input('description', ''));
-        $category = CategoryRegistry::normalizeKey(trim((string) $request->input('category', 'collaboration')));
-        $icon = trim((string) $request->input('icon', 'Package'));
+        $validated = $this->validate($request, [
+            'name' => 'required|string|max:100',
+            'id' => 'string|max:50',
+            'category' => 'string',
+            'icon' => 'string',
+            'description' => 'string',
+        ]);
 
-        if ($name === '') {
-            $this->session->flash('error', 'Nama modul wajib diisi.');
-            return Response::redirect('/modules');
-        }
+        $name = trim((string) $validated['name']);
+        $id = trim((string) ($validated['id'] ?? ''));
+        $description = trim((string) ($validated['description'] ?? ''));
+        $category = CategoryRegistry::normalizeKey(trim((string) ($validated['category'] ?? 'collaboration')));
+        $icon = trim((string) ($validated['icon'] ?? 'Package'));
 
         try {
             $this->moduleManager->createModuleScaffold([

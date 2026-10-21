@@ -7,11 +7,11 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 ## 📌 Status Terakhir Sesi (Last Updated: 2026-10-21 11:36 WIB)
 
 * **Conversation ID Terakhir**: `9728b0ac-b70f-4d51-83ae-268dfaeb094b`
-* **Active Git Branch**: `main`
-* **Active Spec**: [`specs/005-universal-taxonomy.md`](file:///c:/aplikasi/aio/specs/005-universal-taxonomy.md)
-* **Spec Status**: `Completed` (70 Unit Tests lulus 100%, Merged to `main`)
-* **New Features**: Universal Organizational Taxonomy & CategoryRegistry, Responsive Filter Popover, Merged SPEC-001 through SPEC-005 into main
-* **Git Working Tree**: Bersih
+* **Active Git Branch**: `feat/006-validation-engine`
+* **Active Spec**: [`specs/006-validation-engine.md`](file:///c:/aplikasi/aio/specs/006-validation-engine.md)
+* **Spec Status**: `Completed` (82 Unit Tests lulus 100%, Vite & TS Build OK)
+* **New Features**: SPEC-006 Form Validation Engine (Core\Validation\Validator, ValidatesRequests trait, Inertia Shared Error Bag, Field-Level Error UX in Login, Register, Modules Scaffold)
+* **Git Working Tree**: Siap Commit
 
 ---
 
