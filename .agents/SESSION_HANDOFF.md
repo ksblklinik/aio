@@ -11,7 +11,7 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 * **Active Spec**: [`specs/005-universal-taxonomy.md`](file:///c:/aplikasi/aio/specs/005-universal-taxonomy.md)
 * **Spec Status**: `Completed` (70 Unit Tests lulus 100%, Vite & TS Build OK)
 * **New Features**: Universal Organizational Taxonomy & CategoryRegistry (8 Archetypes: Core, Collaboration, People, Knowledge, Resources, Engagement, Analytics, Developer), Standardized Manifests, Category Select Dropdown, Semantic Badges & Filter Pills
-* **Git Working Tree**: Siap Commit
+* **Git Working Tree**: Bersih (Commit `439fb11`)
 
 ---
 
