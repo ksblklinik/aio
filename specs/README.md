@@ -21,6 +21,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 008 | [008-audit-logging.md](file:///c:/aplikasi/aio/specs/008-audit-logging.md) | Audit Logging & Activity Timeline Engine | `Completed` | 2026-10-21 |
 | 009 | [009-api-token-system.md](file:///c:/aplikasi/aio/specs/009-api-token-system.md) | REST API & Bearer API Token System | `Completed` | 2026-10-21 |
 | 010 | [010-notification-engine.md](file:///c:/aplikasi/aio/specs/010-notification-engine.md) | Notification Engine & In-App Alerts | `Completed` | 2026-10-21 |
+| 011 | [011-queue-and-webhooks.md](file:///c:/aplikasi/aio/specs/011-queue-and-webhooks.md) | Unified Database Queue & Outbound Webhook System | `Completed` | 2026-10-21 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 

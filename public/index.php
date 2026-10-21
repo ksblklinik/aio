@@ -61,6 +61,12 @@ $container->singleton(\Core\Auth\ApiTokenService::class, fn() => $apiTokenServic
 $notificationService = new \Core\Notification\NotificationService($db);
 $container->singleton(\Core\Notification\NotificationService::class, fn() => $notificationService);
 
+$queueManager = new \Core\Queue\QueueManager($db);
+$container->singleton(\Core\Queue\QueueManager::class, fn() => $queueManager);
+
+$webhookDispatcher = new \Core\Webhook\WebhookDispatcher($db, $queueManager);
+$container->singleton(\Core\Webhook\WebhookDispatcher::class, fn() => $webhookDispatcher);
+
 $inertia = Inertia::getInstance();
 $inertia->setRequest($request);
 $inertia->setVersion('1.0.0');
