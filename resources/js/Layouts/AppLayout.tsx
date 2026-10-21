@@ -16,7 +16,8 @@ import {
   Package,
   ShieldCheck,
   LifeBuoy,
-  History
+  History,
+  Key
 } from 'lucide-react';
 import DevPersonaBar from '../Components/DevPersonaBar';
 import ThemeToggle from '../Components/ThemeToggle';
@@ -273,6 +274,17 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
                 >
                   <Blocks className="h-4 w-4 shrink-0" />
                   <span>Manajer Modul</span>
+                </Link>
+                <Link
+                  href="/settings/api-tokens"
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    currentPath.startsWith('/settings/api-tokens')
+                      ? 'bg-brand-primary text-white shadow-sm'
+                      : 'text-text-muted hover:text-text-main hover:bg-surface-subtle'
+                  }`}
+                >
+                  <Key className="h-4 w-4 shrink-0" />
+                  <span>API & Integrasi</span>
                 </Link>
               </div>
             )}

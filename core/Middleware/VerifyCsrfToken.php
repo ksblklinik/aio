@@ -21,6 +21,11 @@ class VerifyCsrfToken
             return $next($request);
         }
 
+        // Endpoint REST API (/api/*) dikecualikan dari proteksi CSRF sesi browser
+        if (str_starts_with($request->path(), '/api/')) {
+            return $next($request);
+        }
+
         $session = $this->session ?? (function_exists('app') ? app(Session::class) : new Session());
         $sessionToken = $session->token();
 
