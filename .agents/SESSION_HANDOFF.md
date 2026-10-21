@@ -8,9 +8,9 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 * **Conversation ID Terakhir**: `9728b0ac-b70f-4d51-83ae-268dfaeb094b`
 * **Active Git Branch**: `main`
-* **Active Spec**: [`specs/010-notification-engine.md`](file:///c:/aplikasi/aio/specs/010-notification-engine.md)
-* **Spec Status**: `Completed` (Merged into `main`, 126/126 unit/integration tests passing 100%, 576 assertions)
-* **New Features**: SPEC-010 Notification Engine & In-App Alerts (Bell icon dropdown popover, notifications center `/notifications`, unread badges, event triggers, CLI commands).
+* **Active Spec**: [`specs/011-queue-and-webhooks.md`](file:///c:/aplikasi/aio/specs/011-queue-and-webhooks.md)
+* **Spec Status**: `Completed` (Merged into `main`, 148/148 unit/integration tests passing 100%, 688 assertions)
+* **New Features**: SPEC-011 Unified Database Queue Engine (`jobs`, `failed_jobs`, CLI worker `queue:work`, `queue:retry`, `queue:failed`) & Outbound Webhook System (`webhooks`, `webhook_deliveries`, HMAC-SHA256 signature verification, `/settings/webhooks` dashboard UI, delivery payload inspector, test ping triggers, event subscription matching).
 * **Git Working Tree**: Clean on `main`
 
 ---
@@ -22,62 +22,36 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 🚀 Apa yang Telah Diselesaikan di Sesi Terakhir
+## 🚀 Apa yang Telah Diselesaikan di Framework aio (SPEC-001 s/d SPEC-011)
 
-1. **Backend HTTP & IoC Kernel (PHP 8.3)**:
-   - PSR-11 Dependency Injection Container (`Core\Container`) dengan auto-wiring.
-   - HTTP Request & Response message handlers (`Core\Http\Request`, `Core\Http\Response`).
-   - Router dengan route parameters `{id}` & regex matching (`Core\Router`).
-   - Pipeline middleware: `StartSession`, `VerifyCsrfToken`, dan Exception handlers.
-
-2. **Inertia.js Full-Stack Bridge**:
-   - `Core\Inertia\Inertia` response factory (render, share, version).
-   - Template view root HTML (`resources/views/app.php`).
-   - Helper Vite asset (`vite_asset()`) untuk dev HMR & manifest production.
-
-3. **Multi-Tenancy Database Engine**:
-   - Database Connection PDO SQLite (`Core\Database\Connection`).
-   - Isolasi tenancy otomatis via `TenantContext` & `TenantScope`.
-   - Sistem migrasi skema tabel (`Core\Database\Migrator`).
-   - Database dummy & tabel tenants/users terinisialisasi di `database/aio.sqlite`.
-
-4. **Frontend React 19 UI Starter**:
-   - Inertia React App entry (`resources/js/app.tsx`).
-   - Layout Dashboard modern SaaS (`resources/js/Layouts/AppLayout.tsx`).
-   - Halaman `Welcome.tsx` dan `Dashboard.tsx` terintegrasi Tailwind CSS.
-
-5. **Pengujian & Verifikasi**:
-   - 27 unit test (71 assertions) PHPUnit lulus 100%.
-   - TypeScript build check (`tsc --noEmit`) lulus.
-   - Script `./scripts/verify.ps1` dan `./scripts/dev.ps1` berfungsi normal.
-
-6. **Konfigurasi Ekosistem MCP**:
-   - Browser MCP (Puppeteer) dan SQLite Explorer MCP telah dikonfigurasi di [`.agents/plugins/aio/mcp_config.json`](file:///c:/aplikasi/aio/.agents/plugins/aio/mcp_config.json).
+1. **SPEC-001**: Full-Stack SaaS Framework Core (Container, Router, DB Connection, SQLite Tenant Scope, Inertia React 19).
+2. **SPEC-002**: Modular Auth, Multi-Tenant Workspaces, RBAC, dan Project Tracker.
+3. **SPEC-003**: Dynamic Module Manager & Plugin System (Add, Delete, Tenant On/Off).
+4. **SPEC-004**: Platform Superadmin & Global Governance Dashboard.
+5. **SPEC-005**: Universal Taxonomy & Category Registry (8 domain-agnostic taxonomy categories).
+6. **SPEC-006**: Form Validation Engine & Field-Level Error Bag (`Validator`, `ValidatesRequests`, `ErrorBag`).
+7. **SPEC-007**: Unified CLI Console Tooling (`php aio`).
+8. **SPEC-008**: Audit Logging & Activity Timeline Engine (`AuditLogger`, `/settings/activity-logs`).
+9. **SPEC-009**: REST API & Bearer API Token System (`ApiTokenService`, Bearer Token Middleware, `/settings/api-tokens`).
+10. **SPEC-010**: In-App Notification Engine (`NotificationService`, Bell Dropdown Popover, `/notifications`).
+11. **SPEC-011**: Unified Database Queue Engine & Outbound Webhook System (`QueueManager`, `WebhookDispatcher`, worker CLI, `/settings/webhooks`).
 
 ---
 
 ## 🎯 Langkah Kerja Berikutnya (Next Immediate Steps)
 
-Pilih salah satu dari 2 opsi berikut saat memulai sesi baru:
-
-### **Opsi A (Rekomendasi): Merge `feat/001-aio-core` ke `main`**
-Fondasi SPEC-001 sudah selesai dan seluruh tes hijau. Lakukan penggabungan ke branch utama:
-```powershell
-git checkout main
-git merge --no-ff feat/001-aio-core -m "feat: complete SPEC-001 full-stack saas framework foundation"
-git push origin main
-```
-
-### **Opsi B: Rancang Spesifikasi Fitur Baru (`SPEC-002`)**
-Mulai merancang fitur bisnis spesifik untuk aplikasi SaaS Anda menggunakan skill `spec-builder`:
-- **Kandidat Fitur**:
-  - `SPEC-002: Authentication & Multi-Tenant Registration` (Login, Register, Session Auth, Tenant Onboarding).
-  - `SPEC-002: Billing / Subscription Integration`.
-  - `SPEC-002: Tenant Management & Role-Based Access Control (RBAC)`.
+Fondasi arsitektural SaaS framework telah lengkap, matang, dan teruji (148 tests passing, 0 regressions). Langkah berikutnya adalah:
+- **Pilihan 1: Mulai Membangun Modul Bisnis Domain Pertama (CRM / Deals & Contacts)**
+  - Mengimplementasikan manajemen pelanggan, status pipeline transaksi (Kanban/List view), dan histori kontak.
+- **Pilihan 2: Mulai Membangun Modul Bisnis Invoicing / Billing / Tagihan**
+  - Pembuatan faktur/invoice, rincian item transaksi, status pembayaran, dan download PDF.
+- **Pilihan 3: Modul Inventory / Gudang & Stok Barang**
+  - Manajemen SKU produk, histori mutasi stok masuk/keluar, dan peringatan batas minimum stok.
 
 ---
 
 ## 📋 Catatan Penting & Quick Commands
 * **Jalankan Dev Server**: `powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1` (menjalankan PHP server di port 8000 & Vite di port 5173).
+* **Jalankan Background Queue Worker**: `php aio queue:work`
 * **Jalankan Verification Gate**: `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`.
 * **Eksekusi Test Suite**: `vendor/bin/phpunit`
