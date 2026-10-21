@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from '@inertiajs/react';
 import AppLayout from '../Layouts/AppLayout';
 import { 
   TrendingUp, 
@@ -96,10 +97,13 @@ export default function Dashboard({ tenant, metrics, projects }: DashboardProps)
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all shadow-lg shadow-emerald-500/20 active:scale-95">
+            <Link 
+              href="/projects" 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+            >
               <Plus className="h-4 w-4" />
-              <span>Tambah Proyek Scoped</span>
-            </button>
+              <span>Kelola Proyek & Tugas</span>
+            </Link>
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 # SPEC-002: Modular Auth, Multi-Tenant Workspaces, RBAC, and Project Tracker
 
-- **Status**: `In Progress`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity & User
 - **Tanggal Dibuat**: 2026-10-21
 - **Target File / Modul**: `app/Modules/Auth/`, `app/Modules/Workspaces/`, `app/Modules/Projects/`, `resources/js/`
@@ -23,18 +23,18 @@ Selain itu, dalam proses pengembangan aplikasi antarmuka visual (React), pengemb
 ## 2. Goals & Non-Goals
 
 ### Goals
-- [ ] Menerapkan struktur folder modular berbasis fitur di `app/Modules/{Auth,Workspaces,Projects}/`.
-- [ ] Menyediakan skema database lengkap: `users`, `tenants`, `tenant_user` (pivot + role), `projects`, dan `tasks`.
-- [ ] Menyediakan alur Autentikasi lengkap: Register (membuat user + workspace owner), Login, Logout dengan proteksi secure session & CSRF.
-- [ ] Menyediakan sistem RBAC sederhana (`owner`, `admin`, `member`) dengan middleware dan helper cek peran.
-- [ ] Menyediakan **Dev Persona Switcher** & **Dev Auto-Login** (hanya aktif pada `APP_ENV=local`) untuk visual testing instan tanpa login manual.
-- [ ] Menyediakan modul bisnis **Project & Task Tracker** (CRUD Project & Task dengan auto-tenancy scoping).
-- [ ] Menyediakan halaman antarmuka React 19 Inertia:
+- [x] Menerapkan struktur folder modular berbasis fitur di `app/Modules/{Auth,Workspaces,Projects}/`.
+- [x] Menyediakan skema database lengkap: `users`, `tenants`, `tenant_user` (pivot + role), `projects`, dan `tasks`.
+- [x] Menyediakan alur Autentikasi lengkap: Register (membuat user + workspace owner), Login, Logout dengan proteksi secure session & CSRF.
+- [x] Menyediakan sistem RBAC sederhana (`owner`, `admin`, `member`) dengan middleware dan helper cek peran.
+- [x] Menyediakan **Dev Persona Switcher** & **Dev Auto-Login** (hanya aktif pada `APP_ENV=local`) untuk visual testing instan tanpa login manual.
+- [x] Menyediakan modul bisnis **Project & Task Tracker** (CRUD Project & Task dengan auto-tenancy scoping).
+- [x] Menyediakan halaman antarmuka React 19 Inertia:
   - Form Login & Register modern.
   - Workspace Switcher di navbar/sidebar.
   - Halaman Projects & Task Board dengan kontrol UI berbasis role (tombol delete/invite disembunyikan untuk member).
   - Floating `<DevPersonaBar />` di pojok bawah saat dev.
-- [ ] Menulis unit test PHPUnit komprehensif untuk Auth, RBAC, dan Project scoping.
+- [x] Menulis unit test PHPUnit komprehensif untuk Auth, RBAC, dan Project scoping.
 
 ### Non-Goals
 - Tidak mencakup reset password via email/SMTP di iterasi 002 (fokus pada auth session lokal).
@@ -189,13 +189,13 @@ CREATE TABLE tasks (
   - [x] 4.2 Buat `TaskController` (store, toggle status, destroy).
   - [x] 4.3 Registrasikan seluruh routes di `routes/web.php`.
 
-- [ ] **Phase 5: Frontend Inertia React 19 UI**
-  - [ ] 5.1 Buat halaman `resources/js/Pages/Auth/Login.tsx` dan `Register.tsx`.
-  - [ ] 5.2 Perbarui `resources/js/Layouts/AppLayout.tsx` dengan Navbar Profil User, Role Badge, dan Workspace Switcher.
-  - [ ] 5.3 Buat halaman `resources/js/Pages/Projects/Index.tsx` (Project & Task Board interaktif).
-  - [ ] 5.4 Buat komponen `<DevPersonaBar />` mengambang untuk beralih role secara instan saat dev.
+- [x] **Phase 5: Frontend Inertia React 19 UI**
+  - [x] 5.1 Buat halaman `resources/js/Pages/Auth/Login.tsx` dan `Register.tsx`.
+  - [x] 5.2 Perbarui `resources/js/Layouts/AppLayout.tsx` dengan Navbar Profil User, Role Badge, dan Workspace Switcher.
+  - [x] 5.3 Buat halaman `resources/js/Pages/Projects/Index.tsx` (Project & Task Board interaktif).
+  - [x] 5.4 Buat komponen `<DevPersonaBar />` mengambang untuk beralih role secara instan saat dev.
 
-- [ ] **Phase 6: Automated Verification & Test Suites**
-  - [ ] 6.1 Tulis unit tests di `tests/Unit/AuthTest.php`, `tests/Unit/RbacTest.php`, dan `tests/Unit/ProjectTest.php`.
-  - [ ] 6.2 Jalankan seluruh test suite PHPUnit & TypeCheck via `./scripts/verify.ps1`.
-  - [ ] 6.3 Verifikasi aplikasi berjalan mulus di browser melalui `./scripts/dev.ps1`.
+- [x] **Phase 6: Automated Verification & Test Suites**
+  - [x] 6.1 Tulis unit tests di `tests/Unit/AuthTest.php`, `tests/Unit/RbacTest.php`, dan `tests/Unit/ProjectTest.php`.
+  - [x] 6.2 Jalankan seluruh test suite PHPUnit & TypeCheck via `./scripts/verify.ps1`.
+  - [x] 6.3 Verifikasi aplikasi berjalan mulus di browser melalui `./scripts/dev.ps1`.
