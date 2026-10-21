@@ -38,6 +38,11 @@ interface ModuleItem {
 interface Props {
   modules: ModuleItem[];
   title?: string;
+  currentWorkspace?: {
+    id: number;
+    name: string;
+    slug: string;
+  } | null;
 }
 
 const iconRegistry: Record<string, React.ElementType> = {
@@ -53,7 +58,7 @@ const iconRegistry: Record<string, React.ElementType> = {
   LifeBuoy,
 };
 
-export default function ModulesIndex({ modules = [] }: Props) {
+export default function ModulesIndex({ modules = [], currentWorkspace }: Props) {
   const { props } = usePage<{ csrf_token?: string }>();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
@@ -113,17 +118,25 @@ export default function ModulesIndex({ modules = [] }: Props) {
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border-subtle">
           <div>
-            <div className="flex items-center gap-2.5">
+            <div className="flex flex-wrap items-center gap-2.5">
               <h2 className="text-xl font-bold tracking-tight text-text-main flex items-center gap-2">
                 <Blocks className="w-5 h-5 text-brand-primary" />
-                <span>Manajer Modul Sistem</span>
+                <span>Manajer Modul</span>
               </h2>
+              {currentWorkspace && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  <Building2 className="w-3.5 h-3.5" />
+                  <span>Workspace: {currentWorkspace.name}</span>
+                </span>
+              )}
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-brand-primary-light text-brand-primary font-semibold border border-brand-primary/20">
                 {modules.filter((m) => m.is_active).length} Aktif / {modules.length} Total
               </span>
             </div>
             <p className="text-xs text-text-muted mt-1">
-              Pusat kendali ekstensi, dependensi, dan siklus hidup modular framework SaaS aio.
+              {currentWorkspace
+                ? `Kelola modul & fitur khusus untuk workspace '${currentWorkspace.name}'. Pengaturan aktif/nonaktif diisolasi per tenant.`
+                : 'Pusat kendali ekstensi, dependensi, dan siklus hidup modular framework SaaS aio.'}
             </p>
           </div>
 

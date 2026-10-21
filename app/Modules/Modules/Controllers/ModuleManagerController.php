@@ -26,7 +26,7 @@ class ModuleManagerController
     }
 
     /**
-     * Tampilkan halaman daftar modul
+     * Tampilkan halaman daftar modul (sesuai workspace aktif)
      */
     public function index(Request $request): Response
     {
@@ -36,14 +36,24 @@ class ModuleManagerController
             return Response::redirect('/dashboard');
         }
 
+        $tenant = $this->auth->currentTenant();
+        $modules = $tenant 
+            ? $this->moduleManager->listModulesForTenant((int) $tenant->id)
+            : $this->moduleManager->listModules();
+
         return inertia('Modules/Index', [
             'title' => 'Manajer Modul & Ekstensi',
-            'modules' => $this->moduleManager->listModules(),
+            'modules' => $modules,
+            'currentWorkspace' => $tenant ? [
+                'id' => $tenant->id,
+                'name' => $tenant->name,
+                'slug' => $tenant->slug,
+            ] : null,
         ]);
     }
 
     /**
-     * Toggle status aktif / nonaktif modul
+     * Toggle status aktif / nonaktif modul untuk workspace aktif
      */
     public function toggle(Request $request): Response
     {
@@ -59,10 +69,18 @@ class ModuleManagerController
             return Response::redirect('/modules');
         }
 
+        $tenant = $this->auth->currentTenant();
+
         try {
-            $updated = $this->moduleManager->toggleActive($id);
-            $statusText = $updated['is_active'] ? 'diaktifkan' : 'dinonaktifkan';
-            $this->session->flash('success', "Modul [{$updated['name']}] berhasil {$statusText}.");
+            if ($tenant) {
+                $updated = $this->moduleManager->toggleActiveForTenant((int) $tenant->id, $id);
+                $statusText = $updated['is_active'] ? 'diaktifkan' : 'dinonaktifkan';
+                $this->session->flash('success', "Modul [{$updated['name']}] berhasil {$statusText} untuk workspace '{$tenant->name}'.");
+            } else {
+                $updated = $this->moduleManager->toggleActive($id);
+                $statusText = $updated['is_active'] ? 'diaktifkan' : 'dinonaktifkan';
+                $this->session->flash('success', "Modul [{$updated['name']}] berhasil {$statusText} secara global.");
+            }
         } catch (DomainException $e) {
             $this->session->flash('error', $e->getMessage());
         } catch (Throwable $e) {

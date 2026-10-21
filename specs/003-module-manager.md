@@ -1,6 +1,6 @@
 # SPEC-003: Dynamic Module Manager & Plugin System
 
-- **Status**: `Completed`
+- **Status**: `In Progress`
 - **Owner / Author**: AI Agent & Lead Developer
 - **Tanggal Dibuat**: 2026-10-21
 - **Target File / Modul**: `Core\Modules\ModuleManager`, `app/Modules/`, `resources/js/Pages/Modules/`
@@ -163,3 +163,16 @@ foreach ($moduleManager->getActiveModules() as $module) {
   - [x] 4.3 Verifikasi manual di browser (uji toggle, tambah modul, dan hapus modul).
   - [x] 4.4 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
   - [x] 4.5 Atomic commit Git.
+
+- [x] **Phase 5: Per-Tenant Module Scoping & Isolation**
+  - [x] 5.1 Buat migrasi skema tabel pivot `database/migrations/2026_10_21_000003_create_tenant_modules_table.sql`.
+  - [x] 5.2 Tambahkan metode tenant di `Core\Modules\ModuleManager`:
+        - `listModulesForTenant(int $tenantId): array`
+        - `toggleActiveForTenant(int $tenantId, string $moduleId, ?bool $state): array`
+        - `getActiveNavItemsForTenant(int $tenantId): array`
+        - `isModuleActiveForTenant(int $tenantId, string $moduleId): bool`
+  - [x] 5.3 Buat Middleware `EnsureModuleActiveForTenant` untuk memproteksi akses URL jika tenant menonaktifkan modul tersebut.
+  - [x] 5.4 Update `public/index.php` agar membagikan `active_modules` sesuai workspace/tenant aktif.
+  - [x] 5.5 Update `ModuleManagerController` agar toggle beroperasi pada `tenant_modules` milik workspace yang sedang aktif.
+  - [x] 5.6 Update UI `resources/js/Pages/Modules/Index.tsx` dengan badge workspace konteks tenant.
+  - [x] 5.7 Tulis unit test `TenantModuleManagerTest.php` untuk memvalidasi isolasi antar tenant (Tenant A nonaktifkan modul, Tenant B tetap aktif).

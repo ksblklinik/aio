@@ -75,7 +75,12 @@ $inertia->share([
         'role' => $authService->currentRole(),
         'tenants' => $authService->user() ? $authService->user()->getTenants($db) : [],
     ],
-    'active_modules' => fn() => $moduleManager->getActiveNavItems(),
+    'active_modules' => function () use ($authService, $moduleManager) {
+        $tenant = $authService->currentTenant();
+        return $tenant 
+            ? $moduleManager->getActiveNavItemsForTenant((int) $tenant->id) 
+            : $moduleManager->getActiveNavItems();
+    },
     'flash' => fn() => [
         'success' => $session->getFlash('success'),
         'error' => $session->getFlash('error'),

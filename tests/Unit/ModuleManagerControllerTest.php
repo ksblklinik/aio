@@ -72,11 +72,11 @@ class ModuleManagerControllerTest extends TestCase
         $response = $this->controller->toggle($request);
 
         $this->assertSame(302, $response->getStatusCode());
-        $this->assertStringContainsString('dinonaktifkan', $this->session->getFlash('success') ?? '');
+        $this->assertStringContainsString("dinonaktifkan untuk workspace 'Acme Corp'", $this->session->getFlash('success') ?? '');
 
         // Toggle back to active
         $response2 = $this->controller->toggle($request);
-        $this->assertStringContainsString('diaktifkan', $this->session->getFlash('success') ?? '');
+        $this->assertStringContainsString("diaktifkan untuk workspace 'Acme Corp'", $this->session->getFlash('success') ?? '');
     }
 
     public function test_owner_cannot_toggle_core_module(): void
