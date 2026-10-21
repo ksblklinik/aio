@@ -86,6 +86,13 @@ class ModuleManagerController
                 $statusText = $updated['is_active'] ? 'diaktifkan' : 'dinonaktifkan';
                 $this->session->flash('success', "Modul [{$updated['name']}] berhasil {$statusText} di seluruh server (Platform Global).");
             } elseif ($tenant) {
+                // Jika Superadmin men-toggle modul yang sedang nonaktif di tingkat sistem, aktifkan kembali di tingkat global!
+                if ($isSuperadmin && !$this->moduleManager->isModuleActiveGlobally($id)) {
+                    $updated = $this->moduleManager->toggleGlobalActive($id, true);
+                    $this->session->flash('success', "Modul [{$updated['name']}] berhasil diaktifkan kembali di seluruh server (Platform Global).");
+                    return Response::redirect('/modules');
+                }
+
                 $updated = $this->moduleManager->toggleActiveForTenant((int) $tenant->id, $id);
                 $statusText = $updated['is_active'] ? 'diaktifkan' : 'dinonaktifkan';
                 $this->session->flash('success', "Modul [{$updated['name']}] berhasil {$statusText} untuk workspace '{$tenant->name}'.");

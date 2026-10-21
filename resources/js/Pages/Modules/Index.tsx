@@ -32,6 +32,7 @@ interface ModuleItem {
   dependencies: string[];
   is_core: boolean;
   is_active: boolean;
+  system_active?: boolean;
   table_name: string | null;
 }
 
@@ -229,14 +230,21 @@ export default function ModulesIndex({ modules = [], currentWorkspace, isSuperad
                       </div>
                     </div>
 
-                    {/* Badge Core / Extension */}
-                    <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border ${
-                      module.is_core
-                        ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20'
-                        : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
-                    }`}>
-                      {module.is_core ? 'Core' : 'Ekstensi'}
-                    </span>
+                    {/* Badge Core / Extension / Server Status */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {module.system_active === false && (
+                        <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20">
+                          Mati di Server
+                        </span>
+                      )}
+                      <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border ${
+                        module.is_core
+                          ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20'
+                          : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
+                      }`}>
+                        {module.is_core ? 'Core' : 'Ekstensi'}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Description */}
@@ -276,56 +284,94 @@ export default function ModulesIndex({ modules = [], currentWorkspace, isSuperad
                 </div>
 
                 {/* Bottom Actions: Toggle & Delete */}
-                <div className="mt-5 pt-3 border-t border-border-subtle flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {/* Toggle Switch */}
-                    <button
-                      type="button"
-                      onClick={() => handleToggleActive(module)}
-                      disabled={module.is_core}
-                      title={module.is_core ? 'Modul inti tidak dapat dinonaktifkan' : (module.is_active ? 'Nonaktifkan Modul' : 'Aktifkan Modul')}
-                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        module.is_core 
-                          ? 'opacity-50 cursor-not-allowed bg-emerald-500' 
-                          : module.is_active 
-                          ? 'bg-emerald-500' 
-                          : 'bg-surface-subtle'
-                      }`}
-                    >
-                      <span
-                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                          module.is_active ? 'translate-x-4' : 'translate-x-0'
-                        }`}
-                      />
-                    </button>
-                    <span className="text-xs font-medium text-text-main">
-                      {module.is_active ? 'Aktif' : 'Nonaktif'}
-                    </span>
-                  </div>
-
-                  {/* Action Links */}
-                  <div className="flex items-center gap-2">
-                    {module.is_active && module.route && !module.is_core && (
-                      <a
-                        href={module.route}
-                        title="Buka Halaman Modul"
-                        className="p-1.5 rounded-lg text-text-muted hover:text-brand-primary hover:bg-surface-subtle transition-colors"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    )}
-
-                    {!module.is_core && (
+                <div className="mt-5 pt-3 border-t border-border-subtle flex flex-col gap-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {/* Toggle Switch */}
                       <button
                         type="button"
-                        onClick={() => setDeleteConfirmModule(module)}
-                        title="Hapus Modul (Clean Wipe)"
-                        className="p-1.5 rounded-lg text-text-muted hover:text-red-600 hover:bg-red-500/10 transition-colors"
+                        onClick={() => {
+                          if (module.system_active === false && isSuperadmin) {
+                            handleToggleActive(module, 'global');
+                          } else {
+                            handleToggleActive(module, 'tenant');
+                          }
+                        }}
+                        disabled={module.is_core}
+                        title={
+                          module.is_core 
+                            ? 'Modul inti tidak dapat dinonaktifkan' 
+                            : module.system_active === false && isSuperadmin
+                            ? 'Klik untuk mengaktifkan kembali di tingkat server (Global)'
+                            : (module.is_active ? 'Nonaktifkan untuk Workspace' : 'Aktifkan untuk Workspace')
+                        }
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                          module.is_core 
+                            ? 'opacity-50 cursor-not-allowed bg-emerald-500' 
+                            : module.is_active 
+                            ? 'bg-emerald-500' 
+                            : 'bg-surface-subtle'
+                        }`}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <span
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                            module.is_active ? 'translate-x-4' : 'translate-x-0'
+                          }`}
+                        />
                       </button>
-                    )}
+                      <span className="text-xs font-medium text-text-main">
+                        {module.system_active === false ? 'Mati di Server' : (module.is_active ? 'Aktif' : 'Nonaktif')}
+                      </span>
+                    </div>
+
+                    {/* Action Links */}
+                    <div className="flex items-center gap-2">
+                      {module.is_active && module.route && !module.is_core && (
+                        <a
+                          href={module.route}
+                          title="Buka Halaman Modul"
+                          className="p-1.5 rounded-lg text-text-muted hover:text-brand-primary hover:bg-surface-subtle transition-colors"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      )}
+
+                      {!module.is_core && (
+                        <button
+                          type="button"
+                          onClick={() => setDeleteConfirmModule(module)}
+                          title="Hapus Modul (Clean Wipe)"
+                          className="p-1.5 rounded-lg text-text-muted hover:text-red-600 hover:bg-red-500/10 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
                   </div>
+
+                  {/* Superadmin Dual Controls (Server-Wide vs Workspace) */}
+                  {isSuperadmin && !module.is_core && (
+                    <div className="pt-2 border-t border-dashed border-border-subtle flex items-center justify-between text-[11px] text-text-muted">
+                      <span className="flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3 text-amber-500 shrink-0" />
+                        <span>Server:</span>
+                        <strong className={module.system_active === false ? 'text-rose-500 font-semibold' : 'text-emerald-500 font-semibold'}>
+                          {module.system_active === false ? 'Mati' : 'Aktif'}
+                        </strong>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleActive(module, 'global')}
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded border transition-colors ${
+                          module.system_active === false
+                            ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border-emerald-500/30'
+                            : 'bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 border-rose-500/30'
+                        }`}
+                      >
+                        {module.system_active === false ? 'Aktifkan di Server' : 'Matikan di Server'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );

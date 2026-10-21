@@ -217,10 +217,23 @@ class ModuleManager
                 $row['is_active'] = $systemActive;
             }
 
+            $row['system_active'] = $systemActive;
             $row['is_tenant_customized'] = ($row['tenant_enabled'] !== null);
             $row['folder'] = $this->resolveFolderForModule((string) $row['id']);
             return $row;
         }, $rows);
+    }
+
+    /**
+     * Cek apakah modul aktif secara global di level sistem server
+     */
+    public function isModuleActiveGlobally(string $id): bool
+    {
+        $stmt = $this->pdo->prepare("SELECT is_active FROM system_modules WHERE id = ?");
+        $stmt->execute([$id]);
+        $val = $stmt->fetchColumn();
+        $stmt->closeCursor();
+        return $val !== false && (int) $val === 1;
     }
 
     /**
