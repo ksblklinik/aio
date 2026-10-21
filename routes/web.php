@@ -48,6 +48,13 @@ $router->group(['middleware' => [Authenticate::class]], function (Router $r) {
     $r->post('/settings/api-tokens', [\App\Modules\Settings\Controllers\ApiTokenController::class, 'store']);
     $r->post('/settings/api-tokens/{id}/delete', [\App\Modules\Settings\Controllers\ApiTokenController::class, 'destroy']);
 
+    // Outbound Webhooks Management
+    $r->get('/settings/webhooks', [\App\Modules\Settings\Controllers\WebhookController::class, 'index']);
+    $r->post('/settings/webhooks', [\App\Modules\Settings\Controllers\WebhookController::class, 'store']);
+    $r->post('/settings/webhooks/{id}/toggle', [\App\Modules\Settings\Controllers\WebhookController::class, 'toggle']);
+    $r->post('/settings/webhooks/{id}/delete', [\App\Modules\Settings\Controllers\WebhookController::class, 'destroy']);
+    $r->post('/settings/webhooks/{id}/test', [\App\Modules\Settings\Controllers\WebhookController::class, 'test']);
+
     // In-App Notification Center
     $r->get('/notifications', [\App\Modules\Notification\Controllers\NotificationController::class, 'index']);
     $r->post('/notifications/{id}/read', [\App\Modules\Notification\Controllers\NotificationController::class, 'markAsRead']);

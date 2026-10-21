@@ -61,6 +61,12 @@ class ConsoleTest extends TestCase
         $notificationService = new \Core\Notification\NotificationService($this->db);
         $this->container->singleton(\Core\Notification\NotificationService::class, fn() => $notificationService);
 
+        $queueManager = new \Core\Queue\QueueManager($this->db);
+        $this->container->singleton(\Core\Queue\QueueManager::class, fn() => $queueManager);
+
+        $webhookDispatcher = new \Core\Webhook\WebhookDispatcher($this->db, $queueManager);
+        $this->container->singleton(\Core\Webhook\WebhookDispatcher::class, fn() => $webhookDispatcher);
+
         $this->kernel = new Kernel($this->container);
         $this->container->singleton(Kernel::class, fn() => $this->kernel);
 
@@ -76,7 +82,12 @@ class ConsoleTest extends TestCase
             ->register(new \Core\Console\Commands\TokenListCommand())
             ->register(new \Core\Console\Commands\TokenRevokeCommand())
             ->register(new \Core\Console\Commands\NotificationSendCommand())
-            ->register(new \Core\Console\Commands\NotificationListCommand());
+            ->register(new \Core\Console\Commands\NotificationListCommand())
+            ->register(new \Core\Console\Commands\QueueWorkCommand())
+            ->register(new \Core\Console\Commands\QueueFailedCommand())
+            ->register(new \Core\Console\Commands\QueueRetryCommand())
+            ->register(new \Core\Console\Commands\WebhookListCommand())
+            ->register(new \Core\Console\Commands\WebhookTestCommand());
     }
 
     public function test_kernel_returns_error_for_unknown_command(): void
@@ -273,5 +284,66 @@ class ConsoleTest extends TestCase
         $this->assertSame(0, $statusList);
         $this->assertStringContainsString("Deployment Selesai", (string) $outputList);
         $this->assertStringContainsString("SUCCESS", (string) $outputList);
+    }
+
+    public function test_queue_commands_lifecycle(): void
+    {
+        /** @var \Core\Queue\QueueManager $queue */
+        $queue = $this->container->get(\Core\Queue\QueueManager::class);
+
+        // 1. Check queue:failed when empty
+        ob_start();
+        $statusFailedEmpty = $this->kernel->handle(['aio', 'queue:failed']);
+        $outputFailedEmpty = ob_get_clean();
+        $this->assertSame(0, $statusFailedEmpty);
+        $this->assertStringContainsString("Tidak ada pekerjaan yang gagal", (string) $outputFailedEmpty);
+
+        // 2. Push a mock job and run queue:work --once
+        $jobId = $queue->push('Tests\Unit\DummyTestJob', ['msg' => 'Test Hello'], queue: 'default');
+        $this->assertSame(1, $queue->size('default'));
+
+        ob_start();
+        $statusWork = $this->kernel->handle(['aio', 'queue:work', '--once', '--queue=default']);
+        $outputWork = ob_get_clean();
+
+        $this->assertSame(0, $statusWork);
+        $this->assertStringContainsString("Memproses: Tests\\Unit\\DummyTestJob", (string) $outputWork);
+        $this->assertStringContainsString("Selesai diproses", (string) $outputWork);
+        $this->assertSame(0, $queue->size('default'));
+    }
+
+    public function test_webhook_commands_lifecycle(): void
+    {
+        $this->db->statement("INSERT INTO tenants (id, name, slug) VALUES (30, 'WH Workspace', 'wh-ws')");
+
+        /** @var \Core\Webhook\WebhookDispatcher $dispatcher */
+        $dispatcher = $this->container->get(\Core\Webhook\WebhookDispatcher::class);
+        $wh = $dispatcher->register(30, 'Test Endpoint', 'https://webhook.site/test-123', ['*']);
+
+        // 1. webhook:list
+        ob_start();
+        $statusList = $this->kernel->handle(['aio', 'webhook:list', '--tenant=30']);
+        $outputList = ob_get_clean();
+
+        $this->assertSame(0, $statusList);
+        $this->assertStringContainsString("Test Endpoint", (string) $outputList);
+        $this->assertStringContainsString("https://webhook.site/test-123", (string) $outputList);
+        $this->assertStringContainsString("AKTIF", (string) $outputList);
+
+        // 2. webhook:test
+        ob_start();
+        $statusTest = $this->kernel->handle(['aio', 'webhook:test', (string) $wh['id']]);
+        $outputTest = ob_get_clean();
+
+        $this->assertSame(0, $statusTest);
+        $this->assertStringContainsString("berhasil dimasukkan ke antrean", (string) $outputTest);
+    }
+}
+
+class DummyTestJob implements \Core\Queue\JobInterface
+{
+    public function handle(array $data, \Core\Container $container): void
+    {
+        // dummy successful execution
     }
 }

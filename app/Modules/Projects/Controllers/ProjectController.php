@@ -22,7 +22,8 @@ class ProjectController
         private Session $session,
         private Inertia $inertia,
         private ?\Core\Audit\AuditLogger $auditLogger = null,
-        private ?\Core\Notification\NotificationService $notificationService = null
+        private ?\Core\Notification\NotificationService $notificationService = null,
+        private ?\Core\Webhook\WebhookDispatcher $webhookDispatcher = null
     ) {
     }
 
@@ -104,6 +105,15 @@ class ProjectController
             );
         }
 
+        if ($tenantId > 0 && $this->webhookDispatcher) {
+            $this->webhookDispatcher->dispatch($tenantId, 'project.created', [
+                'project_id' => $projectId,
+                'name' => $name,
+                'status' => $status,
+                'created_by' => $user?->id ?? 0,
+            ]);
+        }
+
         $this->session->flash('success', "Proyek [{$name}] berhasil dibuat!");
         return Response::redirect('/projects');
     }
@@ -134,6 +144,13 @@ class ProjectController
             $data
         );
 
+        if ($tenantId > 0 && $this->webhookDispatcher) {
+            $this->webhookDispatcher->dispatch($tenantId, 'project.updated', [
+                'project_id' => $id,
+                'data' => $data,
+            ]);
+        }
+
         $this->session->flash('success', 'Proyek berhasil diperbarui.');
         return Response::redirect('/projects');
     }
@@ -158,6 +175,12 @@ class ProjectController
             'project',
             (string) $id
         );
+
+        if ($tenantId > 0 && $this->webhookDispatcher) {
+            $this->webhookDispatcher->dispatch($tenantId, 'project.deleted', [
+                'project_id' => $id,
+            ]);
+        }
 
         $this->session->flash('success', 'Proyek berhasil dihapus.');
         return Response::redirect('/projects');
