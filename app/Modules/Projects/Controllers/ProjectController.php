@@ -21,7 +21,8 @@ class ProjectController
         private Connection $db,
         private Session $session,
         private Inertia $inertia,
-        private ?\Core\Audit\AuditLogger $auditLogger = null
+        private ?\Core\Audit\AuditLogger $auditLogger = null,
+        private ?\Core\Notification\NotificationService $notificationService = null
     ) {
     }
 
@@ -90,6 +91,18 @@ class ProjectController
             (string) $projectId,
             ['name' => $name, 'status' => $status]
         );
+
+        $tenantId = (int) ($this->auth->currentTenant()?->id ?? 0);
+        if ($tenantId > 0 && $this->notificationService) {
+            $this->notificationService->broadcastToTenant(
+                $tenantId,
+                'Proyek Baru Dibuat',
+                "Proyek [{$name}] baru saja dibuat oleh " . ($user?->name ?? 'rekan kerja') . ".",
+                'info',
+                '/projects',
+                'folder'
+            );
+        }
 
         $this->session->flash('success', "Proyek [{$name}] berhasil dibuat!");
         return Response::redirect('/projects');

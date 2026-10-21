@@ -47,6 +47,12 @@ $router->group(['middleware' => [Authenticate::class]], function (Router $r) {
     $r->get('/settings/api-tokens', [\App\Modules\Settings\Controllers\ApiTokenController::class, 'index']);
     $r->post('/settings/api-tokens', [\App\Modules\Settings\Controllers\ApiTokenController::class, 'store']);
     $r->post('/settings/api-tokens/{id}/delete', [\App\Modules\Settings\Controllers\ApiTokenController::class, 'destroy']);
+
+    // In-App Notification Center
+    $r->get('/notifications', [\App\Modules\Notification\Controllers\NotificationController::class, 'index']);
+    $r->post('/notifications/{id}/read', [\App\Modules\Notification\Controllers\NotificationController::class, 'markAsRead']);
+    $r->post('/notifications/read-all', [\App\Modules\Notification\Controllers\NotificationController::class, 'markAllAsRead']);
+    $r->post('/notifications/{id}/delete', [\App\Modules\Notification\Controllers\NotificationController::class, 'delete']);
 });
 
 // Dynamic Route Loader for Active Modules

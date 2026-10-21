@@ -58,6 +58,9 @@ $container->singleton(\Core\Audit\AuditLogger::class, fn() => $auditLogger);
 $apiTokenService = new \Core\Auth\ApiTokenService($db);
 $container->singleton(\Core\Auth\ApiTokenService::class, fn() => $apiTokenService);
 
+$notificationService = new \Core\Notification\NotificationService($db);
+$container->singleton(\Core\Notification\NotificationService::class, fn() => $notificationService);
+
 $inertia = Inertia::getInstance();
 $inertia->setRequest($request);
 $inertia->setVersion('1.0.0');
@@ -95,6 +98,22 @@ $inertia->share([
         'error' => $session->getFlash('error'),
     ],
     'errors' => fn() => $session->getFlash('errors') ?: (object)[],
+    'notifications' => function () use ($authService, $notificationService) {
+        $user = $authService->user();
+        $tenant = $authService->currentTenant();
+        if (!$user || !$tenant) {
+            return [
+                'unread_count' => 0,
+                'recent' => [],
+            ];
+        }
+        $tenantId = (int) $tenant->id;
+        $userId = (int) $user->id;
+        return [
+            'unread_count' => $notificationService->getUnreadCount($tenantId, $userId),
+            'recent' => $notificationService->getForUser($tenantId, $userId, 5),
+        ];
+    },
 ]);
 $container->singleton(Inertia::class, fn() => $inertia);
 

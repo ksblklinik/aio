@@ -60,6 +60,9 @@ $container->singleton(\Core\Audit\AuditLogger::class, fn() => $auditLogger);
 $apiTokenService = new \Core\Auth\ApiTokenService($db);
 $container->singleton(\Core\Auth\ApiTokenService::class, fn() => $apiTokenService);
 
+$notificationService = new \Core\Notification\NotificationService($db);
+$container->singleton(\Core\Notification\NotificationService::class, fn() => $notificationService);
+
 // 5. Inisialisasi Router & Load Rute
 $router = new Router($container);
 $container->singleton(Router::class, fn() => $router);
@@ -82,7 +85,9 @@ $kernel->register(new ListCommand())
     ->register(new \Core\Console\Commands\ActivityListCommand())
     ->register(new \Core\Console\Commands\TokenCreateCommand())
     ->register(new \Core\Console\Commands\TokenListCommand())
-    ->register(new \Core\Console\Commands\TokenRevokeCommand());
+    ->register(new \Core\Console\Commands\TokenRevokeCommand())
+    ->register(new \Core\Console\Commands\NotificationSendCommand())
+    ->register(new \Core\Console\Commands\NotificationListCommand());
 
 // 7. Eksekusi Perintah
 $exitCode = $kernel->handle($argv);

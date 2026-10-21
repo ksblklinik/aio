@@ -22,7 +22,8 @@ class ApiTokenController
         private ApiTokenService $tokenService,
         private AuditLogger $auditLogger,
         private Inertia $inertia,
-        private Session $session
+        private Session $session,
+        private ?\Core\Notification\NotificationService $notificationService = null
     ) {
     }
 
@@ -99,6 +100,16 @@ class ApiTokenController
             properties: ['name' => $validated['name'], 'abilities' => $abilities]
         );
 
+        $this->notificationService?->send(
+            $tenantId,
+            $userId,
+            'API Token Dibuat',
+            "Personal Access Token [{$validated['name']}] berhasil diterbitkan untuk workspace ini.",
+            'success',
+            '/settings/api-tokens',
+            'key'
+        );
+
         $this->session->flash('new_token', $created['plain_token']);
         $this->session->flash('success', "API Token [{$validated['name']}] berhasil dibuat. Segera salin token Anda!");
         return Response::redirect('/settings/api-tokens');
@@ -114,6 +125,8 @@ class ApiTokenController
 
         $tenant = $this->auth->currentTenant();
         $tenantId = (int) ($tenant?->id ?? 0);
+        $user = $this->auth->user();
+        $userId = (int) ($user?->id ?? 0);
 
         $this->tokenService->revokeToken($id, $tenantId);
 
@@ -122,6 +135,16 @@ class ApiTokenController
             description: "Mencabut API Token #{$id}",
             entityType: 'api_token',
             entityId: (string) $id
+        );
+
+        $this->notificationService?->send(
+            $tenantId,
+            $userId,
+            'API Token Dicabut',
+            "API Token #{$id} telah dicabut dan tidak dapat digunakan kembali.",
+            'warning',
+            '/settings/api-tokens',
+            'key'
         );
 
         $this->session->flash('success', 'API Token berhasil dicabut.');

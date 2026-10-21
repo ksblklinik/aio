@@ -150,6 +150,12 @@ class Request
         return str_contains($contentType, 'application/json');
     }
 
+    public function wantsJson(): bool
+    {
+        $accept = $this->header('accept', '');
+        return str_contains($accept, 'application/json');
+    }
+
     public function isInertia(): bool
     {
         return $this->header('x-inertia') === 'true';
