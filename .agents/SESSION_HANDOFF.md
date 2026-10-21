@@ -9,8 +9,15 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 * **Conversation ID Terakhir**: `a6bd4f0e-c477-44b6-b5f6-27d99bdc1692`
 * **Active Git Branch**: `feat/002-auth-rbac-projects`
 * **Active Spec**: [`specs/002-auth-rbac-projects.md`](file:///c:/aplikasi/aio/specs/002-auth-rbac-projects.md)
-* **Spec Status**: `Completed` (Seluruh 6 fase tugas atomik selesai 100%)
+* **Spec Status**: `Completed & Mitigated` (43 unit tests lulus 100%, Asset Guard aktif)
 * **Git Working Tree**: Bersih
+
+---
+
+## 🛡️ Catatan Mitigasi Masalah Layar Blank (Post-Mortem):
+- Telah dipasang guard otomatis di `public/index.php` untuk melayani file statis (`cli-server`).
+- Telah dipasang unit test `ServerEnvironmentTest.php` untuk mencegah regresi bypass file statis.
+- Skrip `./scripts/verify.ps1` kini secara otomatis memeriksa integritas file bundle (`manifest.json`) dan proteksi server sebelum commit diizinkan.
 
 ---
 

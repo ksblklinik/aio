@@ -94,6 +94,53 @@ if (Test-Path "package.json") {
         npm run typecheck
         if ($LASTEXITCODE -ne 0) { $scriptFailed = $true }
     }
+
+    # Asset Integrity & Static Delivery Guard (Anti-Blank Screen Prevention)
+    $manifestFile = "public/build/manifest.json"
+    if (Test-Path $manifestFile) {
+        try {
+            $manifest = Get-Content $manifestFile -Raw | ConvertFrom-Json
+            $missingAssets = @()
+            foreach ($prop in $manifest.PSObject.Properties) {
+                $entry = $prop.Value
+                if ($entry.file) {
+                    $targetPath = "public/build/" + $entry.file
+                    if (-not (Test-Path $targetPath)) {
+                        $missingAssets += $targetPath
+                    }
+                }
+                if ($entry.css) {
+                    foreach ($css in $entry.css) {
+                        $targetCss = "public/build/" + $css
+                        if (-not (Test-Path $targetCss)) {
+                            $missingAssets += $targetCss
+                        }
+                    }
+                }
+            }
+            if ($missingAssets.Count -gt 0) {
+                Write-Host " CRITICAL ERROR: Asset yang terdaftar di manifest tidak ditemukan di disk:" -ForegroundColor Red
+                $missingAssets | ForEach-Object { Write-Host "   - $_" -ForegroundColor Red }
+                $scriptFailed = $true
+            } else {
+                Write-Host " PASS: Frontend assets integrity verified (all bundle files exist on disk)." -ForegroundColor Green
+            }
+        } catch {
+            Write-Host " WARNING: Gagal memvalidasi $manifestFile" -ForegroundColor Yellow
+        }
+    }
+
+    # Verify public/index.php static file bypass guard
+    if (Test-Path "public/index.php") {
+        $indexContent = Get-Content "public/index.php" -Raw
+        if ($indexContent -notmatch "cli-server") {
+            Write-Host " CRITICAL ERROR: public/index.php kehilangan proteksi static file bypass (cli-server)!" -ForegroundColor Red
+            Write-Host "                 Hal ini akan menyebabkan aset JS/CSS 404 pada PHP built-in server." -ForegroundColor Red
+            $scriptFailed = $true
+        } else {
+            Write-Host " PASS: PHP built-in server static file bypass guard verified." -ForegroundColor Green
+        }
+    }
 }
 
 if ((Test-Path "pyproject.toml") -or (Test-Path "requirements.txt")) {
