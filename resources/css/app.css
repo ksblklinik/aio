@@ -18,7 +18,7 @@
   --brand-primary-light: #eff6ff;
 }
 
-.dark {
+:root.dark, html.dark, .dark {
   /* Semantic Tokens - Dark Mode */
   --bg-canvas: #090e17;
   --bg-surface: #111827;
