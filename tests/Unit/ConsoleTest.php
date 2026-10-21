@@ -58,6 +58,9 @@ class ConsoleTest extends TestCase
         $tokenService = new \Core\Auth\ApiTokenService($this->db);
         $this->container->singleton(\Core\Auth\ApiTokenService::class, fn() => $tokenService);
 
+        $notificationService = new \Core\Notification\NotificationService($this->db);
+        $this->container->singleton(\Core\Notification\NotificationService::class, fn() => $notificationService);
+
         $this->kernel = new Kernel($this->container);
         $this->container->singleton(Kernel::class, fn() => $this->kernel);
 
@@ -71,7 +74,9 @@ class ConsoleTest extends TestCase
             ->register(new \Core\Console\Commands\ActivityListCommand())
             ->register(new \Core\Console\Commands\TokenCreateCommand())
             ->register(new \Core\Console\Commands\TokenListCommand())
-            ->register(new \Core\Console\Commands\TokenRevokeCommand());
+            ->register(new \Core\Console\Commands\TokenRevokeCommand())
+            ->register(new \Core\Console\Commands\NotificationSendCommand())
+            ->register(new \Core\Console\Commands\NotificationListCommand());
     }
 
     public function test_kernel_returns_error_for_unknown_command(): void
@@ -235,5 +240,38 @@ class ConsoleTest extends TestCase
 
         $this->assertSame(0, $statusRevoke);
         $this->assertStringContainsString("berhasil dicabut", (string) $outputRevoke);
+    }
+
+    public function test_notification_commands_lifecycle(): void
+    {
+        // Seed user and tenant
+        $this->db->statement("INSERT INTO users (id, name, email, password_hash) VALUES (20, 'Notif Tester', 'notif@test.com', 'hash')");
+        $this->db->statement("INSERT INTO tenants (id, name, slug) VALUES (20, 'Notif Workspace', 'notif-ws')");
+        $this->db->statement("INSERT INTO tenant_user (tenant_id, user_id, role) VALUES (20, 20, 'owner')");
+
+        // 1. notification:send
+        ob_start();
+        $statusSend = $this->kernel->handle([
+            'aio',
+            'notification:send',
+            '20',
+            'Deployment Selesai',
+            'Versi 2.0 berhasil di-deploy ke production.',
+            '--tenant=20',
+            '--type=success'
+        ]);
+        $outputSend = ob_get_clean();
+
+        $this->assertSame(0, $statusSend);
+        $this->assertStringContainsString("berhasil dikirim", (string) $outputSend);
+
+        // 2. notification:list
+        ob_start();
+        $statusList = $this->kernel->handle(['aio', 'notification:list', '--tenant=20']);
+        $outputList = ob_get_clean();
+
+        $this->assertSame(0, $statusList);
+        $this->assertStringContainsString("Deployment Selesai", (string) $outputList);
+        $this->assertStringContainsString("SUCCESS", (string) $outputList);
     }
 }

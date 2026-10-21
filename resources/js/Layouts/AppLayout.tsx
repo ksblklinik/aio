@@ -17,7 +17,9 @@ import {
   ShieldCheck,
   LifeBuoy,
   History,
-  Key
+  Key,
+  Bell,
+  CheckCheck
 } from 'lucide-react';
 import DevPersonaBar from '../Components/DevPersonaBar';
 import ThemeToggle from '../Components/ThemeToggle';
@@ -63,10 +65,26 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
     auth?: AuthProp; 
     active_modules?: ActiveModuleNav[];
     flash?: { success?: string | null; error?: string | null };
+    notifications?: {
+      unread_count: number;
+      recent: Array<{
+        id: number;
+        title: string;
+        message: string;
+        type: string;
+        action_url: string | null;
+        created_at: string;
+        is_read: boolean;
+      }>;
+    };
   }>();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
+  const [notifMenuOpen, setNotifMenuOpen] = useState(false);
+
+  const unreadNotifs = props.notifications?.unread_count || 0;
+  const recentNotifs = props.notifications?.recent || [];
 
   const activeTenant = tenant || props.auth?.tenant || {
     id: 1,
@@ -90,6 +108,12 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
   const baseNavItems = [
     { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
     { label: 'Aktivitas', icon: History, href: '/activity' },
+    { 
+      label: 'Notifikasi', 
+      icon: Bell, 
+      href: '/notifications',
+      badge: unreadNotifs > 0 ? unreadNotifs : undefined
+    },
   ];
 
   // Dynamic active module items from backend
@@ -218,14 +242,23 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
                   <Link
                     key={item.label}
                     href={item.href}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       isActive
                         ? 'bg-brand-primary text-white shadow-sm'
                         : 'text-text-muted hover:text-text-main hover:bg-surface-subtle'
                     }`}
                   >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span>{item.label}</span>
+                    <div className="flex items-center gap-3">
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge !== undefined && (
+                      <span className={`px-1.5 py-0.5 text-[10px] rounded-full font-bold leading-none ${
+                        isActive ? 'bg-white/20 text-white' : 'bg-rose-500 text-white'
+                      }`}>
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -333,6 +366,111 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
+
+            {/* Notification Bell Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setNotifMenuOpen(!notifMenuOpen)}
+                className="relative p-2 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-subtle transition-colors"
+                aria-label="Notifikasi"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadNotifs > 0 && (
+                  <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                  </span>
+                )}
+              </button>
+
+              {notifMenuOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-30" 
+                    onClick={() => setNotifMenuOpen(false)} 
+                  />
+                  <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-surface border border-border-subtle shadow-xl z-40 py-2 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                    <div className="px-4 py-2.5 border-b border-border-subtle flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-text-main">Notifikasi</span>
+                        {unreadNotifs > 0 && (
+                          <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-primary text-white">
+                            {unreadNotifs}
+                          </span>
+                        )}
+                      </div>
+                      {unreadNotifs > 0 && (
+                        <button
+                          onClick={() => {
+                            router.post('/notifications/read-all', {}, { preserveScroll: true });
+                          }}
+                          className="text-[11px] font-medium text-brand-primary hover:underline flex items-center gap-1"
+                        >
+                          <CheckCheck className="w-3.5 h-3.5" />
+                          <span>Tandai dibaca</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-72 overflow-y-auto divide-y divide-border-subtle">
+                      {recentNotifs.length === 0 ? (
+                        <div className="py-8 text-center text-xs text-text-muted">
+                          Tidak ada notifikasi baru
+                        </div>
+                      ) : (
+                        recentNotifs.map((n) => (
+                          <div
+                            key={n.id}
+                            onClick={() => {
+                              if (!n.is_read) {
+                                router.post(`/notifications/${n.id}/read`, {}, { preserveScroll: true });
+                              }
+                              if (n.action_url) {
+                                setNotifMenuOpen(false);
+                                router.visit(n.action_url);
+                              }
+                            }}
+                            className={`p-3 text-left transition-colors cursor-pointer hover:bg-surface-subtle flex items-start gap-3 ${
+                              !n.is_read ? 'bg-surface-subtle/50' : 'opacity-75'
+                            }`}
+                          >
+                            <div className="p-1.5 rounded-md bg-surface border border-border-subtle text-text-muted mt-0.5 shrink-0">
+                              <Bell className="w-3.5 h-3.5 text-brand-primary" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between gap-1">
+                                <span className={`text-xs text-text-main truncate ${!n.is_read ? 'font-bold' : 'font-medium'}`}>
+                                  {n.title}
+                                </span>
+                                {!n.is_read && (
+                                  <span className="w-1.5 h-1.5 rounded-full bg-brand-primary shrink-0" />
+                                )}
+                              </div>
+                              <p className="text-[11px] text-text-muted truncate mt-0.5">
+                                {n.message}
+                              </p>
+                              <span className="text-[10px] text-text-muted mt-1 block">
+                                {n.created_at}
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="p-2 border-t border-border-subtle bg-surface-subtle text-center">
+                      <Link
+                        href="/notifications"
+                        onClick={() => setNotifMenuOpen(false)}
+                        className="text-xs font-semibold text-brand-primary hover:underline"
+                      >
+                        Lihat Semua Notifikasi &rarr;
+                      </Link>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
             {isSuperadmin && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 <ShieldCheck className="w-3.5 h-3.5" />
