@@ -22,7 +22,11 @@ import {
   Coins,
   MessageSquare,
   BarChart3,
-  Code2
+  Code2,
+  Filter,
+  ChevronDown,
+  Check,
+  RotateCcw
 } from 'lucide-react';
 
 interface ModuleItem {
@@ -87,8 +91,22 @@ export default function ModulesIndex({ modules = [], categories: serverCategorie
   const { props } = usePage<{ csrf_token?: string }>();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [deleteConfirmModule, setDeleteConfirmModule] = useState<ModuleItem | null>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsFilterDropdownOpen(false);
+      }
+    }
+    if (isFilterDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isFilterDropdownOpen]);
 
   // Form Scaffold
   const { data, setData, post, reset, processing } = useForm({
@@ -101,12 +119,26 @@ export default function ModulesIndex({ modules = [], categories: serverCategorie
   });
 
   const categoryFilters = [
-    { id: 'all', label: 'Semua Kategori' },
+    { id: 'all', label: 'Semua Kategori', icon: 'Blocks', count: modules.length },
     ...(serverCategories && serverCategories.length > 0
-      ? serverCategories.map((c) => ({ id: c.id, label: c.label }))
-      : Array.from(new Set(modules.map((m) => m.category_id || m.category).filter(Boolean))).map((cat) => ({ id: cat, label: cat }))
+      ? serverCategories.map((c) => ({
+          id: c.id,
+          label: c.label,
+          icon: c.icon,
+          badge_class: c.badge_class,
+          count: modules.filter((m) => (m.category_id || m.category) === c.id).length
+        }))
+      : Array.from(new Set(modules.map((m) => m.category_id || m.category).filter(Boolean))).map((cat) => ({
+          id: cat,
+          label: cat,
+          icon: 'Package',
+          badge_class: '',
+          count: modules.filter((m) => (m.category_id || m.category) === cat).length
+        }))
     )
   ];
+
+  const activeCategoryObj = categoryFilters.find((c) => c.id === selectedCategory) || categoryFilters[0];
 
   const filteredModules = modules.filter((m) => {
     const matchesSearch = 
@@ -189,35 +221,160 @@ export default function ModulesIndex({ modules = [], categories: serverCategorie
           </button>
         </div>
 
-        {/* Filter & Search Bar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-surface p-3 rounded-xl border border-border-subtle shadow-xs">
-          <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-            <input
-              type="text"
-              placeholder="Cari modul berdasarkan nama, slug, atau deskripsi..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 bg-surface-subtle border border-border-subtle rounded-lg text-xs text-text-main placeholder-text-muted focus:outline-none focus:bg-surface focus:border-brand-primary"
-            />
-          </div>
+        {/* Responsive Control Bar */}
+        <div className="bg-surface p-3 rounded-xl border border-border-subtle shadow-xs space-y-2.5">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+              <input
+                type="text"
+                placeholder="Cari modul berdasarkan nama, slug, atau deskripsi..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-8 py-2 bg-surface-subtle border border-border-subtle rounded-lg text-xs text-text-main placeholder-text-muted focus:outline-none focus:bg-surface focus:border-brand-primary transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-text-muted hover:text-text-main"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
 
-          {/* Category Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-            {categoryFilters.map((cat) => (
+            {/* Category Filter Dropdown */}
+            <div className="relative shrink-0" ref={dropdownRef}>
               <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
-                  selectedCategory === cat.id
-                    ? 'bg-brand-primary text-white shadow-2xs'
-                    : 'bg-surface-subtle hover:bg-surface text-text-muted hover:text-text-main border border-border-subtle'
+                type="button"
+                onClick={() => setIsFilterDropdownOpen((prev) => !prev)}
+                className={`w-full sm:w-auto inline-flex items-center justify-between sm:justify-start gap-2.5 px-3.5 py-2 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                  selectedCategory !== 'all'
+                    ? 'bg-brand-primary-light text-brand-primary border-brand-primary/30 shadow-2xs'
+                    : 'bg-surface-subtle hover:bg-surface text-text-main border-border-subtle'
                 }`}
               >
-                {cat.label}
+                <div className="flex items-center gap-2 truncate">
+                  <Filter className="w-3.5 h-3.5 text-text-muted" />
+                  <span className="text-text-muted font-normal">Kategori:</span>
+                  <span className="font-semibold text-text-main truncate max-w-[140px] sm:max-w-[200px]">
+                    {activeCategoryObj.label}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0 pl-1">
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-medium bg-surface text-text-muted border border-border-subtle">
+                    {filteredModules.length}
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-text-muted transition-transform duration-200 ${isFilterDropdownOpen ? 'rotate-180' : ''}`} />
+                </div>
               </button>
-            ))}
+
+              {/* Dropdown Menu Popover */}
+              {isFilterDropdownOpen && (
+                <div className="absolute right-0 top-full mt-1.5 w-72 sm:w-80 bg-surface border border-border-subtle rounded-xl shadow-xl z-30 p-1.5 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="px-2.5 py-2 border-b border-border-subtle flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">
+                      Pilih Kategori Organisasi
+                    </span>
+                    {selectedCategory !== 'all' && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategory('all');
+                          setIsFilterDropdownOpen(false);
+                        }}
+                        className="text-[10px] text-brand-primary hover:underline font-semibold"
+                      >
+                        Reset Filter
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="py-1 max-h-64 overflow-y-auto space-y-0.5">
+                    {categoryFilters.map((cat) => {
+                      const CatIcon = iconRegistry[cat.icon] || Package;
+                      const isSelected = selectedCategory === cat.id;
+
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCategory(cat.id);
+                            setIsFilterDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
+                            isSelected
+                              ? 'bg-brand-primary-light text-brand-primary font-semibold'
+                              : 'text-text-main hover:bg-surface-subtle'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 truncate">
+                            <CatIcon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-brand-primary' : 'text-text-muted'}`} />
+                            <span className="truncate">{cat.label}</span>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                              isSelected
+                                ? 'bg-brand-primary text-white font-bold'
+                                : 'bg-surface-subtle text-text-muted border border-border-subtle'
+                            }`}>
+                              {cat.count}
+                            </span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-brand-primary shrink-0" />}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* Active Filter Chips / Reset Bar */}
+          {(selectedCategory !== 'all' || searchQuery) && (
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-dashed border-border-subtle text-xs">
+              <span className="text-text-muted text-[11px]">Filter Aktif:</span>
+              {selectedCategory !== 'all' && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-primary-light text-brand-primary border border-brand-primary/20">
+                  <span>Kategori: {activeCategoryObj.label}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory('all')}
+                    className="hover:text-brand-primary-hover p-0.5 rounded-full cursor-pointer"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {searchQuery && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-subtle text-text-main border border-border-subtle">
+                  <span>Pencarian: "{searchQuery}"</span>
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="text-text-muted hover:text-text-main p-0.5 rounded-full cursor-pointer"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategory('all');
+                  setSearchQuery('');
+                }}
+                className="text-[11px] text-text-muted hover:text-rose-500 font-medium ml-auto flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Reset Semua</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Modules Grid */}
