@@ -168,10 +168,10 @@ CREATE TABLE tasks (
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Database Migration & Schema Seeding**
-  - [ ] 1.1 Buat file migrasi migrasi database untuk tabel `users`, `tenants`, `tenant_user`, `projects`, dan `tasks`.
-  - [ ] 1.2 Perbarui seeder awal di `scripts/init_db.php` untuk menyediakan 2 Tenant demo (`Acme Corp` & `Starlight Labs`), 1 Owner, dan 1 Member untuk keperluan visual test.
-  - [ ] 1.3 Jalankan migrasi dan verifikasi integritas skema SQLite.
+- [x] **Phase 1: Database Migration & Schema Seeding**
+  - [x] 1.1 Buat file migrasi migrasi database untuk tabel `users`, `tenants`, `tenant_user`, `projects`, dan `tasks`.
+  - [x] 1.2 Perbarui seeder awal di `scripts/init_db.php` untuk menyediakan 2 Tenant demo (`Acme Corp` & `Starlight Labs`), 1 Owner, dan 1 Member untuk keperluan visual test.
+  - [x] 1.3 Jalankan migrasi dan verifikasi integritas skema SQLite.
 
 - [ ] **Phase 2: Modular Architecture & Models**
   - [ ] 2.1 Buat model `App\Modules\Workspaces\Models\User` dan `Tenant`.
