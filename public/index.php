@@ -55,6 +55,9 @@ $container->singleton(\Core\Modules\ModuleManager::class, fn() => $moduleManager
 $auditLogger = new \Core\Audit\AuditLogger($db, $tenantContext, $authService, $request);
 $container->singleton(\Core\Audit\AuditLogger::class, fn() => $auditLogger);
 
+$apiTokenService = new \Core\Auth\ApiTokenService($db);
+$container->singleton(\Core\Auth\ApiTokenService::class, fn() => $apiTokenService);
+
 $inertia = Inertia::getInstance();
 $inertia->setRequest($request);
 $inertia->setVersion('1.0.0');

@@ -55,6 +55,9 @@ class ConsoleTest extends TestCase
         $auditLogger = new \Core\Audit\AuditLogger($this->db, $tenantContext);
         $this->container->singleton(\Core\Audit\AuditLogger::class, fn() => $auditLogger);
 
+        $tokenService = new \Core\Auth\ApiTokenService($this->db);
+        $this->container->singleton(\Core\Auth\ApiTokenService::class, fn() => $tokenService);
+
         $this->kernel = new Kernel($this->container);
         $this->container->singleton(Kernel::class, fn() => $this->kernel);
 
@@ -65,7 +68,10 @@ class ConsoleTest extends TestCase
             ->register(new ModuleListCommand())
             ->register(new TenantListCommand())
             ->register(new RouteListCommand())
-            ->register(new \Core\Console\Commands\ActivityListCommand());
+            ->register(new \Core\Console\Commands\ActivityListCommand())
+            ->register(new \Core\Console\Commands\TokenCreateCommand())
+            ->register(new \Core\Console\Commands\TokenListCommand())
+            ->register(new \Core\Console\Commands\TokenRevokeCommand());
     }
 
     public function test_kernel_returns_error_for_unknown_command(): void
@@ -195,5 +201,39 @@ class ConsoleTest extends TestCase
         $this->assertStringContainsString("Proyek AIO diluncurkan", (string) $output);
         $this->assertStringContainsString("project.created", (string) $output);
         $this->assertStringContainsString("John Doe", (string) $output);
+    }
+
+    public function test_token_commands_lifecycle(): void
+    {
+        // Seed user and tenant
+        $this->db->statement("INSERT INTO users (id, name, email, password_hash) VALUES (10, 'Token Tester', 'token@test.com', 'hash')");
+        $this->db->statement("INSERT INTO tenants (id, name, slug) VALUES (10, 'Token Workspace', 'token-ws')");
+        $this->db->statement("INSERT INTO tenant_user (tenant_id, user_id, role) VALUES (10, 10, 'owner')");
+
+        // 1. token:create
+        ob_start();
+        $statusCreate = $this->kernel->handle(['aio', 'token:create', 'token@test.com', 'CLI Bot Token', '--tenant=10']);
+        $outputCreate = ob_get_clean();
+
+        $this->assertSame(0, $statusCreate);
+        $this->assertStringContainsString("Personal Access Token berhasil dibuat", (string) $outputCreate);
+        $this->assertStringContainsString("aio_pat_", (string) $outputCreate);
+
+        // 2. token:list
+        ob_start();
+        $statusList = $this->kernel->handle(['aio', 'token:list', '--tenant=10']);
+        $outputList = ob_get_clean();
+
+        $this->assertSame(0, $statusList);
+        $this->assertStringContainsString("CLI Bot Token", (string) $outputList);
+        $this->assertStringContainsString("Token Workspace", (string) $outputList);
+
+        // 3. token:revoke
+        ob_start();
+        $statusRevoke = $this->kernel->handle(['aio', 'token:revoke', '1']);
+        $outputRevoke = ob_get_clean();
+
+        $this->assertSame(0, $statusRevoke);
+        $this->assertStringContainsString("berhasil dicabut", (string) $outputRevoke);
     }
 }

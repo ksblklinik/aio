@@ -42,6 +42,11 @@ $router->group(['middleware' => [Authenticate::class]], function (Router $r) {
 
     // Core Feature: Audit Logs & Activity Timeline
     $r->get('/activity', [\App\Modules\Activity\Controllers\ActivityLogController::class, 'index']);
+
+    // API Tokens & Programmatic Integrations
+    $r->get('/settings/api-tokens', [\App\Modules\Settings\Controllers\ApiTokenController::class, 'index']);
+    $r->post('/settings/api-tokens', [\App\Modules\Settings\Controllers\ApiTokenController::class, 'store']);
+    $r->post('/settings/api-tokens/{id}/delete', [\App\Modules\Settings\Controllers\ApiTokenController::class, 'destroy']);
 });
 
 // Dynamic Route Loader for Active Modules
@@ -71,4 +76,11 @@ $router->get('/api/health', function () {
         'php' => PHP_VERSION,
         'time' => date('c'),
     ]);
+});
+
+// REST API v1 (Secured with Bearer API Token)
+$router->group(['middleware' => [\Core\Middleware\AuthenticateApiToken::class]], function (Router $r) {
+    $r->get('/api/v1/me', [\App\Modules\Api\Controllers\V1\ApiController::class, 'me']);
+    $r->get('/api/v1/projects', [\App\Modules\Api\Controllers\V1\ApiController::class, 'projects']);
+    $r->post('/api/v1/projects', [\App\Modules\Api\Controllers\V1\ApiController::class, 'createProject']);
 });
