@@ -17,12 +17,12 @@ Membangun aplikasi web dan SaaS modern dari nol seringkali memaksa developer sol
 ## 2. Goals & Non-Goals
 
 ### Goals
-- [ ] Menyediakan **PHP HTTP Kernel** berbasis standar PSR (PSR-7 HTTP message, PSR-15 middleware, PSR-11 container) yang kompatibel dengan PHP CLI/FPM dan **FrankenPHP worker mode**.
-- [ ] Mengimplementasikan **Inertia.js Protocol Adapter** di PHP: render view React dengan props JSON reaktif, menangani partial reloads, redirect, dan shared props (auth user, flash messages, tenant context).
-- [ ] Membangun **Vite + React 19 + TypeScript** frontend bundle dengan integrasi asset tag otomatis di PHP.
-- [ ] Menyediakan **Tenant Scoping Layer** untuk SaaS (single database dengan isolasi `tenant_id` otomatis).
-- [ ] Sistem autentikasi berbasis **Secure HTTP-only Cookies + CSRF Protection** (bebas risiko XSS localStorage).
-- [ ] Integrasi penuh dengan gerbang keamanan [scripts/verify.ps1](file:///c:/aplikasi/aio/scripts/verify.ps1) dan dev server [scripts/dev.ps1](file:///c:/aplikasi/aio/scripts/dev.ps1).
+- [x] Menyediakan **PHP HTTP Kernel** berbasis standar PSR (PSR-7 HTTP message, PSR-15 middleware, PSR-11 container) yang kompatibel dengan PHP CLI/FPM dan **FrankenPHP worker mode**.
+- [x] Mengimplementasikan **Inertia.js Protocol Adapter** di PHP: render view React dengan props JSON reaktif, menangani partial reloads, redirect, dan shared props (auth user, flash messages, tenant context).
+- [x] Membangun **Vite + React 19 + TypeScript** frontend bundle dengan integrasi asset tag otomatis di PHP.
+- [x] Menyediakan **Tenant Scoping Layer** untuk SaaS (single database dengan isolasi `tenant_id` otomatis).
+- [x] Sistem autentikasi berbasis **Secure HTTP-only Cookies + CSRF Protection** (bebas risiko XSS localStorage).
+- [x] Integrasi penuh dengan gerbang keamanan [scripts/verify.ps1](file:///c:/aplikasi/aio/scripts/verify.ps1) dan dev server [scripts/dev.ps1](file:///c:/aplikasi/aio/scripts/dev.ps1).
 
 ### Non-Goals
 - Tidak mencakup multi-database tenancy per customer pada tahap 001 (difokuskan pada single-db tenant scoping yang efisien).
