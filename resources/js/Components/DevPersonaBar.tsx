@@ -25,7 +25,7 @@ export default function DevPersonaBar() {
       name: 'John Doe',
       tenantName: 'Acme Corp',
       role: 'owner',
-      color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+      color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
       badge: 'Owner (Acme)',
     },
     {
@@ -34,7 +34,7 @@ export default function DevPersonaBar() {
       name: 'Sarah Smith',
       tenantName: 'Acme Corp',
       role: 'member',
-      color: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+      color: 'bg-blue-50 text-blue-700 border-blue-200',
       badge: 'Member (Acme)',
     },
     {
@@ -43,7 +43,7 @@ export default function DevPersonaBar() {
       name: 'Alex Rivera',
       tenantName: 'Starlight Labs',
       role: 'owner',
-      color: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+      color: 'bg-purple-50 text-purple-700 border-purple-200',
       badge: 'Owner (Starlight)',
     },
   ];
@@ -59,19 +59,19 @@ export default function DevPersonaBar() {
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end font-sans">
       {isOpen && (
-        <div className="mb-2 p-3 bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-2xl shadow-2xl w-80 text-xs text-slate-200 animate-in fade-in slide-in-from-bottom-2 duration-150">
-          <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
-            <div className="flex items-center gap-1.5 font-bold text-amber-400">
-              <Sparkles className="w-3.5 h-3.5" />
+        <div className="mb-2 p-3.5 bg-white border border-gray-200 rounded-xl shadow-xl w-80 text-xs text-gray-700 animate-in fade-in slide-in-from-bottom-2 duration-150">
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200">
+            <div className="flex items-center gap-1.5 font-bold text-blue-700">
+              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
               <span>Dev Fast Persona Switcher</span>
             </div>
-            <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+            <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200 font-semibold">
               Local Dev
             </span>
           </div>
 
-          <p className="text-[11px] text-slate-400 mb-2.5">
-            Ganti persona secara instan untuk menguji tampilan UI dan izin RBAC tanpa perlu ketik login:
+          <p className="text-[11px] text-gray-500 mb-2.5">
+            Ganti persona secara instan untuk menguji tampilan UI dan izin RBAC tanpa perlu login manual:
           </p>
 
           <div className="space-y-1.5">
@@ -84,25 +84,25 @@ export default function DevPersonaBar() {
                 <button
                   key={`${p.userId}-${p.tenantId}`}
                   onClick={() => handleSwitch(p.userId, p.tenantId)}
-                  className={`w-full text-left p-2 rounded-xl border transition-all flex items-center justify-between ${
+                  className={`w-full text-left p-2 rounded-lg border transition-all flex items-center justify-between ${
                     isCurrent
-                      ? 'bg-slate-800 border-indigo-500 ring-1 ring-indigo-500/50 text-white font-medium shadow-sm'
-                      : 'bg-slate-950/60 border-slate-800/80 hover:bg-slate-800/60 hover:border-slate-700 text-slate-300'
+                      ? 'bg-blue-50 border-blue-400 text-blue-900 font-medium shadow-xs'
+                      : 'bg-white border-gray-200 hover:bg-gray-50 text-gray-700'
                   }`}
                 >
                   <div className="flex flex-col truncate pr-2">
-                    <span className="font-semibold text-slate-100 flex items-center gap-1.5">
+                    <span className="font-semibold text-gray-900 flex items-center gap-1.5">
                       {p.name}
                       {isCurrent && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600 inline-block" />
                       )}
                     </span>
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-gray-500">
                       {p.tenantName}
                     </span>
                   </div>
                   <span
-                    className={`text-[10px] uppercase tracking-wider font-mono px-2 py-0.5 rounded-md border ${p.color}`}
+                    className={`text-[10px] uppercase tracking-wider font-mono font-semibold px-2 py-0.5 rounded-md border ${p.color}`}
                   >
                     {p.role}
                   </span>
@@ -111,9 +111,9 @@ export default function DevPersonaBar() {
             })}
           </div>
 
-          <div className="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
-            <span>Route: <code>/_dev/switch-persona</code></span>
-            <span className="text-emerald-400 font-mono">DEV_AUTO_LOGIN=ON</span>
+          <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between text-[10px] text-gray-400 font-mono">
+            <span>Route: /_dev/switch-persona</span>
+            <span className="text-emerald-600 font-semibold">DEV_MODE=ON</span>
           </div>
         </div>
       )}
@@ -121,23 +121,23 @@ export default function DevPersonaBar() {
       {/* Floating Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2.5 px-3.5 py-2 bg-gradient-to-r from-indigo-600 via-indigo-700 to-slate-900 hover:from-indigo-500 hover:to-slate-800 text-white text-xs font-medium rounded-full shadow-lg shadow-indigo-900/40 border border-indigo-500/40 backdrop-blur-md transition-all active:scale-95 group"
+        className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold rounded-full shadow-md border border-gray-200 transition-all active:scale-95 group"
       >
         <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block" />
-          <UserCheck className="w-3.5 h-3.5 text-indigo-200" />
+          <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+          <UserCheck className="w-3.5 h-3.5 text-blue-600" />
         </div>
         <div className="flex items-center gap-1.5 font-mono text-[11px]">
-          <span className="text-indigo-200">{currentUser}</span>
-          <span className="text-slate-400">/</span>
-          <span className="px-1.5 py-0.5 rounded bg-indigo-950/80 text-emerald-300 font-semibold uppercase text-[9px] border border-indigo-700/50">
+          <span className="text-gray-900">{currentUser}</span>
+          <span className="text-gray-400">/</span>
+          <span className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold uppercase text-[9px] border border-blue-200">
             {currentRole}
           </span>
         </div>
         {isOpen ? (
-          <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-white" />
+          <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
         ) : (
-          <ChevronUp className="w-3.5 h-3.5 text-slate-400 group-hover:text-white" />
+          <ChevronUp className="w-3.5 h-3.5 text-gray-400" />
         )}
       </button>
     </div>

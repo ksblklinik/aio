@@ -32,17 +32,16 @@ interface AppLayoutProps {
   };
 }
 
-export default function AppLayout({ children, title }: AppLayoutProps) {
+export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
   const { props } = usePage<{ 
     auth?: AuthProp; 
     flash?: { success?: string | null; error?: string | null };
-    csrf_token?: string;
   }>();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
 
-  const activeTenant = props.auth?.tenant || {
+  const activeTenant = tenant || props.auth?.tenant || {
     id: 1,
     name: 'Acme Corp',
     slug: 'acme',
@@ -75,20 +74,40 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row antialiased font-sans selection:bg-indigo-500 selection:text-white">
-      {/* Sidebar for Desktop */}
-      <aside className="hidden md:flex flex-col w-64 border-r border-slate-800/80 bg-slate-900/40 backdrop-blur-xl p-4 justify-between z-30">
+    <div className="min-h-screen bg-slate-50 text-gray-900 flex flex-col md:flex-row antialiased font-sans">
+      {/* Mobile Top Header */}
+      <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
+            <Zap className="h-4 w-4" />
+          </div>
+          <span className="font-bold text-gray-900 text-base">aio SaaS</span>
+        </div>
+        <button 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="p-1.5 rounded-lg text-gray-600 hover:bg-gray-100"
+          aria-label="Toggle Navigation"
+        >
+          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
+      </div>
+
+      {/* Sidebar for Desktop & Mobile Overlay */}
+      <aside className={`
+        fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 flex flex-col justify-between p-4 shadow-sm transition-transform duration-200 md:static md:translate-x-0
+        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
         <div className="space-y-6">
-          {/* Logo & Brand */}
-          <div className="flex items-center gap-3 px-2">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-              <Zap className="h-5 w-5 text-white font-black" />
+          {/* Logo & Brand Header */}
+          <div className="flex items-center gap-3 px-2 py-1">
+            <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
+              <Zap className="h-5 w-5" />
             </div>
             <div>
-              <div className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+              <div className="font-bold text-lg text-gray-900 tracking-tight leading-tight">
                 aio SaaS
               </div>
-              <div className="text-[10px] uppercase font-mono tracking-widest text-indigo-400 font-semibold">
+              <div className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider">
                 Unified Framework
               </div>
             </div>
@@ -98,40 +117,44 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
           <div className="relative">
             <button
               onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition-all text-left group"
+              className="w-full flex items-center justify-between p-2.5 rounded-lg bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors text-left"
             >
               <div className="flex items-center gap-2.5 truncate">
-                <div className="w-7 h-7 rounded-lg bg-indigo-950/80 border border-indigo-500/30 flex items-center justify-center text-indigo-300 font-bold text-xs">
-                  <Building2 className="w-3.5 h-3.5" />
+                <div className="w-7 h-7 rounded bg-white border border-gray-300 flex items-center justify-center text-gray-700 shadow-xs">
+                  <Building2 className="w-4 h-4" />
                 </div>
                 <div className="truncate">
-                  <div className="text-xs font-semibold text-slate-200 group-hover:text-white truncate">
+                  <div className="text-xs font-bold text-gray-900 truncate">
                     {activeTenant.name}
                   </div>
-                  <div className="text-[10px] text-slate-400 font-mono">
+                  <div className="text-[10px] text-gray-500 font-medium">
                     {activeTenant.plan}
                   </div>
                 </div>
               </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${workspaceMenuOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${workspaceMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {workspaceMenuOpen && (
-              <div className="absolute top-full left-0 mt-1.5 w-full bg-slate-900 border border-slate-700 rounded-xl shadow-xl p-1.5 z-40">
-                <div className="text-[10px] uppercase font-mono px-2 py-1 text-slate-400 font-semibold">
+              <div className="absolute top-full left-0 mt-1.5 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-1.5 z-50">
+                <div className="text-[10px] font-bold uppercase px-2 py-1 text-gray-400 tracking-wider">
                   Pilih Workspace
                 </div>
                 {userTenants.map((t) => (
                   <button
                     key={t.id}
                     onClick={() => handleSwitchTenant(t.id)}
-                    className="w-full text-left px-2 py-1.5 rounded-lg text-xs hover:bg-slate-800 flex items-center justify-between transition-colors"
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center justify-between transition-colors ${
+                      t.id === activeTenant.id 
+                        ? 'bg-blue-50 text-blue-700 font-semibold' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
                   >
                     <span className="truncate">{t.name}</span>
                     {t.id === activeTenant.id ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                     ) : (
-                      <span className="text-[10px] uppercase font-mono text-slate-400">{t.role}</span>
+                      <span className="text-[10px] uppercase text-gray-400">{t.role}</span>
                     )}
                   </button>
                 ))}
@@ -141,7 +164,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
 
           {/* Navigation Links */}
           <nav className="space-y-1">
-            <div className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 font-mono">
+            <div className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400">
               Menu Utama
             </div>
             {navItems.map((item) => {
@@ -151,13 +174,13 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4 shrink-0" />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -165,26 +188,26 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
           </nav>
         </div>
 
-        {/* User Card in Bottom Sidebar */}
-        <div className="pt-4 border-t border-slate-800/80">
-          <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between">
+        {/* User Profile Card in Sidebar Footer */}
+        <div className="pt-4 border-t border-gray-200">
+          <div className="p-2.5 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-between">
             <div className="flex items-center gap-2.5 truncate">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center font-bold text-xs text-white uppercase shadow-inner">
+              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-xs text-white uppercase shadow-sm shrink-0">
                 {currentUser.name.charAt(0)}
               </div>
               <div className="truncate">
-                <div className="text-xs font-semibold text-slate-200 truncate">
+                <div className="text-xs font-bold text-gray-900 truncate">
                   {currentUser.name}
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono uppercase tracking-wider text-emerald-400 font-semibold">
-                  Role: {currentRole}
+                <div className="text-[11px] text-gray-500 font-medium capitalize">
+                  Peran: {currentRole}
                 </div>
               </div>
             </div>
             <button
               onClick={handleLogout}
               title="Keluar"
-              className="p-1.5 rounded-lg hover:bg-red-500/20 hover:text-red-300 text-slate-400 transition-colors"
+              className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -195,25 +218,17 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Navbar */}
-        <header className="h-16 border-b border-slate-800/80 bg-slate-900/30 backdrop-blur-xl px-4 md:px-8 flex items-center justify-between sticky top-0 z-20">
-          <div className="flex items-center gap-3">
-            <button 
-              className="md:hidden p-2 rounded-lg text-slate-400 hover:bg-slate-800"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-            <h1 className="text-sm font-semibold text-slate-200">
-              {title || 'Dashboard'}
-            </h1>
-          </div>
+        <header className="h-16 border-b border-gray-200 bg-white px-4 md:px-8 flex items-center justify-between sticky top-0 z-20">
+          <h1 className="text-base font-bold text-gray-900">
+            {title || 'Dashboard'}
+          </h1>
 
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/80 border border-slate-700/60 text-[11px] font-mono text-slate-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              Tenant: <strong className="text-white">{activeTenant.name}</strong>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs font-medium text-blue-700">
+              <span className="w-2 h-2 rounded-full bg-blue-600" />
+              Tenant: <strong className="font-semibold text-gray-900">{activeTenant.name}</strong>
             </span>
-            <span className="px-2 py-0.5 rounded-md text-[10px] uppercase font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            <span className="px-2.5 py-1 rounded-md text-[11px] uppercase font-bold bg-gray-100 text-gray-700 border border-gray-200">
               {currentRole}
             </span>
           </div>
@@ -221,19 +236,19 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
 
         {/* Flash Notifications */}
         {props.flash?.success && (
-          <div className="mx-4 md:mx-8 mt-4 p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2.5 shadow-lg shadow-emerald-950/50">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="mx-4 md:mx-8 mt-4 p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2.5 shadow-xs">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{props.flash.success}</span>
           </div>
         )}
         {props.flash?.error && (
-          <div className="mx-4 md:mx-8 mt-4 p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2.5 shadow-lg shadow-rose-950/50">
-            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+          <div className="mx-4 md:mx-8 mt-4 p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2.5 shadow-xs">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
             <span>{props.flash.error}</span>
           </div>
         )}
 
-        {/* Page Content */}
+        {/* Page Content Container */}
         <main className="p-4 md:p-8 flex-1">
           {children}
         </main>
