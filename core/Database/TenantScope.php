@@ -14,7 +14,7 @@ class TenantScope
     ) {
     }
 
-    public function selectAll(string $table, string $additionalWhere = '', array $params = []): array
+    public function selectAll(string $table, string $additionalWhere = '', array $params = [], string $orderBy = ''): array
     {
         $tenantId = $this->context->getTenantId();
         if ($tenantId === null) {
@@ -27,6 +27,10 @@ class TenantScope
         if ($additionalWhere !== '') {
             $sql .= " AND ({$additionalWhere})";
             $allParams = array_merge($allParams, $params);
+        }
+
+        if ($orderBy !== '') {
+            $sql .= " ORDER BY {$orderBy}";
         }
 
         return $this->connection->selectAll($sql, $allParams);
@@ -50,6 +54,25 @@ class TenantScope
         $sql .= " LIMIT 1";
 
         return $this->connection->selectOne($sql, $allParams);
+    }
+
+    public function getContext(): TenantContext
+    {
+        return $this->context;
+    }
+
+    public function selectWhere(string $table, array $conditions): array
+    {
+        $clauses = [];
+        $params = [];
+
+        foreach ($conditions as $col => $val) {
+            $clauses[] = "{$col} = ?";
+            $params[] = $val;
+        }
+
+        $additionalWhere = implode(' AND ', $clauses);
+        return $this->selectAll($table, $additionalWhere, $params);
     }
 
     public function insert(string $table, array $data): string

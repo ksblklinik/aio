@@ -173,10 +173,10 @@ CREATE TABLE tasks (
   - [x] 1.2 Perbarui seeder awal di `scripts/init_db.php` untuk menyediakan 2 Tenant demo (`Acme Corp` & `Starlight Labs`), 1 Owner, dan 1 Member untuk keperluan visual test.
   - [x] 1.3 Jalankan migrasi dan verifikasi integritas skema SQLite.
 
-- [ ] **Phase 2: Modular Architecture & Models**
-  - [ ] 2.1 Buat model `App\Modules\Workspaces\Models\User` dan `Tenant`.
-  - [ ] 2.2 Buat model `App\Modules\Projects\Models\Project` dan `Task`.
-  - [ ] 2.3 Sambungkan model ke `Core\Database\Connection` dan `TenantScope`.
+- [x] **Phase 2: Modular Architecture & Models**
+  - [x] 2.1 Buat model `App\Modules\Workspaces\Models\User` dan `Tenant`.
+  - [x] 2.2 Buat model `App\Modules\Projects\Models\Project` dan `Task`.
+  - [x] 2.3 Sambungkan model ke `Core\Database\Connection` dan `TenantScope`.
 
 - [ ] **Phase 3: Auth Engine, RBAC, & Dev Persona Switcher**
   - [ ] 3.1 Buat `App\Modules\Auth\Services\AuthService` (register, login, hash, logout).
