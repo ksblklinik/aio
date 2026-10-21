@@ -5,6 +5,14 @@ declare(strict_types=1);
 // Single Entry Point aio Web Application
 define('AIO_START', microtime(true));
 
+// Built-in PHP CLI Server: Layani file statis (CSS, JS, gambar) secara langsung
+if (php_sapi_name() === 'cli-server') {
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    if ($path !== '/' && file_exists(__DIR__ . $path)) {
+        return false;
+    }
+}
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Core\Container;
@@ -26,6 +34,23 @@ $container->singleton(Request::class, fn() => $request);
 $session = new Session();
 $container->singleton(Session::class, fn() => $session);
 
+// 4. Initialize Database & Tenant Context
+$dbPath = dirname(__DIR__) . '/database.sqlite';
+$db = new \Core\Database\Connection("sqlite:{$dbPath}");
+$container->singleton(\Core\Database\Connection::class, fn() => $db);
+
+$tenantContext = \Core\Database\TenantContext::getInstance();
+$container->singleton(\Core\Database\TenantContext::class, fn() => $tenantContext);
+
+$authService = new \App\Modules\Auth\Services\AuthService($db, $session, $tenantContext);
+$container->singleton(\App\Modules\Auth\Services\AuthService::class, fn() => $authService);
+
+$tenantScope = new \Core\Database\TenantScope($tenantContext, $db);
+$container->singleton(\Core\Database\TenantScope::class, fn() => $tenantScope);
+
+$moduleManager = new \Core\Modules\ModuleManager($db->getPdo());
+$container->singleton(\Core\Modules\ModuleManager::class, fn() => $moduleManager);
+
 $inertia = Inertia::getInstance();
 $inertia->setRequest($request);
 $inertia->setVersion('1.0.0');
@@ -35,24 +60,35 @@ $inertia->share([
         'env' => $_ENV['APP_ENV'] ?? 'local',
     ],
     'csrf_token' => fn() => $session->token(),
+    'auth' => fn() => [
+        'user' => $authService->user() ? [
+            'id' => $authService->user()->id,
+            'name' => $authService->user()->name,
+            'email' => $authService->user()->email,
+            'is_superadmin' => $authService->user()->isSuperadmin,
+        ] : null,
+        'tenant' => $authService->currentTenant() ? [
+            'id' => $authService->currentTenant()->id,
+            'name' => $authService->currentTenant()->name,
+            'slug' => $authService->currentTenant()->slug,
+            'plan' => $authService->currentTenant()->plan,
+        ] : null,
+        'role' => $authService->currentRole(),
+        'is_superadmin' => $authService->isSuperadmin(),
+        'tenants' => $authService->user() ? $authService->user()->getTenants($db) : [],
+    ],
+    'active_modules' => function () use ($authService, $moduleManager) {
+        $tenant = $authService->currentTenant();
+        return $tenant 
+            ? $moduleManager->getActiveNavItemsForTenant((int) $tenant->id) 
+            : $moduleManager->getActiveNavItems();
+    },
+    'flash' => fn() => [
+        'success' => $session->getFlash('success'),
+        'error' => $session->getFlash('error'),
+    ],
 ]);
 $container->singleton(Inertia::class, fn() => $inertia);
-
-// 4. Initialize Database & Tenant Context
-$dbPath = dirname(__DIR__) . '/database.sqlite';
-$db = new \Core\Database\Connection("sqlite:{$dbPath}");
-$container->singleton(\Core\Database\Connection::class, fn() => $db);
-
-$tenantContext = \Core\Database\TenantContext::getInstance();
-// Default tenant context for demo
-$tenantContext->setTenantId('tenant-acme', [
-    'name' => 'Acme Cloud Platform',
-    'plan' => 'Enterprise Tier',
-]);
-$container->singleton(\Core\Database\TenantContext::class, fn() => $tenantContext);
-
-$tenantScope = new \Core\Database\TenantScope($tenantContext, $db);
-$container->singleton(\Core\Database\TenantScope::class, fn() => $tenantScope);
 
 // 5. Initialize Router & Middlewares
 $router = new Router($container);

@@ -52,4 +52,5 @@ Setiap agen dan kontributor wajib mematuhi seluruh aturan berikut:
 4. [04-git-discipline.md](file:///c:/aplikasi/aio/.agents/rules/04-git-discipline.md) — Conventional Commits, anti spec-drift, dan branch per spec.
 5. [05-context-token-efficiency.md](file:///c:/aplikasi/aio/.agents/rules/05-context-token-efficiency.md) — Efisiensi token, surgical reading/diffs, dan repo-map.
 6. [06-mcp-lifecycle-recommendation.md](file:///c:/aplikasi/aio/.agents/rules/06-mcp-lifecycle-recommendation.md) — Rekomendasi proaktif server MCP dan tata kelola plugin.
+7. [07-semantic-ui-tokens.md](file:///c:/aplikasi/aio/.agents/rules/07-semantic-ui-tokens.md) — Disiplin semantic tokens dan integritas tema dark/light mode.
 

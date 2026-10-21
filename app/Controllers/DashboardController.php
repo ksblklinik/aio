@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use Core\Database\TenantContext;
+use App\Modules\Auth\Services\AuthService;
+use App\Modules\Projects\Models\Project;
+use Core\Database\Connection;
 use Core\Database\TenantScope;
 use Core\Http\Request;
 use Core\Http\Response;
@@ -12,47 +14,65 @@ use Core\Http\Response;
 class DashboardController extends Controller
 {
     public function __construct(
-        private ?TenantContext $tenantContext = null,
-        private ?TenantScope $tenantScope = null
+        private AuthService $auth,
+        private TenantScope $tenantScope,
+        private Connection $db
     ) {
-        $this->tenantContext = $tenantContext ?? (function_exists('app') ? app(TenantContext::class) : TenantContext::getInstance());
-        $this->tenantScope = $tenantScope ?? (function_exists('app') ? app(TenantScope::class) : null);
     }
 
     public function index(Request $request): Response
     {
-        $tenantId = $this->tenantContext->getTenantId() ?? 'tenant-acme';
-        $tenantData = $this->tenantContext->getTenantData();
+        $tenant = $this->auth->currentTenant();
+        $user = $this->auth->user();
+        $role = $this->auth->currentRole();
 
         // Ambil data projects yang terisolasi khusus tenant ini
-        $scopedProjects = [];
-        if ($this->tenantScope) {
-            $rows = $this->tenantScope->selectAll('projects');
-            foreach ($rows as $row) {
-                $scopedProjects[] = [
-                    'id' => (string) $row['id'],
-                    'name' => $row['name'],
-                    'status' => $row['status'],
-                    'recordsCount' => (int) $row['records_count'],
-                    'updatedAt' => $row['updated_at'] ?? 'Baru saja',
-                ];
+        $projects = Project::allForTenant($this->tenantScope);
+        $totalProjects = count($projects);
+
+        $totalTasks = 0;
+        $completedTasks = 0;
+        $projectList = [];
+
+        foreach ($projects as $p) {
+            $tasks = $p->getTasks($this->db);
+            $totalTasks += count($tasks);
+            foreach ($tasks as $t) {
+                if ($t->isCompleted === 1) {
+                    $completedTasks++;
+                }
             }
+
+            $projectList[] = [
+                'id' => (string) $p->id,
+                'name' => $p->name,
+                'status' => $p->status,
+                'recordsCount' => count($tasks),
+                'updatedAt' => $p->createdAt ?? 'Baru saja',
+            ];
         }
 
         return $this->render('Dashboard', [
             'title' => 'Dashboard Overview',
-            'tenant' => [
-                'id' => $tenantId,
-                'name' => $tenantData['name'] ?? 'Acme Cloud Platform',
-                'plan' => $tenantData['plan'] ?? 'Enterprise Tier',
-            ],
+            'tenant' => $tenant ? [
+                'id' => $tenant->id,
+                'name' => $tenant->name,
+                'slug' => $tenant->slug,
+                'plan' => $tenant->plan,
+            ] : null,
+            'user' => $user ? [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ] : null,
+            'role' => $role,
             'metrics' => [
-                'mrr' => '$28,450',
-                'activeUsers' => '2,840',
-                'apiRequests' => '12.8M req',
-                'avgLatency' => '0.8 ms',
+                'projects' => (string) $totalProjects,
+                'tasks' => "{$completedTasks} / {$totalTasks}",
+                'completionRate' => $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) . '%' : '100%',
+                'activeRole' => ucfirst($role ?? 'Member'),
             ],
-            'projects' => $scopedProjects,
+            'projects' => $projectList,
         ]);
     }
 }

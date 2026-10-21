@@ -13,7 +13,10 @@ Sebuah tugas atau sub-tugas baru dianggap **selesai** apabila telah memenuhi lan
 
 3. **Runtime / Build Verification**:
    - Menjalankan build command (`npm run build`, `cargo build`, dsb.) untuk memastikan bundling/packaging sukses.
-   - Jika berupa web/UI, pastikan tidak ada runtime crash pada konsol.
+   - **Anti-False Positive Asset Verification (Anti Layar Kosong)**:
+     - Dilarang menyimpulkan halaman web sukses hanya dari respons HTTP 200 pada root HTML.
+     - Agen **wajib** memverifikasi bahwa file JavaScript (`.js`) dan CSS (`.css`) yang dirujuk oleh tag `<script>` dan `<link>` di dalam HTML dapat disajikan secara fisik oleh web server dengan status **HTTP 200** (tidak 404).
+     - Pastikan web server development (misal PHP built-in server) memiliki guard bypass file statis yang aktif.
 
 4. **Unified Verification Gate**:
    - Sebelum melakukan commit, jalankan script verifikasi proyek:

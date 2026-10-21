@@ -65,6 +65,11 @@ class Connection
         return $stmt->fetchAll();
     }
 
+    public function select(string $sql, array $params = []): array
+    {
+        return $this->selectAll($sql, $params);
+    }
+
     public function selectOne(string $sql, array $params = []): ?array
     {
         $stmt = $this->pdo->prepare($sql);

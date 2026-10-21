@@ -82,4 +82,27 @@ class DatabaseTest extends TestCase
         $this->assertTrue($migrator->hasRun('2026_01_01_000001_create_dummy_items'));
         $this->assertFalse($migrator->hasRun('2026_01_01_000002_not_run'));
     }
+
+    public function test_migrator_runs_migrations_from_directory(): void
+    {
+        $migrator = new Migrator($this->db);
+        $tempDir = sys_get_temp_dir() . '/aio_migrations_' . uniqid();
+        mkdir($tempDir);
+
+        file_put_contents($tempDir . '/2026_01_01_000001_first.sql', 'CREATE TABLE tbl_first (id INTEGER PRIMARY KEY);');
+        file_put_contents($tempDir . '/2026_01_01_000002_second.sql', 'CREATE TABLE tbl_second (id INTEGER PRIMARY KEY);');
+
+        $executed = $migrator->runMigrationsFrom($tempDir);
+        $this->assertCount(2, $executed);
+        $this->assertSame(['2026_01_01_000001_first', '2026_01_01_000002_second'], $executed);
+
+        // Running again should execute 0 new migrations
+        $executedAgain = $migrator->runMigrationsFrom($tempDir);
+        $this->assertCount(0, $executedAgain);
+
+        // Cleanup
+        unlink($tempDir . '/2026_01_01_000001_first.sql');
+        unlink($tempDir . '/2026_01_01_000002_second.sql');
+        rmdir($tempDir);
+    }
 }

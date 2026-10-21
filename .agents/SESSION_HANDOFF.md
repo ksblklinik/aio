@@ -4,13 +4,21 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 📌 Status Terakhir Sesi (Last Updated: 2026-10-21 08:28 WIB)
+## 📌 Status Terakhir Sesi (Last Updated: 2026-10-21 11:36 WIB)
 
-* **Conversation ID Terakhir**: `a6bd4f0e-c477-44b6-b5f6-27d99bdc1692`
-* **Active Git Branch**: `main` (Branch `feat/001-aio-core` telah di-merge bersih via commit `2251432`)
-* **Active Spec**: [`specs/001-aio-framework-core.md`](file:///c:/aplikasi/aio/specs/001-aio-framework-core.md)
-* **Spec Status**: `Completed & Merged to Main` (100% tuntas)
-* **Git Working Tree**: Bersih (`nothing to commit, working tree clean`)
+* **Conversation ID Terakhir**: `9728b0ac-b70f-4d51-83ae-268dfaeb094b`
+* **Active Git Branch**: `feat/005-universal-taxonomy`
+* **Active Spec**: [`specs/005-universal-taxonomy.md`](file:///c:/aplikasi/aio/specs/005-universal-taxonomy.md)
+* **Spec Status**: `Completed` (70 Unit Tests lulus 100%, Vite & TS Build OK)
+* **New Features**: Universal Organizational Taxonomy & CategoryRegistry (8 Archetypes: Core, Collaboration, People, Knowledge, Resources, Engagement, Analytics, Developer), Standardized Manifests, Category Select Dropdown, Semantic Badges & Filter Pills
+* **Git Working Tree**: Bersih (Commit `439fb11`)
+
+---
+
+## 🛡️ Catatan Mitigasi Masalah Layar Blank (Post-Mortem):
+- Telah dipasang guard otomatis di `public/index.php` untuk melayani file statis (`cli-server`).
+- Telah dipasang unit test `ServerEnvironmentTest.php` untuk mencegah regresi bypass file statis.
+- Skrip `./scripts/verify.ps1` kini secara otomatis memeriksa integritas file bundle (`manifest.json`) dan proteksi server sebelum commit diizinkan.
 
 ---
 

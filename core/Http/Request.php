@@ -126,6 +126,16 @@ class Request
         return $this->bodyParams[$key] ?? $this->queryParams[$key] ?? $default;
     }
 
+    public function has(string $key): bool
+    {
+        return array_key_exists($key, $this->bodyParams) || array_key_exists($key, $this->queryParams);
+    }
+
+    public function filled(string $key): bool
+    {
+        return $this->has($key) && trim((string) $this->input($key)) !== '';
+    }
+
     /**
      * @return array<string, mixed>
      */

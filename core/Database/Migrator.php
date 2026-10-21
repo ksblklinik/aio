@@ -42,4 +42,44 @@ class Migrator
             ]);
         });
     }
+
+    public function getNextBatch(): int
+    {
+        $row = $this->db->selectOne("SELECT MAX(batch) as max_batch FROM migrations");
+        return ((int) ($row['max_batch'] ?? 0)) + 1;
+    }
+
+    /**
+     * @return array<string> List of executed migration names
+     */
+    public function runMigrationsFrom(string $directory): array
+    {
+        $this->createMigrationsTable();
+
+        if (!is_dir($directory)) {
+            return [];
+        }
+
+        $files = glob(rtrim($directory, '/\\') . '/*.sql');
+        if ($files === false || empty($files)) {
+            return [];
+        }
+
+        sort($files);
+        $executed = [];
+        $batch = $this->getNextBatch();
+
+        foreach ($files as $file) {
+            $name = pathinfo($file, PATHINFO_FILENAME);
+            if (!$this->hasRun($name)) {
+                $sql = file_get_contents($file);
+                if ($sql !== false && trim($sql) !== '') {
+                    $this->runMigration($name, $sql, $batch);
+                    $executed[] = $name;
+                }
+            }
+        }
+
+        return $executed;
+    }
 }

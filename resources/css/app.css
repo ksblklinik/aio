@@ -4,4 +4,30 @@
 
 :root {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  
+  /* Semantic Tokens - Light Mode (Default) */
+  --bg-canvas: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-subtle: #f1f5f9;
+  --border-subtle: #e2e8f0;
+  --border-main: #cbd5e1;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --brand-primary: #2563eb;
+  --brand-primary-hover: #1d4ed8;
+  --brand-primary-light: #eff6ff;
+}
+
+:root.dark, html.dark, .dark {
+  /* Semantic Tokens - Dark Mode */
+  --bg-canvas: #090e17;
+  --bg-surface: #111827;
+  --bg-surface-subtle: #1e293b;
+  --border-subtle: #1f293d;
+  --border-main: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --brand-primary: #3b82f6;
+  --brand-primary-hover: #60a5fa;
+  --brand-primary-light: rgba(59, 130, 246, 0.15);
 }
