@@ -52,6 +52,9 @@ $container->singleton(\Core\Database\TenantScope::class, fn() => $tenantScope);
 $moduleManager = new \Core\Modules\ModuleManager($db->getPdo());
 $container->singleton(\Core\Modules\ModuleManager::class, fn() => $moduleManager);
 
+$auditLogger = new \Core\Audit\AuditLogger($db, $tenantContext, $authService, $request);
+$container->singleton(\Core\Audit\AuditLogger::class, fn() => $auditLogger);
+
 $inertia = Inertia::getInstance();
 $inertia->setRequest($request);
 $inertia->setVersion('1.0.0');

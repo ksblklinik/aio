@@ -20,7 +20,8 @@ class ProjectController
         private TenantScope $tenantScope,
         private Connection $db,
         private Session $session,
-        private Inertia $inertia
+        private Inertia $inertia,
+        private ?\Core\Audit\AuditLogger $auditLogger = null
     ) {
     }
 
@@ -75,12 +76,20 @@ class ProjectController
 
         $user = $this->auth->user();
 
-        Project::createForTenant($this->tenantScope, [
+        $projectId = Project::createForTenant($this->tenantScope, [
             'user_id' => $user?->id ?? 0,
             'name' => $name,
             'description' => $description !== '' ? $description : null,
             'status' => $status,
         ]);
+
+        $this->auditLogger?->log(
+            'project.created',
+            "Membuat proyek baru [{$name}]",
+            'project',
+            (string) $projectId,
+            ['name' => $name, 'status' => $status]
+        );
 
         $this->session->flash('success', "Proyek [{$name}] berhasil dibuat!");
         return Response::redirect('/projects');
@@ -104,6 +113,14 @@ class ProjectController
 
         Project::update($this->db, $id, $tenantId, $data);
 
+        $this->auditLogger?->log(
+            'project.updated',
+            "Memperbarui data proyek #{$id}",
+            'project',
+            (string) $id,
+            $data
+        );
+
         $this->session->flash('success', 'Proyek berhasil diperbarui.');
         return Response::redirect('/projects');
     }
@@ -121,6 +138,13 @@ class ProjectController
         $tenantId = (int) ($tenant?->id ?? 0);
 
         Project::delete($this->db, $id, $tenantId);
+
+        $this->auditLogger?->log(
+            'project.deleted',
+            "Menghapus proyek #{$id}",
+            'project',
+            (string) $id
+        );
 
         $this->session->flash('success', 'Proyek berhasil dihapus.');
         return Response::redirect('/projects');

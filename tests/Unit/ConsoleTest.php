@@ -52,6 +52,9 @@ class ConsoleTest extends TestCase
         $router->get('/test-route', fn() => new Response('hello'));
         $this->container->singleton(Router::class, fn() => $router);
 
+        $auditLogger = new \Core\Audit\AuditLogger($this->db, $tenantContext);
+        $this->container->singleton(\Core\Audit\AuditLogger::class, fn() => $auditLogger);
+
         $this->kernel = new Kernel($this->container);
         $this->container->singleton(Kernel::class, fn() => $this->kernel);
 
@@ -61,7 +64,8 @@ class ConsoleTest extends TestCase
             ->register(new CreateSuperadminCommand())
             ->register(new ModuleListCommand())
             ->register(new TenantListCommand())
-            ->register(new RouteListCommand());
+            ->register(new RouteListCommand())
+            ->register(new \Core\Console\Commands\ActivityListCommand());
     }
 
     public function test_kernel_returns_error_for_unknown_command(): void
@@ -175,5 +179,21 @@ class ConsoleTest extends TestCase
 
         $this->assertSame(1, $status);
         $this->assertStringContainsString("Nama modul wajib diisi", (string) $output);
+    }
+
+    public function test_activity_list_command_displays_logs(): void
+    {
+        /** @var \Core\Audit\AuditLogger $logger */
+        $logger = $this->container->get(\Core\Audit\AuditLogger::class);
+        $logger->log('project.created', 'Proyek AIO diluncurkan', tenantId: 1, userName: 'John Doe');
+
+        ob_start();
+        $status = $this->kernel->handle(['aio', 'activity:list']);
+        $output = ob_get_clean();
+
+        $this->assertSame(0, $status);
+        $this->assertStringContainsString("Proyek AIO diluncurkan", (string) $output);
+        $this->assertStringContainsString("project.created", (string) $output);
+        $this->assertStringContainsString("John Doe", (string) $output);
     }
 }

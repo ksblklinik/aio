@@ -50,9 +50,12 @@ $container->singleton(AuthService::class, fn() => $authService);
 $tenantScope = new TenantScope($tenantContext, $db);
 $container->singleton(TenantScope::class, fn() => $tenantScope);
 
-// 4. Inisialisasi ModuleManager
+// 4. Inisialisasi ModuleManager & AuditLogger
 $moduleManager = new ModuleManager($db->getPdo());
 $container->singleton(ModuleManager::class, fn() => $moduleManager);
+
+$auditLogger = new \Core\Audit\AuditLogger($db, $tenantContext, $authService);
+$container->singleton(\Core\Audit\AuditLogger::class, fn() => $auditLogger);
 
 // 5. Inisialisasi Router & Load Rute
 $router = new Router($container);
@@ -72,7 +75,8 @@ $kernel->register(new ListCommand())
     ->register(new CreateSuperadminCommand())
     ->register(new ModuleListCommand())
     ->register(new TenantListCommand())
-    ->register(new RouteListCommand());
+    ->register(new RouteListCommand())
+    ->register(new \Core\Console\Commands\ActivityListCommand());
 
 // 7. Eksekusi Perintah
 $exitCode = $kernel->handle($argv);

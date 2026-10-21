@@ -39,6 +39,9 @@ $router->group(['middleware' => [Authenticate::class]], function (Router $r) {
     $r->post('/modules/toggle', [\App\Modules\Modules\Controllers\ModuleManagerController::class, 'toggle']);
     $r->post('/modules/create', [\App\Modules\Modules\Controllers\ModuleManagerController::class, 'create']);
     $r->post('/modules/delete', [\App\Modules\Modules\Controllers\ModuleManagerController::class, 'destroy']);
+
+    // Core Feature: Audit Logs & Activity Timeline
+    $r->get('/activity', [\App\Modules\Activity\Controllers\ActivityLogController::class, 'index']);
 });
 
 // Dynamic Route Loader for Active Modules
