@@ -35,6 +35,14 @@ class DevPersonaController
                 $targetTenantId = $tenantId ? (int) $tenantId : null;
                 $this->auth->login($user, $targetTenantId);
             }
+        } elseif ($role === 'superadmin') {
+            $row = $this->db->selectOne("SELECT id FROM users WHERE is_superadmin = 1 LIMIT 1");
+            if ($row) {
+                $user = User::findById($this->db, (int) $row['id']);
+                if ($user) {
+                    $this->auth->login($user, $tenantId ? (int) $tenantId : null);
+                }
+            }
         } elseif ($role) {
             // Find a user with this role
             $row = $this->db->selectOne(

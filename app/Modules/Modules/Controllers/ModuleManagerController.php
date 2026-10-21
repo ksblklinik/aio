@@ -49,17 +49,20 @@ class ModuleManagerController
                 'name' => $tenant->name,
                 'slug' => $tenant->slug,
             ] : null,
+            'isSuperadmin' => $this->auth->isSuperadmin(),
         ]);
     }
 
     /**
-     * Toggle status aktif / nonaktif modul untuk workspace aktif
+     * Toggle status aktif / nonaktif modul untuk workspace aktif atau server global (Superadmin)
      */
     public function toggle(Request $request): Response
     {
         $role = $this->auth->currentRole();
-        if ($role !== 'owner' && $role !== 'admin') {
-            $this->session->flash('error', 'Hanya Owner atau Admin yang dapat mengubah status modul.');
+        $isSuperadmin = $this->auth->isSuperadmin();
+
+        if ($role !== 'owner' && $role !== 'admin' && !$isSuperadmin) {
+            $this->session->flash('error', 'Hanya Owner, Admin, atau Superadmin yang dapat mengubah status modul.');
             return Response::redirect('/modules');
         }
 
@@ -69,10 +72,20 @@ class ModuleManagerController
             return Response::redirect('/modules');
         }
 
+        $scope = (string) $request->input('scope', 'tenant');
         $tenant = $this->auth->currentTenant();
 
         try {
-            if ($tenant) {
+            if ($scope === 'global') {
+                if (!$isSuperadmin) {
+                    $this->session->flash('error', 'Hanya Platform Superadmin yang dapat mengubah status modul secara global.');
+                    return Response::redirect('/modules');
+                }
+
+                $updated = $this->moduleManager->toggleGlobalActive($id);
+                $statusText = $updated['is_active'] ? 'diaktifkan' : 'dinonaktifkan';
+                $this->session->flash('success', "Modul [{$updated['name']}] berhasil {$statusText} di seluruh server (Platform Global).");
+            } elseif ($tenant) {
                 $updated = $this->moduleManager->toggleActiveForTenant((int) $tenant->id, $id);
                 $statusText = $updated['is_active'] ? 'diaktifkan' : 'dinonaktifkan';
                 $this->session->flash('success', "Modul [{$updated['name']}] berhasil {$statusText} untuk workspace '{$tenant->name}'.");

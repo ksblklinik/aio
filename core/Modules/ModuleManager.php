@@ -434,6 +434,14 @@ class ModuleManager
     }
 
     /**
+     * Toggle status aktif / nonaktif modul tingkat global server (Superadmin only)
+     */
+    public function toggleGlobalActive(string $id, ?bool $targetState = null): array
+    {
+        return $this->toggleActive($id, $targetState);
+    }
+
+    /**
      * Dependency Guard: Pastikan tidak ada modul aktif lain yang bergantung pada modul ini
      */
     private function validateNoActiveDependents(string $id): void

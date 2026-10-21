@@ -85,6 +85,12 @@ class AuthService
         return $user->getRoleInTenant($this->db, (int) $tenant->id);
     }
 
+    public function isSuperadmin(): bool
+    {
+        $user = $this->user();
+        return $user ? $user->isSuperadmin : false;
+    }
+
     public function attempt(string $email, string $password): bool
     {
         $user = User::findByEmail($this->db, $email);

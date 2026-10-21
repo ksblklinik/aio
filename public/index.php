@@ -65,6 +65,7 @@ $inertia->share([
             'id' => $authService->user()->id,
             'name' => $authService->user()->name,
             'email' => $authService->user()->email,
+            'is_superadmin' => $authService->user()->isSuperadmin,
         ] : null,
         'tenant' => $authService->currentTenant() ? [
             'id' => $authService->currentTenant()->id,
@@ -73,6 +74,7 @@ $inertia->share([
             'plan' => $authService->currentTenant()->plan,
         ] : null,
         'role' => $authService->currentRole(),
+        'is_superadmin' => $authService->isSuperadmin(),
         'tenants' => $authService->user() ? $authService->user()->getTenants($db) : [],
     ],
     'active_modules' => function () use ($authService, $moduleManager) {

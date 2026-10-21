@@ -46,6 +46,15 @@ export default function DevPersonaBar() {
       color: 'bg-purple-50 text-purple-700 border-purple-200',
       badge: 'Owner (Starlight)',
     },
+    {
+      userId: 4,
+      tenantId: 1,
+      name: 'System Superadmin',
+      tenantName: 'Platform Global',
+      role: 'superadmin',
+      color: 'bg-amber-500/10 text-amber-500 border-amber-500/30',
+      badge: 'Platform Superadmin',
+    },
   ];
 
   const handleSwitch = (userId: number, tenantId: number) => {

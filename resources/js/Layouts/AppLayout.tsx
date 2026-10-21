@@ -21,9 +21,10 @@ import DevPersonaBar from '../Components/DevPersonaBar';
 import ThemeToggle from '../Components/ThemeToggle';
 
 interface AuthProp {
-  user: { id: number; name: string; email: string } | null;
+  user: { id: number; name: string; email: string; is_superadmin?: boolean } | null;
   tenant: { id: number; name: string; slug: string; plan: string } | null;
   role: string | null;
+  is_superadmin?: boolean;
   tenants: Array<{ id: number; name: string; slug: string; role: string }>;
 }
 
@@ -79,7 +80,8 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
 
   const currentRole = props.auth?.role || 'owner';
   const userTenants = props.auth?.tenants || [];
-  const isOwnerOrAdmin = currentRole === 'owner' || currentRole === 'admin';
+  const isSuperadmin = !!(props.auth?.is_superadmin || currentUser.is_superadmin);
+  const isOwnerOrAdmin = currentRole === 'owner' || currentRole === 'admin' || isSuperadmin;
 
   // Base navigation
   const baseNavItems = [
@@ -285,8 +287,13 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
                 <div className="text-xs font-bold text-text-main truncate">
                   {currentUser.name}
                 </div>
-                <div className="text-[11px] text-text-muted font-medium capitalize">
-                  Peran: {currentRole}
+                <div className="text-[11px] text-text-muted font-medium capitalize flex items-center gap-1.5">
+                  <span>Peran: {currentRole}</span>
+                  {isSuperadmin && (
+                    <span className="text-[9px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-1.5 py-0.2 rounded">
+                      Super
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -311,6 +318,12 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            {isSuperadmin && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Platform Superadmin</span>
+              </span>
+            )}
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary-light border border-brand-primary/20 text-xs font-medium text-brand-primary">
               <span className="w-2 h-2 rounded-full bg-brand-primary" />
               Tenant: <strong className="font-semibold text-text-main">{activeTenant.name}</strong>

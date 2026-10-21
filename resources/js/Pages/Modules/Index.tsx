@@ -43,6 +43,7 @@ interface Props {
     name: string;
     slug: string;
   } | null;
+  isSuperadmin?: boolean;
 }
 
 const iconRegistry: Record<string, React.ElementType> = {
@@ -58,7 +59,7 @@ const iconRegistry: Record<string, React.ElementType> = {
   LifeBuoy,
 };
 
-export default function ModulesIndex({ modules = [], currentWorkspace }: Props) {
+export default function ModulesIndex({ modules = [], currentWorkspace, isSuperadmin }: Props) {
   const { props } = usePage<{ csrf_token?: string }>();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
@@ -86,13 +87,13 @@ export default function ModulesIndex({ modules = [], currentWorkspace }: Props) 
     return matchesSearch && matchesCat;
   });
 
-  const handleToggleActive = (module: ModuleItem) => {
+  const handleToggleActive = (module: ModuleItem, scope: 'tenant' | 'global' = 'tenant') => {
     if (module.is_core) {
       alert(`Modul inti [${module.name}] dilindungi dan tidak dapat dinonaktifkan.`);
       return;
     }
 
-    router.post('/modules/toggle', { id: module.id });
+    router.post('/modules/toggle', { id: module.id, scope });
   };
 
   const handleCreateModule = (e: React.FormEvent) => {
@@ -123,6 +124,12 @@ export default function ModulesIndex({ modules = [], currentWorkspace }: Props) 
                 <Blocks className="w-5 h-5 text-brand-primary" />
                 <span>Manajer Modul</span>
               </h2>
+              {isSuperadmin && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Platform Superadmin</span>
+                </span>
+              )}
               {currentWorkspace && (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   <Building2 className="w-3.5 h-3.5" />
@@ -134,7 +141,9 @@ export default function ModulesIndex({ modules = [], currentWorkspace }: Props) 
               </span>
             </div>
             <p className="text-xs text-text-muted mt-1">
-              {currentWorkspace
+              {isSuperadmin
+                ? 'Anda masuk sebagai Platform Superadmin. Anda memiliki hak akses penuh untuk mengelola modul secara global di seluruh server.'
+                : currentWorkspace
                 ? `Kelola modul & fitur khusus untuk workspace '${currentWorkspace.name}'. Pengaturan aktif/nonaktif diisolasi per tenant.`
                 : 'Pusat kendali ekstensi, dependensi, dan siklus hidup modular framework SaaS aio.'}
             </p>

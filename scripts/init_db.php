@@ -64,6 +64,14 @@ $users = [
         'name' => 'Alex Rivera (Owner)',
         'email' => 'alex@starlight.io',
         'password_hash' => $defaultPasswordHash,
+        'is_superadmin' => 0,
+    ],
+    [
+        'id' => 4,
+        'name' => 'System Superadmin',
+        'email' => 'superadmin@aio.local',
+        'password_hash' => $defaultPasswordHash,
+        'is_superadmin' => 1,
     ],
 ];
 
@@ -71,8 +79,8 @@ foreach ($users as $u) {
     $exists = $db->selectOne("SELECT id FROM users WHERE email = ?", [$u['email']]);
     if (!$exists) {
         $db->statement(
-            "INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)",
-            [$u['id'], $u['name'], $u['email'], $u['password_hash']]
+            "INSERT INTO users (id, name, email, password_hash, is_superadmin) VALUES (?, ?, ?, ?, ?)",
+            [$u['id'], $u['name'], $u['email'], $u['password_hash'], $u['is_superadmin'] ?? 0]
         );
         echo " [+] Created user: {$u['name']} ({$u['email']})\n";
     }
@@ -82,11 +90,14 @@ foreach ($users as $u) {
 // User 1 (John): Owner di Acme Corp (1), Member di Starlight Labs (2)
 // User 2 (Sarah): Member di Acme Corp (1)
 // User 3 (Alex): Owner di Starlight Labs (2)
+// User 4 (Superadmin): Owner di Acme Corp (1) & Starlight Labs (2)
 $memberships = [
     ['tenant_id' => 1, 'user_id' => 1, 'role' => 'owner'],
     ['tenant_id' => 2, 'user_id' => 1, 'role' => 'member'],
     ['tenant_id' => 1, 'user_id' => 2, 'role' => 'member'],
     ['tenant_id' => 2, 'user_id' => 3, 'role' => 'owner'],
+    ['tenant_id' => 1, 'user_id' => 4, 'role' => 'owner'],
+    ['tenant_id' => 2, 'user_id' => 4, 'role' => 'owner'],
 ];
 
 foreach ($memberships as $m) {

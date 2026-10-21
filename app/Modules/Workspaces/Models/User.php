@@ -13,7 +13,8 @@ class User
         public string $name = '',
         public string $email = '',
         public string $passwordHash = '',
-        public ?string $createdAt = null
+        public ?string $createdAt = null,
+        public bool $isSuperadmin = false
     ) {
     }
 
@@ -24,7 +25,8 @@ class User
             name: (string) ($row['name'] ?? ''),
             email: (string) ($row['email'] ?? ''),
             passwordHash: (string) ($row['password_hash'] ?? ''),
-            createdAt: isset($row['created_at']) ? (string) $row['created_at'] : null
+            createdAt: isset($row['created_at']) ? (string) $row['created_at'] : null,
+            isSuperadmin: !empty($row['is_superadmin'])
         );
     }
 
@@ -46,17 +48,21 @@ class User
             ? (string) $data['password_hash']
             : password_hash((string) ($data['password'] ?? ''), PASSWORD_BCRYPT);
 
+        $isSuperadmin = !empty($data['is_superadmin']) ? 1 : 0;
+
         $id = $db->insert('users', [
             'name' => trim((string) ($data['name'] ?? '')),
             'email' => trim(strtolower((string) ($data['email'] ?? ''))),
             'password_hash' => $passwordHash,
+            'is_superadmin' => $isSuperadmin,
         ]);
 
         return new self(
             id: (int) $id,
             name: (string) $data['name'],
             email: trim(strtolower((string) $data['email'])),
-            passwordHash: $passwordHash
+            passwordHash: $passwordHash,
+            isSuperadmin: $isSuperadmin === 1
         );
     }
 
