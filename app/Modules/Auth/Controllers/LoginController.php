@@ -1,0 +1,74 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Auth\Controllers;
+
+use App\Modules\Auth\Services\AuthService;
+use Core\Database\Connection;
+use Core\Http\Request;
+use Core\Http\Response;
+use Core\Http\Session;
+use Core\Inertia\Inertia;
+
+class LoginController
+{
+    public function __construct(
+        private AuthService $auth,
+        private Session $session,
+        private Inertia $inertia,
+        private Connection $db
+    ) {
+    }
+
+    public function showLoginForm(Request $request): Response
+    {
+        // Get demo users if local
+        $demoUsers = [];
+        $isLocal = ($_ENV['APP_ENV'] ?? 'local') === 'local';
+        if ($isLocal) {
+            $demoUsers = $this->db->selectAll(
+                "SELECT u.id as user_id, u.name as user_name, u.email, t.id as tenant_id, t.name as tenant_name, tu.role 
+                 FROM tenant_user tu 
+                 JOIN users u ON u.id = tu.user_id 
+                 JOIN tenants t ON t.id = tu.tenant_id 
+                 ORDER BY tu.id ASC"
+            );
+        }
+
+        return $this->inertia->render('Auth/Login', [
+            'demoUsers' => $demoUsers,
+            'isLocal' => $isLocal,
+            'flash' => [
+                'error' => $this->session->getFlash('error'),
+                'success' => $this->session->getFlash('success'),
+            ],
+        ]);
+    }
+
+    public function login(Request $request): Response
+    {
+        $email = trim((string) $request->input('email', ''));
+        $password = (string) $request->input('password', '');
+
+        if ($email === '' || $password === '') {
+            $this->session->flash('error', 'Email dan kata sandi wajib diisi.');
+            return Response::redirect('/login');
+        }
+
+        if (!$this->auth->attempt($email, $password)) {
+            $this->session->flash('error', 'Email atau kata sandi tidak cocok.');
+            return Response::redirect('/login');
+        }
+
+        $this->session->flash('success', 'Selamat datang kembali!');
+        return Response::redirect('/dashboard');
+    }
+
+    public function logout(Request $request): Response
+    {
+        $this->auth->logout();
+        $this->session->flash('success', 'Anda telah berhasil keluar.');
+        return Response::redirect('/login');
+    }
+}

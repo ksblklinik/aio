@@ -9,7 +9,7 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 * **Conversation ID Terakhir**: `a6bd4f0e-c477-44b6-b5f6-27d99bdc1692`
 * **Active Git Branch**: `feat/002-auth-rbac-projects`
 * **Active Spec**: [`specs/002-auth-rbac-projects.md`](file:///c:/aplikasi/aio/specs/002-auth-rbac-projects.md)
-* **Spec Status**: `In Progress` (Phase 1 & 2 Completed: Models User, Tenant, Project, Task dengan TenantScope aktif)
+* **Spec Status**: `In Progress` (Phase 1, 2 & 3 Completed: Auth Engine, RBAC, Dev Persona Switcher, Login/Register tuntas)
 * **Git Working Tree**: Bersih
 
 ---

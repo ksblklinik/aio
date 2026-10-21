@@ -178,11 +178,11 @@ CREATE TABLE tasks (
   - [x] 2.2 Buat model `App\Modules\Projects\Models\Project` dan `Task`.
   - [x] 2.3 Sambungkan model ke `Core\Database\Connection` dan `TenantScope`.
 
-- [ ] **Phase 3: Auth Engine, RBAC, & Dev Persona Switcher**
-  - [ ] 3.1 Buat `App\Modules\Auth\Services\AuthService` (register, login, hash, logout).
-  - [ ] 3.2 Buat middleware `Authenticate`, `RedirectIfAuthenticated`, dan `EnsureRole`.
-  - [ ] 3.3 Implementasikan fitur `DEV_AUTO_LOGIN` dan `DevPersonaController` (`/_dev/switch-persona`).
-  - [ ] 3.4 Buat `LoginController` dan `RegisterController`.
+- [x] **Phase 3: Auth Engine, RBAC, & Dev Persona Switcher**
+  - [x] 3.1 Buat `App\Modules\Auth\Services\AuthService` (register, login, hash, logout).
+  - [x] 3.2 Buat middleware `Authenticate`, `RedirectIfAuthenticated`, dan `EnsureRole`.
+  - [x] 3.3 Implementasikan fitur `DEV_AUTO_LOGIN` dan `DevPersonaController` (`/_dev/switch-persona`).
+  - [x] 3.4 Buat `LoginController` dan `RegisterController`.
 
 - [ ] **Phase 4: Business Module (Projects & Tasks CRUD)**
   - [ ] 4.1 Buat `ProjectController` (index, store, update, destroy) dengan isolasi `tenant_id`.
