@@ -1,4 +1,4 @@
-﻿# Project Specifications Directory
+# Project Specifications Directory
 
 Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek io. 
 
@@ -11,6 +11,6 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 ## Indeks Spesifikasi
 | No | File Spec | Fitur / Komponen | Status | Terakhir Diperbarui |
 |----|-----------|------------------|--------|---------------------|
-| -  | *(Belum ada spec aktif)* | - | - | - |
+| 001 | [001-aio-framework-core.md](file:///c:/aplikasi/aio/specs/001-aio-framework-core.md) | aio Full-Stack SaaS Framework Architecture | `Completed` | 2026-10-21 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*

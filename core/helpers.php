@@ -1,0 +1,86 @@
+<?php
+
+declare(strict_types=1);
+
+if (!function_exists('app')) {
+    /**
+     * Helper global untuk mengakses container atau instansiasi kelas
+     */
+    function app(?string $abstract = null): mixed
+    {
+        $container = \Core\Container::getInstance();
+        if ($abstract === null) {
+            return $container;
+        }
+        return $container->get($abstract);
+    }
+}
+
+if (!function_exists('inertia')) {
+    /**
+     * Helper global untuk merender respons Inertia.js
+     */
+    function inertia(string $component, array $props = []): \Core\Http\Response
+    {
+        return \Core\Inertia\Inertia::getInstance()->render($component, $props);
+    }
+}
+
+if (!function_exists('vite_asset')) {
+    /**
+     * Helper untuk memuat script/link Vite (mendukung HMR dev & production build manifest)
+     */
+    function vite_asset(string $entry = 'resources/js/app.tsx'): string
+    {
+        $hotFile = dirname(__DIR__) . '/public/hot';
+        $manifestFile = dirname(__DIR__) . '/public/build/manifest.json';
+
+        // 1. Cek apakah dev server Vite sedang berjalan (file public/hot atau default localhost:5173)
+        $isDev = false;
+        $viteHost = 'http://localhost:5173';
+
+        if (file_exists($hotFile)) {
+            $isDev = true;
+            $viteHost = trim((string) file_get_contents($hotFile));
+        } else {
+            // Cek koneksi port dev server secara non-blocking
+            $connection = @fsockopen('127.0.0.1', 5173, $errno, $errstr, 0.05);
+            if (is_resource($connection)) {
+                $isDev = true;
+                fclose($connection);
+            }
+        }
+
+        if ($isDev) {
+            return <<<HTML
+<script type="module">
+    import RefreshRuntime from '{$viteHost}/@react-refresh'
+    RefreshRuntime.injectIntoGlobalHook(window)
+    window.\$RefreshReg$ = () => {}
+    window.\$RefreshSig$ = () => (type) => type
+    window.__vite_plugin_react_preamble_installed__ = true
+</script>
+<script type="module" src="{$viteHost}/@vite/client"></script>
+<script type="module" src="{$viteHost}/{$entry}"></script>
+HTML;
+        }
+
+        // 2. Production build dari manifest
+        if (file_exists($manifestFile)) {
+            $manifest = json_decode((string) file_get_contents($manifestFile), true);
+            if (isset($manifest[$entry])) {
+                $item = $manifest[$entry];
+                $tags = '';
+                if (!empty($item['css'])) {
+                    foreach ($item['css'] as $cssFile) {
+                        $tags .= "<link rel=\"stylesheet\" href=\"/build/{$cssFile}\">\n";
+                    }
+                }
+                $tags .= "<script type=\"module\" src=\"/build/{$item['file']}\"></script>";
+                return $tags;
+            }
+        }
+
+        return "<!-- Vite asset [{$entry}] not found -->";
+    }
+}

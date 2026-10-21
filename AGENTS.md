@@ -16,15 +16,15 @@ Dokumen ini mendefinisikan aturan kerja (constitution) standar untuk pengembanga
 - Jika ada ambiguitas, tanyakan secara langsung atau gunakan rekomendasi slash command `/grill-me`.
 
 ### 2. Phase 2: Spec & Plan (Spesifikasi Teknis)
-- Setiap fitur/perubahan signifikan harus memiliki dokumen spec di folder [`specs/`](file:///c:/aplikasi/jstudio/specs).
-- Gunakan format dari [`specs/templates/SPEC_TEMPLATE.md`](file:///c:/aplikasi/jstudio/specs/templates/SPEC_TEMPLATE.md).
+- Setiap fitur/perubahan signifikan harus memiliki dokumen spec di folder [`specs/`](file:///c:/aplikasi/aio/specs).
+- Gunakan format dari [`specs/templates/SPEC_TEMPLATE.md`](file:///c:/aplikasi/aio/specs/templates/SPEC_TEMPLATE.md).
 - Dokumen spec harus memuat daftar tugas atomik (*Atomic Task Checklist*) bertingkat `[ ]` yang dapat dilacak progresnya.
 
 ### 3. Phase 3: Atomic TDD & Commit (Eksekusi Bertahap)
 - Kerjakan satu sub-tugas atomik dalam satu waktu di branch fitur (`feat/<nomor-spec>-<nama>`).
 - Terapkan pendekatan Test-Driven Development (TDD) jika memungkinkan: tulis tes unit/integrasi terlebih dahulu atau beriringan.
 - Perbarui status checkbox di file spec (`[ ]` menjadi `[x]`) segera setelah sub-tugas selesai dan diverifikasi.
-- Buat **atomic commit Git** tepat setelah sub-tugas diverifikasi sesuai format Conventional Commits ([`04-git-discipline.md`](file:///c:/aplikasi/jstudio/.agents/rules/04-git-discipline.md)).
+- Buat **atomic commit Git** tepat setelah sub-tugas diverifikasi sesuai format Conventional Commits ([`04-git-discipline.md`](file:///c:/aplikasi/aio/.agents/rules/04-git-discipline.md)).
 
 ### 4. Phase 4: Self-Verify & Review (Verifikasi Mandiri)
 - Lakukan verifikasi via terminal (eksekusi seluruh test suite, type-check, linter, build).
@@ -38,14 +38,18 @@ Dokumen ini mendefinisikan aturan kerja (constitution) standar untuk pengembanga
 2. **Minimal & Clean Diffs**: Hanya modifikasi baris atau file yang benar-benar relevan dengan sub-tugas yang sedang dikerjakan.
 3. **Git Hygiene**: Jangan pernah menggunakan `git add .` secara buta. Cegah commit file `.env`, credential, atau build artifacts.
 4. **Dokumentasi Selalu Sinkron**: Jika ada perubahan arah di tengah pengerjaan, perbarui dokumen spec di `specs/` terlebih dahulu sebelum melanjutkan kode.
+5. **Session Continuity & Handoff**:
+   - **Saat Mengakhiri Sesi**: Agen wajib memperbarui [`.agents/SESSION_HANDOFF.md`](file:///c:/aplikasi/aio/.agents/SESSION_HANDOFF.md) yang mencatat branch aktif, status spec/checklist, dan langkah langsung berikutnya sebelum sesi ditutup.
+   - **Saat Memulai Sesi Baru**: Agen wajib membaca `.agents/SESSION_HANDOFF.md` terlebih dahulu untuk memulihkan konteks kerja tanpa perlu penjelasan ulang dari pengguna.
 
 ---
 
 ## Indeks Aturan Kerja (.agents/rules/)
 Setiap agen dan kontributor wajib mematuhi seluruh aturan berikut:
-1. [01-spec-driven.md](file:///c:/aplikasi/jstudio/.agents/rules/01-spec-driven.md) — Tata cara penyusunan spec dan checklist atomik.
-2. [02-code-quality-tdd.md](file:///c:/aplikasi/jstudio/.agents/rules/02-code-quality-tdd.md) — Kualitas kode, offline-first unit tests, dan mocking ketat.
-3. [03-verification.md](file:///c:/aplikasi/jstudio/.agents/rules/03-verification.md) — Prosedur verifikasi mandiri sebelum commit.
-4. [04-git-discipline.md](file:///c:/aplikasi/jstudio/.agents/rules/04-git-discipline.md) — Conventional Commits, anti spec-drift, dan branch per spec.
-5. [05-context-token-efficiency.md](file:///c:/aplikasi/jstudio/.agents/rules/05-context-token-efficiency.md) — Efisiensi token, surgical reading/diffs, dan repo-map.
-6. [06-mcp-lifecycle-recommendation.md](file:///c:/aplikasi/jstudio/.agents/rules/06-mcp-lifecycle-recommendation.md) — Rekomendasi proaktif server MCP dan tata kelola plugin.
+1. [01-spec-driven.md](file:///c:/aplikasi/aio/.agents/rules/01-spec-driven.md) — Tata cara penyusunan spec dan checklist atomik.
+2. [02-code-quality-tdd.md](file:///c:/aplikasi/aio/.agents/rules/02-code-quality-tdd.md) — Kualitas kode, offline-first unit tests, dan mocking ketat.
+3. [03-verification.md](file:///c:/aplikasi/aio/.agents/rules/03-verification.md) — Prosedur verifikasi mandiri sebelum commit.
+4. [04-git-discipline.md](file:///c:/aplikasi/aio/.agents/rules/04-git-discipline.md) — Conventional Commits, anti spec-drift, dan branch per spec.
+5. [05-context-token-efficiency.md](file:///c:/aplikasi/aio/.agents/rules/05-context-token-efficiency.md) — Efisiensi token, surgical reading/diffs, dan repo-map.
+6. [06-mcp-lifecycle-recommendation.md](file:///c:/aplikasi/aio/.agents/rules/06-mcp-lifecycle-recommendation.md) — Rekomendasi proaktif server MCP dan tata kelola plugin.
+

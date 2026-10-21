@@ -54,7 +54,7 @@ $hasSpecStaged = $false
 if ($stagedFiles) {
     foreach ($file in $stagedFiles) {
         if ($file -match "^specs/") { $hasSpecStaged = $true }
-        if ($file -match "\.(ts|js|py|go|rs|sql)$") { $hasCodeStaged = $true }
+        if ($file -match "\.(ts|js|tsx|jsx|php|py|go|rs|sql)$") { $hasCodeStaged = $true }
     }
     if ($hasCodeStaged -and -not $hasSpecStaged) {
         Write-Host " WARNING: Code changes are staged without corresponding specs/ update." -ForegroundColor Yellow
@@ -68,9 +68,23 @@ if ($stagedFiles) {
 
 # 3. Automated Tests & Type Check (Auto-detect stack)
 Write-Host "`n[3/4] Running automated test suites..." -ForegroundColor Yellow
+$ranAnyTest = $false
+
+if (Test-Path "composer.json") {
+    Write-Host " Detected PHP project..." -ForegroundColor Cyan
+    $ranAnyTest = $true
+    if (Test-Path "vendor/bin/phpunit.bat") {
+        .\vendor\bin\phpunit.bat --testdox
+        if ($LASTEXITCODE -ne 0) { $scriptFailed = $true }
+    } elseif (Test-Path "vendor/bin/phpunit") {
+        php vendor/bin/phpunit --testdox
+        if ($LASTEXITCODE -ne 0) { $scriptFailed = $true }
+    }
+}
+
 if (Test-Path "package.json") {
-    Write-Host " Detected Node.js project..." -ForegroundColor Cyan
-    # Run test script if present
+    Write-Host " Detected Node.js / Frontend project..." -ForegroundColor Cyan
+    $ranAnyTest = $true
     $pkgJson = Get-Content "package.json" -Raw | ConvertFrom-Json
     if ($pkgJson.scripts.test) {
         npm test
@@ -80,13 +94,18 @@ if (Test-Path "package.json") {
         npm run typecheck
         if ($LASTEXITCODE -ne 0) { $scriptFailed = $true }
     }
-} elseif ((Test-Path "pyproject.toml") -or (Test-Path "requirements.txt")) {
+}
+
+if ((Test-Path "pyproject.toml") -or (Test-Path "requirements.txt")) {
     Write-Host " Detected Python project..." -ForegroundColor Cyan
+    $ranAnyTest = $true
     if (Get-Command pytest -ErrorAction SilentlyContinue) {
         pytest
         if ($LASTEXITCODE -ne 0) { $scriptFailed = $true }
     }
-} else {
+}
+
+if (-not $ranAnyTest) {
     Write-Host " INFO: No runtime stack detected yet. Skipping runtime test suite." -ForegroundColor Gray
 }
 
