@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "aio Core",
   "description": "Pusat kendali modul, ekstensi, dan plugin aplikasi. Tambah, nonaktifkan, atau hapus modul dengan aman.",
-  "category": "Sistem & Administrasi",
+  "category": "core",
   "icon": "Blocks",
   "route": "/modules",
   "dependencies": ["auth", "workspaces"],

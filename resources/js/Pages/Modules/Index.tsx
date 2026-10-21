@@ -17,7 +17,12 @@ import {
   Search, 
   AlertTriangle, 
   X,
-  ExternalLink
+  ExternalLink,
+  BookOpen,
+  Coins,
+  MessageSquare,
+  BarChart3,
+  Code2
 } from 'lucide-react';
 
 interface ModuleItem {
@@ -27,6 +32,9 @@ interface ModuleItem {
   author: string;
   description: string;
   category: string;
+  category_id?: string;
+  category_label?: string;
+  category_badge_class?: string;
   icon: string;
   route: string;
   dependencies: string[];
@@ -36,8 +44,18 @@ interface ModuleItem {
   table_name: string | null;
 }
 
+export interface CategoryItem {
+  id: string;
+  label: string;
+  icon: string;
+  color: string;
+  badge_class: string;
+  description: string;
+}
+
 interface Props {
   modules: ModuleItem[];
+  categories?: CategoryItem[];
   title?: string;
   currentWorkspace?: {
     id: number;
@@ -58,12 +76,17 @@ const iconRegistry: Record<string, React.ElementType> = {
   Settings,
   Users,
   LifeBuoy,
+  BookOpen,
+  Coins,
+  MessageSquare,
+  BarChart3,
+  Code2,
 };
 
-export default function ModulesIndex({ modules = [], currentWorkspace, isSuperadmin }: Props) {
+export default function ModulesIndex({ modules = [], categories: serverCategories = [], currentWorkspace, isSuperadmin }: Props) {
   const { props } = usePage<{ csrf_token?: string }>();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Semua');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [deleteConfirmModule, setDeleteConfirmModule] = useState<ModuleItem | null>(null);
 
@@ -72,19 +95,26 @@ export default function ModulesIndex({ modules = [], currentWorkspace, isSuperad
     name: '',
     id: '',
     description: '',
-    category: 'Bisnis',
+    category: 'collaboration',
     icon: 'Package',
     _token: props.csrf_token || '',
   });
 
-  const categories = ['Semua', ...Array.from(new Set(modules.map((m) => m.category).filter(Boolean)))];
+  const categoryFilters = [
+    { id: 'all', label: 'Semua Kategori' },
+    ...(serverCategories && serverCategories.length > 0
+      ? serverCategories.map((c) => ({ id: c.id, label: c.label }))
+      : Array.from(new Set(modules.map((m) => m.category_id || m.category).filter(Boolean))).map((cat) => ({ id: cat, label: cat }))
+    )
+  ];
 
   const filteredModules = modules.filter((m) => {
     const matchesSearch = 
       m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.id.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCat = selectedCategory === 'Semua' || m.category === selectedCategory;
+    const modCatId = m.category_id || m.category;
+    const matchesCat = selectedCategory === 'all' || modCatId === selectedCategory || m.category === selectedCategory;
     return matchesSearch && matchesCat;
   });
 
@@ -173,18 +203,18 @@ export default function ModulesIndex({ modules = [], currentWorkspace, isSuperad
           </div>
 
           {/* Category Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-            {categories.map((cat) => (
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+            {categoryFilters.map((cat) => (
               <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
                 className={`px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
-                  selectedCategory === cat
+                  selectedCategory === cat.id
                     ? 'bg-brand-primary text-white shadow-2xs'
                     : 'bg-surface-subtle hover:bg-surface text-text-muted hover:text-text-main border border-border-subtle'
                 }`}
               >
-                {cat}
+                {cat.label}
               </button>
             ))}
           </div>
@@ -256,7 +286,9 @@ export default function ModulesIndex({ modules = [], currentWorkspace, isSuperad
                   <div className="space-y-1.5 pt-2 border-t border-border-subtle text-[11px]">
                     <div className="flex items-center justify-between text-text-muted">
                       <span>Kategori:</span>
-                      <span className="font-medium text-text-main">{module.category}</span>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ${module.category_badge_class || 'bg-slate-500/10 text-slate-700 dark:text-slate-300 border-slate-500/20'}`}>
+                        {module.category_label || module.category}
+                      </span>
                     </div>
 
                     <div className="flex items-center justify-between text-text-muted">
@@ -443,18 +475,31 @@ export default function ModulesIndex({ modules = [], currentWorkspace, isSuperad
 
                 <div>
                   <label className="block text-xs font-semibold text-text-main mb-1">
-                    Kategori
+                    Kategori Organisasi
                   </label>
                   <select
                     value={data.category}
                     onChange={(e) => setData('category', e.target.value)}
                     className="w-full px-3 py-2 bg-surface border border-border-subtle rounded-lg text-xs text-text-main focus:outline-none focus:border-brand-primary"
                   >
-                    <option value="Bisnis">Bisnis & Finansial</option>
-                    <option value="Produktivitas">Produktivitas & Kolaborasi</option>
-                    <option value="Komunikasi">Komunikasi & CRM</option>
-                    <option value="Keamanan & Akses">Keamanan & Akses</option>
-                    <option value="Sistem & Administrasi">Sistem & Administrasi</option>
+                    {serverCategories && serverCategories.length > 0 ? (
+                      serverCategories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.label} ({cat.id})
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="collaboration">Kolaborasi & Alur Kerja</option>
+                        <option value="core">Core & Keamanan</option>
+                        <option value="people">Anggota & Keanggotaan</option>
+                        <option value="knowledge">Pengetahuan & Dokumen</option>
+                        <option value="resources">Sumber Daya & Finansial</option>
+                        <option value="engagement">Komunikasi & Pengumuman</option>
+                        <option value="analytics">Analitik & Laporan</option>
+                        <option value="developer">Integrasi & Ekstensi</option>
+                      </>
+                    )}
                   </select>
                 </div>
               </div>

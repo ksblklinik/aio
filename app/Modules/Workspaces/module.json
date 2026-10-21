@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "aio Core",
   "description": "Manajemen isolasi tenancy, pergantian workspace dinamis, dan penetapan peran (RBAC).",
-  "category": "Infrastruktur Tenancy",
+  "category": "core",
   "icon": "Building2",
   "route": "/workspaces/switch",
   "dependencies": ["auth"],

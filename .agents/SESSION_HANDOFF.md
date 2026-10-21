@@ -7,11 +7,11 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 ## 📌 Status Terakhir Sesi (Last Updated: 2026-10-21 11:36 WIB)
 
 * **Conversation ID Terakhir**: `9728b0ac-b70f-4d51-83ae-268dfaeb094b`
-* **Active Git Branch**: `feat/004-superadmin-platform`
-* **Active Spec**: [`specs/004-superadmin-platform.md`](file:///c:/aplikasi/aio/specs/004-superadmin-platform.md)
-* **Spec Status**: `Completed` (64 Unit Tests lulus 100%, Vite & TS Build OK)
-* **New Features**: Platform Superadmin Account (`superadmin@aio.local`), `EnsureSuperadmin` Middleware, Dual Server vs Workspace Toggle UI, Auto-reactivation logic for Superadmin
-* **Git Working Tree**: Bersih (Commit `dfcc12c`)
+* **Active Git Branch**: `feat/005-universal-taxonomy`
+* **Active Spec**: [`specs/005-universal-taxonomy.md`](file:///c:/aplikasi/aio/specs/005-universal-taxonomy.md)
+* **Spec Status**: `Completed` (70 Unit Tests lulus 100%, Vite & TS Build OK)
+* **New Features**: Universal Organizational Taxonomy & CategoryRegistry (8 Archetypes: Core, Collaboration, People, Knowledge, Resources, Engagement, Analytics, Developer), Standardized Manifests, Category Select Dropdown, Semantic Badges & Filter Pills
+* **Git Working Tree**: Siap Commit
 
 ---
 

@@ -16,7 +16,7 @@ class ModuleManager
 
     public function __construct(?PDO $pdo = null, ?string $modulesBasePath = null, ?string $pagesBasePath = null)
     {
-        $this->pdo = $pdo ?? Connection::getInstance()->getPdo();
+        $this->pdo = $pdo ?? (new Connection('sqlite:' . dirname(__DIR__, 2) . '/database.sqlite'))->getPdo();
         $this->modulesBasePath = $modulesBasePath ?? dirname(__DIR__, 2) . '/app/Modules';
         $this->pagesBasePath = $pagesBasePath ?? dirname(__DIR__, 2) . '/resources/js/Pages';
         
@@ -90,7 +90,7 @@ class ModuleManager
             $version = (string) ($content['version'] ?? '1.0.0');
             $author = (string) ($content['author'] ?? 'aio Core');
             $description = (string) ($content['description'] ?? '');
-            $category = (string) ($content['category'] ?? 'General');
+            $category = CategoryRegistry::normalizeKey((string) ($content['category'] ?? 'collaboration'));
             $icon = (string) ($content['icon'] ?? 'Layers');
             $route = (string) ($content['route'] ?? '/' . strtolower($folder));
             $dependencies = json_encode($content['dependencies'] ?? []);
@@ -144,6 +144,10 @@ class ModuleManager
             $row['is_core'] = (bool) $row['is_core'];
             $row['is_active'] = (bool) $row['is_active'];
             $row['folder'] = $this->resolveFolderForModule((string) $row['id']);
+            $cat = CategoryRegistry::get((string) ($row['category'] ?? ''));
+            $row['category_id'] = $cat ? $cat['id'] : CategoryRegistry::normalizeKey((string) ($row['category'] ?? ''));
+            $row['category_label'] = $cat ? $cat['label'] : CategoryRegistry::getLabel((string) ($row['category'] ?? ''));
+            $row['category_badge_class'] = $cat ? $cat['badge_class'] : CategoryRegistry::getBadgeClass((string) ($row['category'] ?? ''));
             return $row;
         }, $rows);
     }
@@ -220,6 +224,10 @@ class ModuleManager
             $row['system_active'] = $systemActive;
             $row['is_tenant_customized'] = ($row['tenant_enabled'] !== null);
             $row['folder'] = $this->resolveFolderForModule((string) $row['id']);
+            $cat = CategoryRegistry::get((string) ($row['category'] ?? ''));
+            $row['category_id'] = $cat ? $cat['id'] : CategoryRegistry::normalizeKey((string) ($row['category'] ?? ''));
+            $row['category_label'] = $cat ? $cat['label'] : CategoryRegistry::getLabel((string) ($row['category'] ?? ''));
+            $row['category_badge_class'] = $cat ? $cat['badge_class'] : CategoryRegistry::getBadgeClass((string) ($row['category'] ?? ''));
             return $row;
         }, $rows);
     }
@@ -543,7 +551,8 @@ class ModuleManager
         mkdir($frontendDir, 0755, true);
 
         $description = trim((string) ($data['description'] ?? "Modul {$name} untuk framework aio."));
-        $category = trim((string) ($data['category'] ?? 'Bisnis'));
+        $rawCategory = trim((string) ($data['category'] ?? 'collaboration'));
+        $category = CategoryRegistry::normalizeKey($rawCategory);
         $icon = trim((string) ($data['icon'] ?? 'Package'));
         $route = '/' . $id;
         $dependencies = is_array($data['dependencies'] ?? null) ? $data['dependencies'] : [];

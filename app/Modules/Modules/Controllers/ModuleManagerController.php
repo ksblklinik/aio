@@ -8,6 +8,7 @@ use App\Modules\Auth\Services\AuthService;
 use Core\Http\Request;
 use Core\Http\Response;
 use Core\Http\Session;
+use Core\Modules\CategoryRegistry;
 use Core\Modules\ModuleManager;
 use DomainException;
 use Throwable;
@@ -44,6 +45,7 @@ class ModuleManagerController
         return inertia('Modules/Index', [
             'title' => 'Manajer Modul & Ekstensi',
             'modules' => $modules,
+            'categories' => CategoryRegistry::all(),
             'currentWorkspace' => $tenant ? [
                 'id' => $tenant->id,
                 'name' => $tenant->name,
@@ -124,7 +126,7 @@ class ModuleManagerController
         $name = trim((string) $request->input('name', ''));
         $id = trim((string) $request->input('id', ''));
         $description = trim((string) $request->input('description', ''));
-        $category = trim((string) $request->input('category', 'Bisnis'));
+        $category = CategoryRegistry::normalizeKey(trim((string) $request->input('category', 'collaboration')));
         $icon = trim((string) $request->input('icon', 'Package'));
 
         if ($name === '') {

@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "aio Core",
   "description": "Manajemen login, registrasi, sesi akun pengguna, dan Fast Persona Switcher.",
-  "category": "Keamanan & Akses",
+  "category": "core",
   "icon": "ShieldCheck",
   "route": "/login",
   "dependencies": [],

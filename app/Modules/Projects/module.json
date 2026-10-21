@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "aio Core",
   "description": "Pelacak proyek terisolasi tenancy, manajemen to-do task list, dan visualisasi progress bar.",
-  "category": "Produktivitas",
+  "category": "collaboration",
   "icon": "Layers",
   "route": "/projects",
   "dependencies": ["auth", "workspaces"],
