@@ -4,7 +4,7 @@ import { Zap, Mail, Lock, User, Building2, ArrowRight, AlertCircle } from 'lucid
 
 export default function Register() {
   const { props } = usePage<{ flash?: { error?: string | null }; csrf_token?: string }>();
-  const { data, setData, post, processing } = useForm({
+  const { data, setData, post, processing, errors } = useForm({
     name: '',
     email: '',
     password: '',
@@ -56,13 +56,19 @@ export default function Register() {
                 <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input
                   type="text"
-                  required
                   value={data.name}
                   onChange={(e) => setData('name', e.target.value)}
                   placeholder="Jane Doe"
-                  className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  className={`w-full pl-9 pr-3 py-2 bg-slate-950/80 border rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none transition-all ${
+                    errors.name
+                      ? 'border-rose-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
+                      : 'border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+                  }`}
                 />
               </div>
+              {errors.name && (
+                <p className="text-[11px] text-rose-400 mt-1">{errors.name}</p>
+              )}
             </div>
 
             <div>
@@ -73,33 +79,46 @@ export default function Register() {
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input
                   type="email"
-                  required
                   value={data.email}
                   onChange={(e) => setData('email', e.target.value)}
                   placeholder="jane@perusahaan.com"
-                  className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  className={`w-full pl-9 pr-3 py-2 bg-slate-950/80 border rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none transition-all ${
+                    errors.email
+                      ? 'border-rose-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
+                      : 'border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+                  }`}
                 />
               </div>
+              {errors.email && (
+                <p className="text-[11px] text-rose-400 mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-1">
-                Nama Workspace / Perusahaan
+                Nama Workspace / Organisasi
               </label>
               <div className="relative">
                 <Building2 className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input
                   type="text"
-                  required
                   value={data.workspace_name}
                   onChange={(e) => setData('workspace_name', e.target.value)}
                   placeholder="Acme Technologies"
-                  className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  className={`w-full pl-9 pr-3 py-2 bg-slate-950/80 border rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none transition-all ${
+                    errors.workspace_name
+                      ? 'border-rose-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
+                      : 'border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+                  }`}
                 />
               </div>
-              <p className="text-[10px] text-slate-400 mt-1">
-                Anda akan otomatis menjadi Owner pada workspace ini.
-              </p>
+              {errors.workspace_name ? (
+                <p className="text-[11px] text-rose-400 mt-1">{errors.workspace_name}</p>
+              ) : (
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Anda akan otomatis menjadi Owner pada workspace ini.
+                </p>
+              )}
             </div>
 
             <div>
@@ -110,14 +129,19 @@ export default function Register() {
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input
                   type="password"
-                  required
-                  minLength={6}
                   value={data.password}
                   onChange={(e) => setData('password', e.target.value)}
                   placeholder="Minimal 6 karakter"
-                  className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  className={`w-full pl-9 pr-3 py-2 bg-slate-950/80 border rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none transition-all ${
+                    errors.password
+                      ? 'border-rose-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
+                      : 'border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+                  }`}
                 />
               </div>
+              {errors.password && (
+                <p className="text-[11px] text-rose-400 mt-1">{errors.password}</p>
+              )}
             </div>
 
             <button

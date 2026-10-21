@@ -22,7 +22,7 @@ interface LoginProps {
 
 export default function Login({ demoUsers = [], isLocal = false }: LoginProps) {
   const { props } = usePage<{ flash?: { error?: string | null; success?: string | null }; csrf_token?: string }>();
-  const { data, setData, post, processing } = useForm({
+  const { data, setData, post, processing, errors } = useForm({
     email: '',
     password: '',
     _token: props.csrf_token || '',
@@ -90,13 +90,19 @@ export default function Login({ demoUsers = [], isLocal = false }: LoginProps) {
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input
                   type="email"
-                  required
                   value={data.email}
                   onChange={(e) => setData('email', e.target.value)}
                   placeholder="anda@perusahaan.com"
-                  className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  className={`w-full pl-9 pr-3 py-2 bg-slate-950/80 border rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none transition-all ${
+                    errors.email 
+                      ? 'border-rose-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500' 
+                      : 'border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+                  }`}
                 />
               </div>
+              {errors.email && (
+                <p className="text-[11px] text-rose-400 mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div>
@@ -107,13 +113,19 @@ export default function Login({ demoUsers = [], isLocal = false }: LoginProps) {
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input
                   type="password"
-                  required
                   value={data.password}
                   onChange={(e) => setData('password', e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  className={`w-full pl-9 pr-3 py-2 bg-slate-950/80 border rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none transition-all ${
+                    errors.password 
+                      ? 'border-rose-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500' 
+                      : 'border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+                  }`}
                 />
               </div>
+              {errors.password && (
+                <p className="text-[11px] text-rose-400 mt-1">{errors.password}</p>
+              )}
             </div>
 
             <button

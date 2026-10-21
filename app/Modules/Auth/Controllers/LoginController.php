@@ -10,9 +10,11 @@ use Core\Http\Request;
 use Core\Http\Response;
 use Core\Http\Session;
 use Core\Inertia\Inertia;
+use Core\Validation\ValidatesRequests;
 
 class LoginController
 {
+    use ValidatesRequests;
     public function __construct(
         private AuthService $auth,
         private Session $session,
@@ -48,15 +50,13 @@ class LoginController
 
     public function login(Request $request): Response
     {
-        $email = trim((string) $request->input('email', ''));
-        $password = (string) $request->input('password', '');
+        $validated = $this->validate($request, [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-        if ($email === '' || $password === '') {
-            $this->session->flash('error', 'Email dan kata sandi wajib diisi.');
-            return Response::redirect('/login');
-        }
-
-        if (!$this->auth->attempt($email, $password)) {
+        if (!$this->auth->attempt($validated['email'], $validated['password'])) {
+            $this->session->flash('errors', ['email' => 'Email atau kata sandi tidak cocok.']);
             $this->session->flash('error', 'Email atau kata sandi tidak cocok.');
             return Response::redirect('/login');
         }

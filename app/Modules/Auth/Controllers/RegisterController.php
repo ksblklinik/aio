@@ -11,9 +11,11 @@ use Core\Http\Request;
 use Core\Http\Response;
 use Core\Http\Session;
 use Core\Inertia\Inertia;
+use Core\Validation\ValidatesRequests;
 
 class RegisterController
 {
+    use ValidatesRequests;
     public function __construct(
         private AuthService $auth,
         private Session $session,
@@ -33,30 +35,21 @@ class RegisterController
 
     public function register(Request $request): Response
     {
-        $name = trim((string) $request->input('name', ''));
-        $email = trim(strtolower((string) $request->input('email', '')));
-        $password = (string) $request->input('password', '');
-        $workspaceName = trim((string) $request->input('workspace_name', ''));
+        $validated = $this->validate($request, [
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'workspace_name' => 'required|string|max:100',
+        ]);
 
-        if ($name === '' || $email === '' || $password === '' || $workspaceName === '') {
-            $this->session->flash('error', 'Semua kolom registrasi wajib diisi.');
-            return Response::redirect('/register');
-        }
+        $this->auth->register(
+            $validated['name'],
+            strtolower($validated['email']),
+            $validated['password'],
+            $validated['workspace_name']
+        );
 
-        if (strlen($password) < 6) {
-            $this->session->flash('error', 'Kata sandi minimal harus 6 karakter.');
-            return Response::redirect('/register');
-        }
-
-        $existing = User::findByEmail($this->db, $email);
-        if ($existing) {
-            $this->session->flash('error', 'Alamat email ini sudah terdaftar.');
-            return Response::redirect('/register');
-        }
-
-        $this->auth->register($name, $email, $password, $workspaceName);
-
-        $this->session->flash('success', "Workspace [{$workspaceName}] berhasil dibuat! Selamat datang di aio.");
+        $this->session->flash('success', "Workspace [{$validated['workspace_name']}] berhasil dibuat! Selamat datang di aio.");
         return Response::redirect('/dashboard');
     }
 }

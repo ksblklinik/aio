@@ -17,6 +17,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Core\Container;
 use Core\Http\Request;
+use Core\Http\Response;
 use Core\Http\Session;
 use Core\Inertia\Inertia;
 use Core\Middleware\StartSession;
@@ -87,6 +88,7 @@ $inertia->share([
         'success' => $session->getFlash('success'),
         'error' => $session->getFlash('error'),
     ],
+    'errors' => fn() => $session->getFlash('errors') ?: (object)[],
 ]);
 $container->singleton(Inertia::class, fn() => $inertia);
 
@@ -120,6 +122,12 @@ try {
 
     $response = $pipeline($request);
     $response->send();
+} catch (\Core\Validation\ValidationException $e) {
+    $session->flash('errors', $e->errors());
+    $session->flash('error', $e->firstError());
+    $referer = $request->header('referer') ?: '/';
+    $redirect = Response::redirect($referer);
+    $redirect->send();
 } catch (\Throwable $e) {
     http_response_code(500);
     if (($request->isJson() || $request->isInertia())) {

@@ -109,7 +109,7 @@ export default function ModulesIndex({ modules = [], categories: serverCategorie
   }, [isFilterDropdownOpen]);
 
   // Form Scaffold
-  const { data, setData, post, reset, processing } = useForm({
+  const { data, setData, post, reset, processing, errors } = useForm({
     name: '',
     id: '',
     description: '',
@@ -600,7 +600,6 @@ export default function ModulesIndex({ modules = [], categories: serverCategorie
                 </label>
                 <input
                   type="text"
-                  required
                   placeholder="Misal: Invoicing & Billing"
                   value={data.name}
                   onChange={(e) => {
@@ -611,8 +610,13 @@ export default function ModulesIndex({ modules = [], categories: serverCategorie
                       id: prev.id ? prev.id : val.toLowerCase().replace(/[^a-zA-Z0-9]/g, '_'),
                     }));
                   }}
-                  className="w-full px-3 py-2 bg-surface border border-border-subtle rounded-lg text-xs text-text-main placeholder-text-muted focus:outline-none focus:border-brand-primary"
+                  className={`w-full px-3 py-2 bg-surface border rounded-lg text-xs text-text-main placeholder-text-muted focus:outline-none transition-colors ${
+                    errors.name ? 'border-rose-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500' : 'border-border-subtle focus:border-brand-primary'
+                  }`}
                 />
+                {errors.name && (
+                  <p className="text-[11px] text-rose-500 mt-1">{errors.name}</p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -622,12 +626,16 @@ export default function ModulesIndex({ modules = [], categories: serverCategorie
                   </label>
                   <input
                     type="text"
-                    required
                     placeholder="invoicing"
                     value={data.id}
                     onChange={(e) => setData('id', e.target.value)}
-                    className="w-full px-3 py-2 bg-surface border border-border-subtle rounded-lg text-xs text-text-main placeholder-text-muted font-mono focus:outline-none focus:border-brand-primary"
+                    className={`w-full px-3 py-2 bg-surface border rounded-lg text-xs text-text-main placeholder-text-muted font-mono focus:outline-none transition-colors ${
+                      errors.id ? 'border-rose-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500' : 'border-border-subtle focus:border-brand-primary'
+                    }`}
                   />
+                  {errors.id && (
+                    <p className="text-[11px] text-rose-500 mt-1">{errors.id}</p>
+                  )}
                 </div>
 
                 <div>
