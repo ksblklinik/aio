@@ -20,12 +20,18 @@ class ModuleManagerController
     private ModuleManager $moduleManager;
     private AuthService $auth;
     private Session $session;
+    private ?\Core\Audit\AuditLogger $auditLogger;
 
-    public function __construct(ModuleManager $moduleManager, AuthService $auth, Session $session)
-    {
+    public function __construct(
+        ModuleManager $moduleManager, 
+        AuthService $auth, 
+        Session $session,
+        ?\Core\Audit\AuditLogger $auditLogger = null
+    ) {
         $this->moduleManager = $moduleManager;
         $this->auth = $auth;
         $this->session = $session;
+        $this->auditLogger = $auditLogger;
     }
 
     /**
@@ -88,21 +94,49 @@ class ModuleManagerController
 
                 $updated = $this->moduleManager->toggleGlobalActive($id);
                 $statusText = $updated['is_active'] ? 'diaktifkan' : 'dinonaktifkan';
+                $this->auditLogger?->log(
+                    'module.toggled',
+                    "Modul [{$updated['name']}] {$statusText} di seluruh server (Platform Global)",
+                    'module',
+                    $id,
+                    ['scope' => 'global', 'status' => $updated['is_active']]
+                );
                 $this->session->flash('success', "Modul [{$updated['name']}] berhasil {$statusText} di seluruh server (Platform Global).");
             } elseif ($tenant) {
                 // Jika Superadmin men-toggle modul yang sedang nonaktif di tingkat sistem, aktifkan kembali di tingkat global!
                 if ($isSuperadmin && !$this->moduleManager->isModuleActiveGlobally($id)) {
                     $updated = $this->moduleManager->toggleGlobalActive($id, true);
+                    $this->auditLogger?->log(
+                        'module.toggled',
+                        "Modul [{$updated['name']}] diaktifkan kembali di seluruh server (Platform Global)",
+                        'module',
+                        $id,
+                        ['scope' => 'global', 'status' => true]
+                    );
                     $this->session->flash('success', "Modul [{$updated['name']}] berhasil diaktifkan kembali di seluruh server (Platform Global).");
                     return Response::redirect('/modules');
                 }
 
                 $updated = $this->moduleManager->toggleActiveForTenant((int) $tenant->id, $id);
                 $statusText = $updated['is_active'] ? 'diaktifkan' : 'dinonaktifkan';
+                $this->auditLogger?->log(
+                    'module.toggled',
+                    "Modul [{$updated['name']}] {$statusText} untuk workspace '{$tenant->name}'",
+                    'module',
+                    $id,
+                    ['scope' => 'tenant', 'tenant_id' => $tenant->id, 'status' => $updated['is_active']]
+                );
                 $this->session->flash('success', "Modul [{$updated['name']}] berhasil {$statusText} untuk workspace '{$tenant->name}'.");
             } else {
                 $updated = $this->moduleManager->toggleActive($id);
                 $statusText = $updated['is_active'] ? 'diaktifkan' : 'dinonaktifkan';
+                $this->auditLogger?->log(
+                    'module.toggled',
+                    "Modul [{$updated['name']}] {$statusText} secara global",
+                    'module',
+                    $id,
+                    ['scope' => 'default', 'status' => $updated['is_active']]
+                );
                 $this->session->flash('success', "Modul [{$updated['name']}] berhasil {$statusText} secara global.");
             }
         } catch (DomainException $e) {
@@ -140,7 +174,7 @@ class ModuleManagerController
         $icon = trim((string) ($validated['icon'] ?? 'Package'));
 
         try {
-            $this->moduleManager->createModuleScaffold([
+            $created = $this->moduleManager->createModuleScaffold([
                 'name' => $name,
                 'id' => $id ?: strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '', $name)),
                 'description' => $description,
@@ -148,6 +182,14 @@ class ModuleManagerController
                 'icon' => $icon,
                 'author' => $this->auth->user()?->name ?? 'Admin',
             ]);
+
+            $this->auditLogger?->log(
+                'module.scaffolded',
+                "Membuat kerangka kerja modul baru [{$created['name']}] (Kategori: {$category})",
+                'module',
+                $created['id'],
+                ['name' => $created['name'], 'category' => $category]
+            );
 
             $this->session->flash('success', "Modul baru [{$name}] berhasil dibuat dan siap digunakan!");
         } catch (DomainException $e) {
@@ -178,6 +220,14 @@ class ModuleManagerController
 
         try {
             $this->moduleManager->deleteModule($id);
+
+            $this->auditLogger?->log(
+                'module.deleted',
+                "Menghapus modul ekstensibilitas [{$id}] secara permanen (Clean Wipe)",
+                'module',
+                $id
+            );
+
             $this->session->flash('success', "Modul [{$id}] dan seluruh datanya telah berhasil dihapus bersih (Clean Wipe).");
         } catch (DomainException $e) {
             $this->session->flash('error', $e->getMessage());

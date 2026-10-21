@@ -18,6 +18,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 005 | [005-universal-taxonomy.md](file:///c:/aplikasi/aio/specs/005-universal-taxonomy.md) | Universal Taxonomy & Domain-Agnostic Modular Governance | `Completed` | 2026-10-21 |
 | 006 | [006-validation-engine.md](file:///c:/aplikasi/aio/specs/006-validation-engine.md) | Form Validation & Field-Level Error Bag Engine | `Completed` | 2026-10-21 |
 | 007 | [007-cli-console.md](file:///c:/aplikasi/aio/specs/007-cli-console.md) | Unified CLI Console Tooling (php aio) | `Completed` | 2026-10-21 |
+| 008 | [008-audit-logging.md](file:///c:/aplikasi/aio/specs/008-audit-logging.md) | Audit Logging & Activity Timeline Engine | `Completed` | 2026-10-21 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 

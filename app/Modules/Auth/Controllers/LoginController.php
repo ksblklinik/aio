@@ -19,7 +19,8 @@ class LoginController
         private AuthService $auth,
         private Session $session,
         private Inertia $inertia,
-        private Connection $db
+        private Connection $db,
+        private ?\Core\Audit\AuditLogger $auditLogger = null
     ) {
     }
 
@@ -61,12 +62,28 @@ class LoginController
             return Response::redirect('/login');
         }
 
+        $user = $this->auth->user();
+        $this->auditLogger?->log(
+            action: 'auth.login',
+            description: "Pengguna {$user?->name} berhasil masuk sistem",
+            entityType: 'user',
+            entityId: $user ? (string) $user->id : null
+        );
+
         $this->session->flash('success', 'Selamat datang kembali!');
         return Response::redirect('/dashboard');
     }
 
     public function logout(Request $request): Response
     {
+        $user = $this->auth->user();
+        $this->auditLogger?->log(
+            action: 'auth.logout',
+            description: "Pengguna {$user?->name} keluar dari sistem",
+            entityType: 'user',
+            entityId: $user ? (string) $user->id : null
+        );
+
         $this->auth->logout();
         $this->session->flash('success', 'Anda telah berhasil keluar.');
         return Response::redirect('/login');

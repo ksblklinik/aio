@@ -155,6 +155,16 @@ class Request
         return $this->header('x-inertia') === 'true';
     }
 
+    public function ip(): string
+    {
+        return (string) ($this->serverParams['REMOTE_ADDR'] ?? '127.0.0.1');
+    }
+
+    public function userAgent(): ?string
+    {
+        return $this->header('user-agent');
+    }
+
     public function setAttribute(string $key, mixed $value): void
     {
         $this->attributes[$key] = $value;

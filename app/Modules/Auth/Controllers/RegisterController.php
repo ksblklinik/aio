@@ -20,7 +20,8 @@ class RegisterController
         private AuthService $auth,
         private Session $session,
         private Inertia $inertia,
-        private Connection $db
+        private Connection $db,
+        private ?\Core\Audit\AuditLogger $auditLogger = null
     ) {
     }
 
@@ -47,6 +48,18 @@ class RegisterController
             strtolower($validated['email']),
             $validated['password'],
             $validated['workspace_name']
+        );
+
+        $this->auditLogger?->log(
+            action: 'auth.register',
+            description: "Pendaftaran akun baru [{$validated['name']}] dan workspace [{$validated['workspace_name']}]",
+            entityType: 'tenant',
+            entityId: null,
+            properties: [
+                'name' => $validated['name'],
+                'email' => strtolower($validated['email']),
+                'workspace' => $validated['workspace_name'],
+            ]
         );
 
         $this->session->flash('success', "Workspace [{$validated['workspace_name']}] berhasil dibuat! Selamat datang di aio.");

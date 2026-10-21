@@ -31,7 +31,9 @@ class AuthMiddlewareTest extends TestCase
         $migrator = new Migrator($this->db);
         $migrator->runMigrationsFrom(__DIR__ . '/../../database/migrations');
 
+        $_SESSION = [];
         $this->session = new Session();
+        $this->session->startArrayDriver();
         $this->tenantContext = new TenantContext();
         $this->auth = new AuthService($this->db, $this->session, $this->tenantContext);
     }

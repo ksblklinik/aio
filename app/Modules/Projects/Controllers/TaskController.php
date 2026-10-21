@@ -16,7 +16,8 @@ class TaskController
     public function __construct(
         private AuthService $auth,
         private Connection $db,
-        private Session $session
+        private Session $session,
+        private ?\Core\Audit\AuditLogger $auditLogger = null
     ) {
     }
 
@@ -33,12 +34,20 @@ class TaskController
         $tenant = $this->auth->currentTenant();
         $tenantId = (int) ($tenant?->id ?? 0);
 
-        Task::create($this->db, [
+        $taskId = Task::create($this->db, [
             'tenant_id' => $tenantId,
             'project_id' => $projectId,
             'title' => $title,
             'is_completed' => 0,
         ]);
+
+        $this->auditLogger?->log(
+            'task.created',
+            "Membuat tugas baru: {$title}",
+            'task',
+            (string) $taskId,
+            ['project_id' => $projectId, 'title' => $title]
+        );
 
         $this->session->flash('success', 'Tugas baru berhasil ditambahkan.');
         return Response::redirect('/projects');
@@ -50,6 +59,14 @@ class TaskController
         $tenantId = (int) ($tenant?->id ?? 0);
 
         Task::toggle($this->db, $id, $tenantId);
+
+        $this->auditLogger?->log(
+            'task.toggled',
+            "Mengubah status penyelesaian tugas #{$id}",
+            'task',
+            (string) $id
+        );
+
         return Response::redirect('/projects');
     }
 
@@ -59,6 +76,14 @@ class TaskController
         $tenantId = (int) ($tenant?->id ?? 0);
 
         Task::delete($this->db, $id, $tenantId);
+
+        $this->auditLogger?->log(
+            'task.deleted',
+            "Menghapus tugas #{$id}",
+            'task',
+            (string) $id
+        );
+
         $this->session->flash('success', 'Tugas berhasil dihapus.');
         return Response::redirect('/projects');
     }

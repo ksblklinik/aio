@@ -15,7 +15,8 @@ import {
   Blocks,
   Package,
   ShieldCheck,
-  LifeBuoy
+  LifeBuoy,
+  History
 } from 'lucide-react';
 import DevPersonaBar from '../Components/DevPersonaBar';
 import ThemeToggle from '../Components/ThemeToggle';
@@ -53,6 +54,7 @@ const iconRegistry: Record<string, React.ElementType> = {
   Package,
   ShieldCheck,
   LifeBuoy,
+  History,
 };
 
 export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
@@ -86,6 +88,7 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
   // Base navigation
   const baseNavItems = [
     { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+    { label: 'Aktivitas', icon: History, href: '/activity' },
   ];
 
   // Dynamic active module items from backend
