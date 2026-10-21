@@ -14,6 +14,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import DevPersonaBar from '../Components/DevPersonaBar';
+import ThemeToggle from '../Components/ThemeToggle';
 
 interface AuthProp {
   user: { id: number; name: string; email: string } | null;
@@ -74,40 +75,43 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
 
   return (
-    <div className="min-h-screen bg-slate-50 text-gray-900 flex flex-col md:flex-row antialiased font-sans">
+    <div className="min-h-screen bg-canvas text-text-main flex flex-col md:flex-row antialiased font-sans transition-colors duration-150">
       {/* Mobile Top Header */}
-      <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+      <div className="md:hidden bg-surface border-b border-border-subtle px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
+          <div className="h-8 w-8 rounded-lg bg-brand-primary flex items-center justify-center text-white shadow-sm">
             <Zap className="h-4 w-4" />
           </div>
-          <span className="font-bold text-gray-900 text-base">aio SaaS</span>
+          <span className="font-bold text-text-main text-base">aio SaaS</span>
         </div>
-        <button 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-1.5 rounded-lg text-gray-600 hover:bg-gray-100"
-          aria-label="Toggle Navigation"
-        >
-          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-1.5 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-subtle"
+            aria-label="Toggle Navigation"
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Sidebar for Desktop & Mobile Overlay */}
       <aside className={`
-        fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 flex flex-col justify-between p-4 shadow-sm transition-transform duration-200 md:static md:translate-x-0
+        fixed inset-y-0 left-0 z-40 w-64 bg-surface border-r border-border-subtle flex flex-col justify-between p-4 shadow-sm transition-transform duration-200 md:static md:translate-x-0
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <div className="space-y-6">
           {/* Logo & Brand Header */}
           <div className="flex items-center gap-3 px-2 py-1">
-            <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
+            <div className="h-9 w-9 rounded-lg bg-brand-primary flex items-center justify-center text-white shadow-sm shrink-0">
               <Zap className="h-5 w-5" />
             </div>
             <div>
-              <div className="font-bold text-lg text-gray-900 tracking-tight leading-tight">
+              <div className="font-bold text-lg text-text-main tracking-tight leading-tight">
                 aio SaaS
               </div>
-              <div className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider">
+              <div className="text-[11px] font-semibold text-brand-primary uppercase tracking-wider">
                 Unified Framework
               </div>
             </div>
@@ -117,27 +121,27 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
           <div className="relative">
             <button
               onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
-              className="w-full flex items-center justify-between p-2.5 rounded-lg bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors text-left"
+              className="w-full flex items-center justify-between p-2.5 rounded-lg bg-surface-subtle border border-border-subtle hover:border-border-main transition-colors text-left"
             >
               <div className="flex items-center gap-2.5 truncate">
-                <div className="w-7 h-7 rounded bg-white border border-gray-300 flex items-center justify-center text-gray-700 shadow-xs">
+                <div className="w-7 h-7 rounded bg-surface border border-border-subtle flex items-center justify-center text-text-muted shadow-2xs">
                   <Building2 className="w-4 h-4" />
                 </div>
                 <div className="truncate">
-                  <div className="text-xs font-bold text-gray-900 truncate">
+                  <div className="text-xs font-bold text-text-main truncate">
                     {activeTenant.name}
                   </div>
-                  <div className="text-[10px] text-gray-500 font-medium">
+                  <div className="text-[10px] text-text-muted font-medium">
                     {activeTenant.plan}
                   </div>
                 </div>
               </div>
-              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${workspaceMenuOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-text-muted transition-transform ${workspaceMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {workspaceMenuOpen && (
-              <div className="absolute top-full left-0 mt-1.5 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-1.5 z-50">
-                <div className="text-[10px] font-bold uppercase px-2 py-1 text-gray-400 tracking-wider">
+              <div className="absolute top-full left-0 mt-1.5 w-full bg-surface border border-border-subtle rounded-lg shadow-xl p-1.5 z-50 animate-in fade-in duration-100">
+                <div className="text-[10px] font-bold uppercase px-2 py-1 text-text-muted tracking-wider">
                   Pilih Workspace
                 </div>
                 {userTenants.map((t) => (
@@ -146,15 +150,15 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
                     onClick={() => handleSwitchTenant(t.id)}
                     className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center justify-between transition-colors ${
                       t.id === activeTenant.id 
-                        ? 'bg-blue-50 text-blue-700 font-semibold' 
-                        : 'text-gray-700 hover:bg-gray-100'
+                        ? 'bg-brand-primary-light text-brand-primary font-semibold' 
+                        : 'text-text-main hover:bg-surface-subtle'
                     }`}
                   >
                     <span className="truncate">{t.name}</span>
                     {t.id === activeTenant.id ? (
-                      <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-brand-primary shrink-0" />
                     ) : (
-                      <span className="text-[10px] uppercase text-gray-400">{t.role}</span>
+                      <span className="text-[10px] uppercase text-text-muted">{t.role}</span>
                     )}
                   </button>
                 ))}
@@ -164,7 +168,7 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
 
           {/* Navigation Links */}
           <nav className="space-y-1">
-            <div className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+            <div className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">
               Menu Utama
             </div>
             {navItems.map((item) => {
@@ -176,8 +180,8 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      ? 'bg-brand-primary text-white shadow-sm'
+                      : 'text-text-muted hover:text-text-main hover:bg-surface-subtle'
                   }`}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
@@ -189,17 +193,17 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
         </div>
 
         {/* User Profile Card in Sidebar Footer */}
-        <div className="pt-4 border-t border-gray-200">
-          <div className="p-2.5 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-between">
+        <div className="pt-4 border-t border-border-subtle">
+          <div className="p-2.5 rounded-lg bg-surface-subtle border border-border-subtle flex items-center justify-between">
             <div className="flex items-center gap-2.5 truncate">
-              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-xs text-white uppercase shadow-sm shrink-0">
+              <div className="w-8 h-8 rounded-full bg-brand-primary flex items-center justify-center font-bold text-xs text-white uppercase shadow-sm shrink-0">
                 {currentUser.name.charAt(0)}
               </div>
               <div className="truncate">
-                <div className="text-xs font-bold text-gray-900 truncate">
+                <div className="text-xs font-bold text-text-main truncate">
                   {currentUser.name}
                 </div>
-                <div className="text-[11px] text-gray-500 font-medium capitalize">
+                <div className="text-[11px] text-text-muted font-medium capitalize">
                   Peran: {currentRole}
                 </div>
               </div>
@@ -207,7 +211,7 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
             <button
               onClick={handleLogout}
               title="Keluar"
-              className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+              className="p-1.5 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-500/10 transition-colors"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -218,17 +222,18 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Navbar */}
-        <header className="h-16 border-b border-gray-200 bg-white px-4 md:px-8 flex items-center justify-between sticky top-0 z-20">
-          <h1 className="text-base font-bold text-gray-900">
+        <header className="h-16 border-b border-border-subtle bg-surface px-4 md:px-8 flex items-center justify-between sticky top-0 z-20">
+          <h1 className="text-base font-bold text-text-main">
             {title || 'Dashboard'}
           </h1>
 
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs font-medium text-blue-700">
-              <span className="w-2 h-2 rounded-full bg-blue-600" />
-              Tenant: <strong className="font-semibold text-gray-900">{activeTenant.name}</strong>
+            <ThemeToggle />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary-light border border-brand-primary/20 text-xs font-medium text-brand-primary">
+              <span className="w-2 h-2 rounded-full bg-brand-primary" />
+              Tenant: <strong className="font-semibold text-text-main">{activeTenant.name}</strong>
             </span>
-            <span className="px-2.5 py-1 rounded-md text-[11px] uppercase font-bold bg-gray-100 text-gray-700 border border-gray-200">
+            <span className="px-2.5 py-1 rounded-md text-[11px] uppercase font-bold bg-surface-subtle text-text-muted border border-border-subtle">
               {currentRole}
             </span>
           </div>
@@ -236,14 +241,14 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
 
         {/* Flash Notifications */}
         {props.flash?.success && (
-          <div className="mx-4 md:mx-8 mt-4 p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2.5 shadow-xs">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="mx-4 md:mx-8 mt-4 p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-medium flex items-center gap-2.5 shadow-2xs">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
             <span>{props.flash.success}</span>
           </div>
         )}
         {props.flash?.error && (
-          <div className="mx-4 md:mx-8 mt-4 p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2.5 shadow-xs">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          <div className="mx-4 md:mx-8 mt-4 p-3.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-medium flex items-center gap-2.5 shadow-2xs">
+            <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
             <span>{props.flash.error}</span>
           </div>
         )}
