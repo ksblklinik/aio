@@ -184,10 +184,10 @@ CREATE TABLE tasks (
   - [x] 3.3 Implementasikan fitur `DEV_AUTO_LOGIN` dan `DevPersonaController` (`/_dev/switch-persona`).
   - [x] 3.4 Buat `LoginController` dan `RegisterController`.
 
-- [ ] **Phase 4: Business Module (Projects & Tasks CRUD)**
-  - [ ] 4.1 Buat `ProjectController` (index, store, update, destroy) dengan isolasi `tenant_id`.
-  - [ ] 4.2 Buat `TaskController` (store, toggle status, destroy).
-  - [ ] 4.3 Registrasikan seluruh routes di `routes/web.php`.
+- [x] **Phase 4: Business Module (Projects & Tasks CRUD)**
+  - [x] 4.1 Buat `ProjectController` (index, store, update, destroy) dengan isolasi `tenant_id`.
+  - [x] 4.2 Buat `TaskController` (store, toggle status, destroy).
+  - [x] 4.3 Registrasikan seluruh routes di `routes/web.php`.
 
 - [ ] **Phase 5: Frontend Inertia React 19 UI**
   - [ ] 5.1 Buat halaman `resources/js/Pages/Auth/Login.tsx` dan `Register.tsx`.
