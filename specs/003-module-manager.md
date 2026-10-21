@@ -1,6 +1,6 @@
 # SPEC-003: Dynamic Module Manager & Plugin System
 
-- **Status**: `In Review`
+- **Status**: `Completed`
 - **Owner / Author**: AI Agent & Lead Developer
 - **Tanggal Dibuat**: 2026-10-21
 - **Target File / Modul**: `Core\Modules\ModuleManager`, `app/Modules/`, `resources/js/Pages/Modules/`
@@ -144,22 +144,22 @@ foreach ($moduleManager->getActiveModules() as $module) {
         - `deleteModule($id)`: clean wipe (drop table modul + hapus folder backend/frontend).
   - [x] 1.4 Buat unit test komprehensif `tests/Unit/ModuleManagerTest.php` untuk memvalidasi seluruh fungsi engine dan guard dependensi.
 
-- [ ] **Phase 2: Dynamic Routing & Nav Bar Integration**
-  - [ ] 2.1 Pindahkan rute projects ke `app/Modules/Projects/routes.php`.
-  - [ ] 2.2 Integrasikan dynamic route loader di `routes/web.php` agar hanya memuat modul aktif.
-  - [ ] 2.3 Bagikan daftar `active_modules` secara otomatis ke Inertia Shared Props.
-  - [ ] 2.4 Perbarui `AppLayout.tsx` agar merender menu navigasi dinamis dari `props.active_modules`.
+- [x] **Phase 2: Dynamic Routing & Nav Bar Integration**
+  - [x] 2.1 Pindahkan rute projects ke `app/Modules/Projects/routes.php`.
+  - [x] 2.2 Integrasikan dynamic route loader di `routes/web.php` agar hanya memuat modul aktif.
+  - [x] 2.3 Bagikan daftar `active_modules` secara otomatis ke Inertia Shared Props.
+  - [x] 2.4 Perbarui `AppLayout.tsx` agar merender menu navigasi dinamis dari `props.active_modules`.
 
-- [ ] **Phase 3: Module Manager Admin UI**
-  - [ ] 3.1 Buat controller `app/Modules/Modules/Controllers/ModuleManagerController.php`.
-  - [ ] 3.2 Buat halaman Inertia React `resources/js/Pages/Modules/Index.tsx` dengan tema Semantic Tokens.
-  - [ ] 3.3 Pasang fitur toggle aktif/nonaktif interaktif dengan feedback status seketika.
-  - [ ] 3.4 Pasang modal dialog tambah modul baru (*scaffold wizard*).
-  - [ ] 3.5 Pasang tombol konfirmasi hapus modul non-core.
+- [x] **Phase 3: Module Manager Admin UI**
+  - [x] 3.1 Buat controller `app/Modules/Modules/Controllers/ModuleManagerController.php`.
+  - [x] 3.2 Buat halaman Inertia React `resources/js/Pages/Modules/Index.tsx` dengan tema Semantic Tokens.
+  - [x] 3.3 Pasang fitur toggle aktif/nonaktif interaktif dengan feedback status seketika.
+  - [x] 3.4 Pasang modal dialog tambah modul baru (*scaffold wizard*).
+  - [x] 3.5 Pasang tombol konfirmasi hapus modul non-core.
 
-- [ ] **Phase 4: Verification & Git Handoff**
-  - [ ] 4.1 Jalankan seluruh test suite (`vendor/bin/phpunit`).
-  - [ ] 4.2 Jalankan build frontend (`npm run build`).
-  - [ ] 4.3 Verifikasi manual di browser (uji toggle, tambah modul, dan hapus modul).
-  - [ ] 4.4 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
-  - [ ] 4.5 Atomic commit Git.
+- [x] **Phase 4: Verification & Git Handoff**
+  - [x] 4.1 Jalankan seluruh test suite (`vendor/bin/phpunit`).
+  - [x] 4.2 Jalankan build frontend (`npm run build`).
+  - [x] 4.3 Verifikasi manual di browser (uji toggle, tambah modul, dan hapus modul).
+  - [x] 4.4 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
+  - [x] 4.5 Atomic commit Git.

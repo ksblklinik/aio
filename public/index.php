@@ -48,6 +48,9 @@ $container->singleton(\App\Modules\Auth\Services\AuthService::class, fn() => $au
 $tenantScope = new \Core\Database\TenantScope($tenantContext, $db);
 $container->singleton(\Core\Database\TenantScope::class, fn() => $tenantScope);
 
+$moduleManager = new \Core\Modules\ModuleManager($db->getPdo());
+$container->singleton(\Core\Modules\ModuleManager::class, fn() => $moduleManager);
+
 $inertia = Inertia::getInstance();
 $inertia->setRequest($request);
 $inertia->setVersion('1.0.0');
@@ -72,6 +75,7 @@ $inertia->share([
         'role' => $authService->currentRole(),
         'tenants' => $authService->user() ? $authService->user()->getTenants($db) : [],
     ],
+    'active_modules' => fn() => $moduleManager->getActiveNavItems(),
     'flash' => fn() => [
         'success' => $session->getFlash('success'),
         'error' => $session->getFlash('error'),

@@ -11,7 +11,11 @@ import {
   Building2,
   Check,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Blocks,
+  Package,
+  ShieldCheck,
+  LifeBuoy
 } from 'lucide-react';
 import DevPersonaBar from '../Components/DevPersonaBar';
 import ThemeToggle from '../Components/ThemeToggle';
@@ -21,6 +25,14 @@ interface AuthProp {
   tenant: { id: number; name: string; slug: string; plan: string } | null;
   role: string | null;
   tenants: Array<{ id: number; name: string; slug: string; role: string }>;
+}
+
+interface ActiveModuleNav {
+  id: string;
+  label: string;
+  icon: string;
+  href: string;
+  category: string;
 }
 
 interface AppLayoutProps {
@@ -33,9 +45,19 @@ interface AppLayoutProps {
   };
 }
 
+const iconRegistry: Record<string, React.ElementType> = {
+  LayoutDashboard,
+  Layers,
+  Blocks,
+  Package,
+  ShieldCheck,
+  LifeBuoy,
+};
+
 export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
   const { props } = usePage<{ 
     auth?: AuthProp; 
+    active_modules?: ActiveModuleNav[];
     flash?: { success?: string | null; error?: string | null };
   }>();
 
@@ -57,11 +79,21 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
 
   const currentRole = props.auth?.role || 'owner';
   const userTenants = props.auth?.tenants || [];
+  const isOwnerOrAdmin = currentRole === 'owner' || currentRole === 'admin';
 
-  const navItems = [
+  // Base navigation
+  const baseNavItems = [
     { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-    { label: 'Proyek & Tugas', icon: Layers, href: '/projects' },
   ];
+
+  // Dynamic active module items from backend
+  const dynamicNavItems = (props.active_modules || [
+    { id: 'projects', label: 'Proyek & Tugas', icon: 'Layers', href: '/projects', category: 'Produktivitas' },
+  ]).map((m) => ({
+    label: m.label,
+    icon: iconRegistry[m.icon] || Package,
+    href: m.href,
+  }));
 
   const handleSwitchTenant = (tenantId: number) => {
     setWorkspaceMenuOpen(false);
@@ -167,28 +199,78 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
           </div>
 
           {/* Navigation Links */}
-          <nav className="space-y-1">
-            <div className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">
-              Menu Utama
+          <nav className="space-y-4">
+            {/* Menu Utama */}
+            <div className="space-y-1">
+              <div className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">
+                Menu Utama
+              </div>
+              {baseNavItems.map((item) => {
+                const isActive = currentPath === item.href;
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-brand-primary text-white shadow-sm'
+                        : 'text-text-muted hover:text-text-main hover:bg-surface-subtle'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
             </div>
-            {navItems.map((item) => {
-              const isActive = currentPath.startsWith(item.href);
-              const Icon = item.icon;
-              return (
+
+            {/* Modul Bisnis Dinamis */}
+            {dynamicNavItems.length > 0 && (
+              <div className="space-y-1">
+                <div className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">
+                  Modul Aktif
+                </div>
+                {dynamicNavItems.map((item) => {
+                  const isActive = currentPath.startsWith(item.href);
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'bg-brand-primary text-white shadow-sm'
+                          : 'text-text-muted hover:text-text-main hover:bg-surface-subtle'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Menu Administrasi Modul (Owner/Admin only) */}
+            {isOwnerOrAdmin && (
+              <div className="space-y-1 pt-2 border-t border-border-subtle">
+                <div className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">
+                  Sistem & Admin
+                </div>
                 <Link
-                  key={item.label}
-                  href={item.href}
+                  href="/modules"
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
+                    currentPath.startsWith('/modules')
                       ? 'bg-brand-primary text-white shadow-sm'
                       : 'text-text-muted hover:text-text-main hover:bg-surface-subtle'
                   }`}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  <span>{item.label}</span>
+                  <Blocks className="h-4 w-4 shrink-0" />
+                  <span>Manajer Modul</span>
                 </Link>
-              );
-            })}
+              </div>
+            )}
           </nav>
         </div>
 

@@ -1,0 +1,501 @@
+import React, { useState } from 'react';
+import { useForm, router, usePage } from '@inertiajs/react';
+import AppLayout from '../../Layouts/AppLayout';
+import { 
+  Blocks, 
+  Plus, 
+  Trash2, 
+  ShieldCheck, 
+  Package, 
+  Layers, 
+  Building2, 
+  DollarSign, 
+  Mail, 
+  Settings, 
+  Users, 
+  LifeBuoy, 
+  Search, 
+  AlertTriangle, 
+  X,
+  ExternalLink
+} from 'lucide-react';
+
+interface ModuleItem {
+  id: string;
+  name: string;
+  version: string;
+  author: string;
+  description: string;
+  category: string;
+  icon: string;
+  route: string;
+  dependencies: string[];
+  is_core: boolean;
+  is_active: boolean;
+  table_name: string | null;
+}
+
+interface Props {
+  modules: ModuleItem[];
+  title?: string;
+}
+
+const iconRegistry: Record<string, React.ElementType> = {
+  Blocks,
+  Package,
+  Layers,
+  Building2,
+  ShieldCheck,
+  DollarSign,
+  Mail,
+  Settings,
+  Users,
+  LifeBuoy,
+};
+
+export default function ModulesIndex({ modules = [] }: Props) {
+  const { props } = usePage<{ csrf_token?: string }>();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('Semua');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [deleteConfirmModule, setDeleteConfirmModule] = useState<ModuleItem | null>(null);
+
+  // Form Scaffold
+  const { data, setData, post, reset, processing } = useForm({
+    name: '',
+    id: '',
+    description: '',
+    category: 'Bisnis',
+    icon: 'Package',
+    _token: props.csrf_token || '',
+  });
+
+  const categories = ['Semua', ...Array.from(new Set(modules.map((m) => m.category).filter(Boolean)))];
+
+  const filteredModules = modules.filter((m) => {
+    const matchesSearch = 
+      m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      m.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      m.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCat = selectedCategory === 'Semua' || m.category === selectedCategory;
+    return matchesSearch && matchesCat;
+  });
+
+  const handleToggleActive = (module: ModuleItem) => {
+    if (module.is_core) {
+      alert(`Modul inti [${module.name}] dilindungi dan tidak dapat dinonaktifkan.`);
+      return;
+    }
+
+    router.post('/modules/toggle', { id: module.id });
+  };
+
+  const handleCreateModule = (e: React.FormEvent) => {
+    e.preventDefault();
+    post('/modules/create', {
+      onSuccess: () => {
+        reset();
+        setShowCreateModal(false);
+      },
+    });
+  };
+
+  const handleDeleteModule = () => {
+    if (!deleteConfirmModule) return;
+    router.post('/modules/delete', { id: deleteConfirmModule.id }, {
+      onFinish: () => setDeleteConfirmModule(null),
+    });
+  };
+
+  return (
+    <AppLayout title="Manajer Modul & Ekstensi">
+      <div className="space-y-6 max-w-7xl mx-auto">
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border-subtle">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-xl font-bold tracking-tight text-text-main flex items-center gap-2">
+                <Blocks className="w-5 h-5 text-brand-primary" />
+                <span>Manajer Modul Sistem</span>
+              </h2>
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-brand-primary-light text-brand-primary font-semibold border border-brand-primary/20">
+                {modules.filter((m) => m.is_active).length} Aktif / {modules.length} Total
+              </span>
+            </div>
+            <p className="text-xs text-text-muted mt-1">
+              Pusat kendali ekstensi, dependensi, dan siklus hidup modular framework SaaS aio.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-semibold rounded-lg shadow-sm transition-all active:scale-95 shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tambah Modul Baru</span>
+          </button>
+        </div>
+
+        {/* Filter & Search Bar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-surface p-3 rounded-xl border border-border-subtle shadow-xs">
+          <div className="relative flex-1 max-w-md">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+            <input
+              type="text"
+              placeholder="Cari modul berdasarkan nama, slug, atau deskripsi..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-1.5 bg-surface-subtle border border-border-subtle rounded-lg text-xs text-text-main placeholder-text-muted focus:outline-none focus:bg-surface focus:border-brand-primary"
+            />
+          </div>
+
+          {/* Category Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                  selectedCategory === cat
+                    ? 'bg-brand-primary text-white shadow-2xs'
+                    : 'bg-surface-subtle hover:bg-surface text-text-muted hover:text-text-main border border-border-subtle'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Modules Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredModules.map((module) => {
+            const Icon = iconRegistry[module.icon] || Package;
+
+            return (
+              <div
+                key={module.id}
+                className={`rounded-xl bg-surface border transition-all p-5 flex flex-col justify-between shadow-xs ${
+                  module.is_active 
+                    ? 'border-border-subtle hover:border-border-main' 
+                    : 'border-border-subtle opacity-75 bg-surface-subtle/50'
+                }`}
+              >
+                <div className="space-y-4">
+                  {/* Top Card Info */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 border ${
+                        module.is_active 
+                          ? 'bg-brand-primary-light border-brand-primary/20 text-brand-primary' 
+                          : 'bg-surface-subtle border-border-subtle text-text-muted'
+                      }`}>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-sm text-text-main">
+                            {module.name}
+                          </h3>
+                          <span className="text-[10px] font-mono text-text-muted bg-surface-subtle px-1.5 py-0.2 rounded border border-border-subtle">
+                            v{module.version}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-text-muted">
+                          by {module.author}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Badge Core / Extension */}
+                    <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border ${
+                      module.is_core
+                        ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20'
+                        : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
+                    }`}>
+                      {module.is_core ? 'Core' : 'Ekstensi'}
+                    </span>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-xs text-text-muted line-clamp-3 leading-relaxed">
+                    {module.description || 'Tidak ada deskripsi modul.'}
+                  </p>
+
+                  {/* Dependencies & Category */}
+                  <div className="space-y-1.5 pt-2 border-t border-border-subtle text-[11px]">
+                    <div className="flex items-center justify-between text-text-muted">
+                      <span>Kategori:</span>
+                      <span className="font-medium text-text-main">{module.category}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-text-muted">
+                      <span>Dependensi:</span>
+                      <div className="flex items-center gap-1">
+                        {module.dependencies && module.dependencies.length > 0 ? (
+                          module.dependencies.map((dep) => (
+                            <span key={dep} className="font-mono text-[10px] px-1.5 py-0.2 rounded bg-surface-subtle text-text-main border border-border-subtle">
+                              {dep}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="italic text-text-muted">Mandiri (None)</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {module.table_name && (
+                      <div className="flex items-center justify-between text-text-muted">
+                        <span>Tabel Data:</span>
+                        <code className="font-mono text-[10px] text-text-main">{module.table_name}</code>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Bottom Actions: Toggle & Delete */}
+                <div className="mt-5 pt-3 border-t border-border-subtle flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {/* Toggle Switch */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleActive(module)}
+                      disabled={module.is_core}
+                      title={module.is_core ? 'Modul inti tidak dapat dinonaktifkan' : (module.is_active ? 'Nonaktifkan Modul' : 'Aktifkan Modul')}
+                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        module.is_core 
+                          ? 'opacity-50 cursor-not-allowed bg-emerald-500' 
+                          : module.is_active 
+                          ? 'bg-emerald-500' 
+                          : 'bg-surface-subtle'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                          module.is_active ? 'translate-x-4' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                    <span className="text-xs font-medium text-text-main">
+                      {module.is_active ? 'Aktif' : 'Nonaktif'}
+                    </span>
+                  </div>
+
+                  {/* Action Links */}
+                  <div className="flex items-center gap-2">
+                    {module.is_active && module.route && !module.is_core && (
+                      <a
+                        href={module.route}
+                        title="Buka Halaman Modul"
+                        className="p-1.5 rounded-lg text-text-muted hover:text-brand-primary hover:bg-surface-subtle transition-colors"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
+
+                    {!module.is_core && (
+                      <button
+                        type="button"
+                        onClick={() => setDeleteConfirmModule(module)}
+                        title="Hapus Modul (Clean Wipe)"
+                        className="p-1.5 rounded-lg text-text-muted hover:text-red-600 hover:bg-red-500/10 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {filteredModules.length === 0 && (
+          <div className="p-12 text-center rounded-xl bg-surface border border-border-subtle shadow-xs space-y-3">
+            <Blocks className="w-10 h-10 text-text-muted mx-auto" />
+            <h3 className="text-sm font-bold text-text-main">Tidak ada modul yang cocok</h3>
+            <p className="text-xs text-text-muted">Cobalah kata kunci lain atau pilih kategori Semua.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Modal Tambah Modul Baru (Scaffold Wizard) */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-lg bg-surface border border-border-subtle rounded-xl p-6 shadow-xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
+              <h3 className="text-base font-bold text-text-main flex items-center gap-2">
+                <Plus className="w-5 h-5 text-brand-primary" />
+                <span>Buat Template Modul Baru</span>
+              </h3>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="p-1 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-subtle"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateModule} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-text-main mb-1">
+                  Nama Modul
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Misal: Invoicing & Billing"
+                  value={data.name}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setData((prev) => ({
+                      ...prev,
+                      name: val,
+                      id: prev.id ? prev.id : val.toLowerCase().replace(/[^a-zA-Z0-9]/g, '_'),
+                    }));
+                  }}
+                  className="w-full px-3 py-2 bg-surface border border-border-subtle rounded-lg text-xs text-text-main placeholder-text-muted focus:outline-none focus:border-brand-primary"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-text-main mb-1">
+                    Slug ID (Unik)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="invoicing"
+                    value={data.id}
+                    onChange={(e) => setData('id', e.target.value)}
+                    className="w-full px-3 py-2 bg-surface border border-border-subtle rounded-lg text-xs text-text-main placeholder-text-muted font-mono focus:outline-none focus:border-brand-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-text-main mb-1">
+                    Kategori
+                  </label>
+                  <select
+                    value={data.category}
+                    onChange={(e) => setData('category', e.target.value)}
+                    className="w-full px-3 py-2 bg-surface border border-border-subtle rounded-lg text-xs text-text-main focus:outline-none focus:border-brand-primary"
+                  >
+                    <option value="Bisnis">Bisnis & Finansial</option>
+                    <option value="Produktivitas">Produktivitas & Kolaborasi</option>
+                    <option value="Komunikasi">Komunikasi & CRM</option>
+                    <option value="Keamanan & Akses">Keamanan & Akses</option>
+                    <option value="Sistem & Administrasi">Sistem & Administrasi</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-text-main mb-1">
+                  Deskripsi Modul
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Jelaskan tujuan dan fungsi modul ini..."
+                  value={data.description}
+                  onChange={(e) => setData('description', e.target.value)}
+                  className="w-full px-3 py-2 bg-surface border border-border-subtle rounded-lg text-xs text-text-main placeholder-text-muted focus:outline-none focus:border-brand-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-text-main mb-1">
+                  Pilih Ikon Tampilan
+                </label>
+                <div className="grid grid-cols-5 gap-2">
+                  {Object.keys(iconRegistry).map((iconName) => {
+                    const IconComp = iconRegistry[iconName];
+                    const isSelected = data.icon === iconName;
+                    return (
+                      <button
+                        type="button"
+                        key={iconName}
+                        onClick={() => setData('icon', iconName)}
+                        className={`p-2 rounded-lg border flex flex-col items-center gap-1 transition-colors ${
+                          isSelected
+                            ? 'bg-brand-primary-light border-brand-primary text-brand-primary font-semibold'
+                            : 'bg-surface border-border-subtle text-text-muted hover:bg-surface-subtle'
+                        }`}
+                      >
+                        <IconComp className="w-4 h-4" />
+                        <span className="text-[9px] truncate w-full text-center">{iconName}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border-subtle">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 rounded-lg text-xs font-medium text-text-muted hover:bg-surface-subtle transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={processing}
+                  className="px-4 py-2 bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-semibold rounded-lg shadow-sm transition-all disabled:opacity-50"
+                >
+                  {processing ? 'Menyusun...' : 'Scaffold Modul'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Konfirmasi Hapus (Clean Wipe Warning) */}
+      {deleteConfirmModule && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-md bg-surface border border-rose-500/30 rounded-xl p-6 shadow-xl space-y-4">
+            <div className="flex items-center gap-3 text-rose-500">
+              <div className="h-10 w-10 rounded-full bg-rose-500/10 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-base text-text-main">Hapus Modul (Clean Wipe)?</h3>
+                <span className="text-xs text-text-muted">Modul: {deleteConfirmModule.name}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-700 dark:text-rose-300 space-y-1.5 leading-relaxed">
+              <p className="font-semibold">Perhatian Tindakan Permanen:</p>
+              <ul className="list-disc list-inside space-y-0.5 text-[11px]">
+                <li>File controller & routes modul akan dihapus dari sistem.</li>
+                <li>Halaman React Inertia akan dihapus dari disk.</li>
+                {deleteConfirmModule.table_name && (
+                  <li>Tabel database <code className="font-mono bg-rose-500/20 px-1 rounded">{deleteConfirmModule.table_name}</code> akan di-DROP beserta seluruh datanya.</li>
+                )}
+              </ul>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border-subtle">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmModule(null)}
+                className="px-4 py-2 rounded-lg text-xs font-medium text-text-muted hover:bg-surface-subtle transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteModule}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-all"
+              >
+                Ya, Hapus Bersih
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </AppLayout>
+  );
+}

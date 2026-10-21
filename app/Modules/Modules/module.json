@@ -1,0 +1,14 @@
+{
+  "id": "modules",
+  "name": "Manajer Modul",
+  "version": "1.0.0",
+  "author": "aio Core",
+  "description": "Pusat kendali modul, ekstensi, dan plugin aplikasi. Tambah, nonaktifkan, atau hapus modul dengan aman.",
+  "category": "Sistem & Administrasi",
+  "icon": "Blocks",
+  "route": "/modules",
+  "dependencies": ["auth", "workspaces"],
+  "is_core": true,
+  "is_active": true,
+  "table_name": "system_modules"
+}
