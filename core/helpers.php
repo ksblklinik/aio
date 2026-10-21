@@ -44,7 +44,10 @@ if (!function_exists('vite_asset')) {
             $viteHost = trim((string) file_get_contents($hotFile));
         } else {
             // Cek koneksi port dev server secara non-blocking
-            $connection = @fsockopen('127.0.0.1', 5173, $errno, $errstr, 0.05);
+            $connection = @fsockopen('127.0.0.1', 5173, $errno, $errstr, 0.1);
+            if (!is_resource($connection)) {
+                $connection = @fsockopen('localhost', 5173, $errno, $errstr, 0.1);
+            }
             if (is_resource($connection)) {
                 $isDev = true;
                 fclose($connection);
