@@ -67,6 +67,9 @@ $container->singleton(\Core\Queue\QueueManager::class, fn() => $queueManager);
 $webhookDispatcher = new \Core\Webhook\WebhookDispatcher($db, $queueManager);
 $container->singleton(\Core\Webhook\WebhookDispatcher::class, fn() => $webhookDispatcher);
 
+$eventDispatcher = new \Core\Events\EventDispatcher($container, $queueManager, $webhookDispatcher);
+$container->singleton(\Core\Events\EventDispatcher::class, fn() => $eventDispatcher);
+
 $inertia = Inertia::getInstance();
 $inertia->setRequest($request);
 $inertia->setVersion('1.0.0');

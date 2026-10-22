@@ -169,8 +169,8 @@ class ModuleManager
         $active = $this->getActiveModules();
         $navItems = [];
 
-        // Modul bawaan seperti Auth dan Workspaces tidak memiliki tampilan sidebar langsung
-        $hiddenFromNav = ['auth', 'workspaces'];
+        // Modul bawaan seperti Auth, Workspaces, Activity, Notifikasi, Settings, dan API tidak muncul di daftar modul dinamis
+        $hiddenFromNav = ['auth', 'workspaces', 'activity', 'notifications', 'settings', 'api'];
 
         foreach ($active as $m) {
             if (in_array($m['id'], $hiddenFromNav, true)) {

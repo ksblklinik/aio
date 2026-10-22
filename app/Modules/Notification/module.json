@@ -1,0 +1,14 @@
+{
+  "id": "notifications",
+  "name": "Pusat Notifikasi",
+  "version": "1.0.0",
+  "author": "aio Core",
+  "description": "Sistem peringatan in-app alerts, unread badges, dan pengelolaan notifikasi real-time.",
+  "category": "core",
+  "icon": "Bell",
+  "route": "/notifications",
+  "dependencies": ["auth", "workspaces"],
+  "is_core": true,
+  "is_active": true,
+  "table_name": "notifications"
+}

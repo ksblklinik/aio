@@ -1,0 +1,14 @@
+{
+  "id": "api",
+  "name": "REST API Gateway",
+  "version": "1.0.0",
+  "author": "aio Core",
+  "description": "Gerbang API RESTful v1 terotentikasi Bearer Token untuk integrasi programmatic pihak ketiga.",
+  "category": "core",
+  "icon": "Key",
+  "route": "/settings/api-tokens",
+  "dependencies": ["auth", "workspaces"],
+  "is_core": true,
+  "is_active": true,
+  "table_name": "api_tokens"
+}

@@ -41,6 +41,7 @@ Dokumen ini mendefinisikan aturan kerja (constitution) standar untuk pengembanga
 5. **Session Continuity & Handoff**:
    - **Saat Mengakhiri Sesi**: Agen wajib memperbarui [`.agents/SESSION_HANDOFF.md`](file:///c:/aplikasi/aio/.agents/SESSION_HANDOFF.md) yang mencatat branch aktif, status spec/checklist, dan langkah langsung berikutnya sebelum sesi ditutup.
    - **Saat Memulai Sesi Baru**: Agen wajib membaca `.agents/SESSION_HANDOFF.md` terlebih dahulu untuk memulihkan konteks kerja tanpa perlu penjelasan ulang dari pengguna.
+6. **Zero Infrastructure Leakage**: Dilarang menambal atau membuat kapabilitas platform/infrastruktur (event bus, queue worker, auth wrapper) di level modul bisnis. Jika ada fondasi yang belum lengkap, agen wajib menghentikan pengerjaan kode bisnis, melaporkan celah fondasi, dan membuat spec penguatan Core terlebih dahulu.
 
 ---
 
@@ -53,4 +54,6 @@ Setiap agen dan kontributor wajib mematuhi seluruh aturan berikut:
 5. [05-context-token-efficiency.md](file:///c:/aplikasi/aio/.agents/rules/05-context-token-efficiency.md) — Efisiensi token, surgical reading/diffs, dan repo-map.
 6. [06-mcp-lifecycle-recommendation.md](file:///c:/aplikasi/aio/.agents/rules/06-mcp-lifecycle-recommendation.md) — Rekomendasi proaktif server MCP dan tata kelola plugin.
 7. [07-semantic-ui-tokens.md](file:///c:/aplikasi/aio/.agents/rules/07-semantic-ui-tokens.md) — Disiplin semantic tokens dan integritas tema dark/light mode.
+8. [08-zero-infrastructure-leakage.md](file:///c:/aplikasi/aio/.agents/rules/08-zero-infrastructure-leakage.md) — Pencegahan kebocoran infrastruktur dan larangan tambal lokal di modul bisnis.
+
 
