@@ -22,7 +22,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 009 | [009-api-token-system.md](file:///c:/aplikasi/aio/specs/009-api-token-system.md) | REST API & Bearer API Token System | `Completed` | 2026-10-21 |
 | 010 | [010-notification-engine.md](file:///c:/aplikasi/aio/specs/010-notification-engine.md) | Notification Engine & In-App Alerts | `Completed` | 2026-10-21 |
 | 011 | [011-queue-and-webhooks.md](file:///c:/aplikasi/aio/specs/011-queue-and-webhooks.md) | Unified Database Queue & Outbound Webhook System | `Completed` | 2026-10-21 |
-| 012 | [012-core-interoperability-and-sanitization.md](file:///c:/aplikasi/aio/specs/012-core-interoperability-and-sanitization.md) | Core Interoperability (Domain Event Engine) & Module Sanitization | `Draft` | 2026-10-22 |
+| 012 | [012-core-interoperability-and-sanitization.md](file:///c:/aplikasi/aio/specs/012-core-interoperability-and-sanitization.md) | Core Interoperability (Domain Event Engine) & Module Sanitization | `Completed` | 2026-10-22 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 

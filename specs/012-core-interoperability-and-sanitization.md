@@ -1,6 +1,6 @@
 # SPEC-012: Core Interoperability (Domain Event Engine) & Module Sanitization
 
-- **Status**: `In Progress`
+- **Status**: `Completed`
 - **Owner / Author**: aio Architecture Team & AI Agent
 - **Tanggal Dibuat**: 2026-10-22
 - **Target File / Modul**: `core/Events/*`, `app/Modules/*`, `core/Modules/*`, `.agents/rules/08-zero-infrastructure-leakage.md`, `AGENTS.md`
@@ -114,7 +114,7 @@ Rute-rute terkait di `routes/web.php` dipindahkan ke file `routes.php` masing-ma
   - [x] 3.4 Daftarkan `EventDispatcher` ke DI Container dan buat helper global `event(object $event)`.
   - [x] 3.5 Tulis unit test `tests/Unit/EventDispatcherTest.php` untuk menguji skenario sync, async, dan webhook bridge.
 
-- [ ] **Phase 4: Integrasi & Verifikasi Akhir**
-  - [ ] 4.1 Jalankan test suite PHPUnit lengkap (`vendor/bin/phpunit`).
-  - [ ] 4.2 Jalankan verifikasi sistem (`./scripts/verify.ps1`).
-  - [ ] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
+- [x] **Phase 4: Integrasi & Verifikasi Akhir**
+  - [x] 4.1 Jalankan test suite PHPUnit lengkap (`vendor/bin/phpunit`).
+  - [x] 4.2 Jalankan verifikasi sistem (`./scripts/verify.ps1`).
+  - [x] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
