@@ -87,3 +87,16 @@ HTML;
         return "<!-- Vite asset [{$entry}] not found -->";
     }
 }
+
+if (!function_exists('event')) {
+    /**
+     * Helper global untuk memancarkan Domain Event ke EventDispatcher.
+     */
+    function event(object $event): void
+    {
+        $dispatcher = app(\Core\Events\EventDispatcher::class);
+        if ($dispatcher instanceof \Core\Events\EventDispatcher) {
+            $dispatcher->dispatch($event);
+        }
+    }
+}

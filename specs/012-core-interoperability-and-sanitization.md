@@ -107,12 +107,12 @@ Rute-rute terkait di `routes/web.php` dipindahkan ke file `routes.php` masing-ma
   - [x] 2.5 Bersihkan rute statis terkait dari `routes/web.php` dan pastikan dimuat via dynamic module route loader.
   - [x] 2.6 Buat unit test `tests/Unit/ModuleSanitizationTest.php` untuk memvalidasi kepatuhan manifesto semua modul.
 
-- [ ] **Phase 3: Core Domain Event Engine**
-  - [ ] 3.1 Buat interface & base class `Core\Events\Event.php` dan `Core\Events\ListenerInterface.php`.
-  - [ ] 3.2 Buat `Core\Events\EventDispatcher.php` (registrasi listener sinkron, asinkron, dan webhook bridge).
-  - [ ] 3.3 Buat asynchronous event job `Core\Events\QueuedEventJob.php` yang kompatibel dengan `QueueManager`.
-  - [ ] 3.4 Daftarkan `EventDispatcher` ke DI Container dan buat helper global `event(object $event)`.
-  - [ ] 3.5 Tulis unit test `tests/Unit/EventDispatcherTest.php` untuk menguji skenario sync, async, dan webhook bridge.
+- [x] **Phase 3: Core Domain Event Engine**
+  - [x] 3.1 Buat interface & base class `Core\Events\Event.php` dan `Core\Events\ListenerInterface.php`.
+  - [x] 3.2 Buat `Core\Events\EventDispatcher.php` (registrasi listener sinkron, asinkron, dan webhook bridge).
+  - [x] 3.3 Buat asynchronous event job `Core\Events\QueuedEventJob.php` yang kompatibel dengan `QueueManager`.
+  - [x] 3.4 Daftarkan `EventDispatcher` ke DI Container dan buat helper global `event(object $event)`.
+  - [x] 3.5 Tulis unit test `tests/Unit/EventDispatcherTest.php` untuk menguji skenario sync, async, dan webhook bridge.
 
 - [ ] **Phase 4: Integrasi & Verifikasi Akhir**
   - [ ] 4.1 Jalankan test suite PHPUnit lengkap (`vendor/bin/phpunit`).

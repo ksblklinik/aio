@@ -69,6 +69,9 @@ $container->singleton(\Core\Queue\QueueManager::class, fn() => $queueManager);
 $webhookDispatcher = new \Core\Webhook\WebhookDispatcher($db, $queueManager);
 $container->singleton(\Core\Webhook\WebhookDispatcher::class, fn() => $webhookDispatcher);
 
+$eventDispatcher = new \Core\Events\EventDispatcher($container, $queueManager, $webhookDispatcher);
+$container->singleton(\Core\Events\EventDispatcher::class, fn() => $eventDispatcher);
+
 // 5. Inisialisasi Router & Load Rute
 $router = new Router($container);
 $container->singleton(Router::class, fn() => $router);
