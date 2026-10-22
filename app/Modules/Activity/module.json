@@ -1,0 +1,14 @@
+{
+  "id": "activity",
+  "name": "Audit & Aktivitas",
+  "version": "1.0.0",
+  "author": "aio Core",
+  "description": "Pelacakan jejak audit komprehensif untuk setiap aksi, mutasi data, dan keamanan tenant.",
+  "category": "core",
+  "icon": "Activity",
+  "route": "/activity",
+  "dependencies": ["auth", "workspaces"],
+  "is_core": true,
+  "is_active": true,
+  "table_name": "audit_logs"
+}

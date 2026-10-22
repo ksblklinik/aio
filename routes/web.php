@@ -30,36 +30,6 @@ $router->group(['middleware' => [RedirectIfAuthenticated::class]], function (Rou
 $router->group(['middleware' => [Authenticate::class]], function (Router $r) {
     $r->post('/logout', [LoginController::class, 'logout']);
     $r->get('/dashboard', [DashboardController::class, 'index']);
-
-    // Workspace Tenancy Management
-    $r->post('/workspaces/switch', [WorkspaceController::class, 'switchWorkspace']);
-
-    // Core Module: Module Manager (Owner/Admin)
-    $r->get('/modules', [\App\Modules\Modules\Controllers\ModuleManagerController::class, 'index']);
-    $r->post('/modules/toggle', [\App\Modules\Modules\Controllers\ModuleManagerController::class, 'toggle']);
-    $r->post('/modules/create', [\App\Modules\Modules\Controllers\ModuleManagerController::class, 'create']);
-    $r->post('/modules/delete', [\App\Modules\Modules\Controllers\ModuleManagerController::class, 'destroy']);
-
-    // Core Feature: Audit Logs & Activity Timeline
-    $r->get('/activity', [\App\Modules\Activity\Controllers\ActivityLogController::class, 'index']);
-
-    // API Tokens & Programmatic Integrations
-    $r->get('/settings/api-tokens', [\App\Modules\Settings\Controllers\ApiTokenController::class, 'index']);
-    $r->post('/settings/api-tokens', [\App\Modules\Settings\Controllers\ApiTokenController::class, 'store']);
-    $r->post('/settings/api-tokens/{id}/delete', [\App\Modules\Settings\Controllers\ApiTokenController::class, 'destroy']);
-
-    // Outbound Webhooks Management
-    $r->get('/settings/webhooks', [\App\Modules\Settings\Controllers\WebhookController::class, 'index']);
-    $r->post('/settings/webhooks', [\App\Modules\Settings\Controllers\WebhookController::class, 'store']);
-    $r->post('/settings/webhooks/{id}/toggle', [\App\Modules\Settings\Controllers\WebhookController::class, 'toggle']);
-    $r->post('/settings/webhooks/{id}/delete', [\App\Modules\Settings\Controllers\WebhookController::class, 'destroy']);
-    $r->post('/settings/webhooks/{id}/test', [\App\Modules\Settings\Controllers\WebhookController::class, 'test']);
-
-    // In-App Notification Center
-    $r->get('/notifications', [\App\Modules\Notification\Controllers\NotificationController::class, 'index']);
-    $r->post('/notifications/{id}/read', [\App\Modules\Notification\Controllers\NotificationController::class, 'markAsRead']);
-    $r->post('/notifications/read-all', [\App\Modules\Notification\Controllers\NotificationController::class, 'markAllAsRead']);
-    $r->post('/notifications/{id}/delete', [\App\Modules\Notification\Controllers\NotificationController::class, 'delete']);
 });
 
 // Dynamic Route Loader for Active Modules
@@ -91,9 +61,3 @@ $router->get('/api/health', function () {
     ]);
 });
 
-// REST API v1 (Secured with Bearer API Token)
-$router->group(['middleware' => [\Core\Middleware\AuthenticateApiToken::class]], function (Router $r) {
-    $r->get('/api/v1/me', [\App\Modules\Api\Controllers\V1\ApiController::class, 'me']);
-    $r->get('/api/v1/projects', [\App\Modules\Api\Controllers\V1\ApiController::class, 'projects']);
-    $r->post('/api/v1/projects', [\App\Modules\Api\Controllers\V1\ApiController::class, 'createProject']);
-});

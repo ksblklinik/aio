@@ -99,13 +99,13 @@ Rute-rute terkait di `routes/web.php` dipindahkan ke file `routes.php` masing-ma
   - [x] 1.1 Buat dokumen `.agents/rules/08-zero-infrastructure-leakage.md`.
   - [x] 1.2 Perbarui `AGENTS.md` (tambahkan Guardrail 6: Zero Infrastructure Leakage).
 
-- [ ] **Phase 2: Sanitasi Direktori `app/Modules/`**
-  - [ ] 2.1 Buat `app/Modules/Activity/module.json` dan `routes.php`.
-  - [ ] 2.2 Buat `app/Modules/Notification/module.json` dan `routes.php`.
-  - [ ] 2.3 Buat `app/Modules/Settings/module.json` dan `routes.php`.
-  - [ ] 2.4 Buat `app/Modules/Api/module.json` dan `routes.php`.
-  - [ ] 2.5 Bersihkan rute statis terkait dari `routes/web.php` dan pastikan dimuat via dynamic module route loader.
-  - [ ] 2.6 Buat unit test `tests/Unit/ModuleSanitizationTest.php` untuk memvalidasi kepatuhan manifesto semua modul.
+- [x] **Phase 2: Sanitasi Direktori `app/Modules/`**
+  - [x] 2.1 Buat `app/Modules/Activity/module.json` dan `routes.php`.
+  - [x] 2.2 Buat `app/Modules/Notification/module.json` dan `routes.php`.
+  - [x] 2.3 Buat `app/Modules/Settings/module.json` dan `routes.php`.
+  - [x] 2.4 Buat `app/Modules/Api/module.json` dan `routes.php`.
+  - [x] 2.5 Bersihkan rute statis terkait dari `routes/web.php` dan pastikan dimuat via dynamic module route loader.
+  - [x] 2.6 Buat unit test `tests/Unit/ModuleSanitizationTest.php` untuk memvalidasi kepatuhan manifesto semua modul.
 
 - [ ] **Phase 3: Core Domain Event Engine**
   - [ ] 3.1 Buat interface & base class `Core\Events\Event.php` dan `Core\Events\ListenerInterface.php`.

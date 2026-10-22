@@ -1,0 +1,14 @@
+{
+  "id": "settings",
+  "name": "Pengaturan & Webhook",
+  "version": "1.0.0",
+  "author": "aio Core",
+  "description": "Pusat konfigurasi workspace, integrasi webhook outbound HMAC, dan retry delivery.",
+  "category": "core",
+  "icon": "Settings",
+  "route": "/settings/webhooks",
+  "dependencies": ["auth", "workspaces"],
+  "is_core": true,
+  "is_active": true,
+  "table_name": "webhooks"
+}
