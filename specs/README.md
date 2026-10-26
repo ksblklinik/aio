@@ -23,6 +23,10 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 010 | [010-notification-engine.md](file:///c:/aplikasi/aio/specs/010-notification-engine.md) | Notification Engine & In-App Alerts | `Completed` | 2026-10-21 |
 | 011 | [011-queue-and-webhooks.md](file:///c:/aplikasi/aio/specs/011-queue-and-webhooks.md) | Unified Database Queue & Outbound Webhook System | `Completed` | 2026-10-21 |
 | 012 | [012-core-interoperability-and-sanitization.md](file:///c:/aplikasi/aio/specs/012-core-interoperability-and-sanitization.md) | Core Interoperability (Domain Event Engine) & Module Sanitization | `Completed` | 2026-10-22 |
+| 013 | [013-core-hardening-and-unified-kernel.md](file:///c:/aplikasi/aio/specs/013-core-hardening-and-unified-kernel.md) | Core Hardening & Unified Application Kernel | `Draft` | 2026-10-26 |
+| 014 | [014-module-extension-contract.md](file:///c:/aplikasi/aio/specs/014-module-extension-contract.md) | Module Extension Contract & Dynamic RBAC | `Draft` | 2026-10-26 |
+| 015 | [015-universal-platform-services.md](file:///c:/aplikasi/aio/specs/015-universal-platform-services.md) | Universal Platform Services (Storage, Settings, Sequence, Mail) | `Draft` | 2026-10-26 |
+| 016 | [016-template-packaging-and-release.md](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md) | Template Packaging, Documentation & Release Checklist | `Draft` | 2026-10-26 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 
