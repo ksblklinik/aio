@@ -63,6 +63,14 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Daftarkan instance yang sudah dibuat langsung sebagai singleton
+     */
+    public function instance(string $abstract, mixed $instance): void
+    {
+        $this->instances[$abstract] = $instance;
+    }
+
+    /**
      * Resolve instansiasi dari container (PSR-11)
      */
     public function get(string $id): mixed

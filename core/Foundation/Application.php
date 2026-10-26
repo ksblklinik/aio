@@ -14,6 +14,7 @@ use Core\Console\Commands\CreateSuperadminCommand;
 use Core\Console\Commands\ListCommand;
 use Core\Console\Commands\MakeModuleCommand;
 use Core\Console\Commands\MigrateCommand;
+use Core\Console\Commands\MigrateRollbackCommand;
 use Core\Console\Commands\ModuleListCommand;
 use Core\Console\Commands\NotificationListCommand;
 use Core\Console\Commands\NotificationSendCommand;
@@ -21,6 +22,7 @@ use Core\Console\Commands\QueueFailedCommand;
 use Core\Console\Commands\QueueRetryCommand;
 use Core\Console\Commands\QueueWorkCommand;
 use Core\Console\Commands\RouteListCommand;
+use Core\Console\Commands\SeedCommand;
 use Core\Console\Commands\TenantListCommand;
 use Core\Console\Commands\TokenCreateCommand;
 use Core\Console\Commands\TokenListCommand;
@@ -37,9 +39,13 @@ use Core\Http\Request;
 use Core\Http\Response;
 use Core\Http\Session;
 use Core\Inertia\Inertia;
+use Core\Auth\Gate;
+use Core\Middleware\AuthorizePermission;
 use Core\Middleware\StartSession;
 use Core\Middleware\VerifyCsrfToken;
+use Core\Modules\DefaultModuleProvider;
 use Core\Modules\ModuleManager;
+use Core\Modules\ModuleProviderInterface;
 use Core\Notification\NotificationService;
 use Core\Queue\QueueManager;
 use Core\Router;
@@ -52,6 +58,10 @@ class Application
     private static ?self $instance = null;
     private Container $container;
     private string $basePath;
+    /** @var array<string, \Core\Modules\ModuleProviderInterface> */
+    private array $moduleProviders = [];
+    private bool $moduleProvidersRegistered = false;
+    private bool $moduleProvidersBooted = false;
 
     public function __construct(?string $basePath = null)
     {
@@ -83,6 +93,9 @@ class Application
 
         // 2. Registrasi Binding Layanan Core
         $this->registerCoreBindings();
+
+        // 3. Registrasi Module Providers untuk modul aktif
+        $this->registerModuleProviders();
     }
 
     private function registerCoreBindings(): void
@@ -183,6 +196,85 @@ class Application
         $c->singleton(Router::class, function ($c) {
             return new Router($c);
         });
+
+        // Authorization Gate & Middleware
+        $c->singleton(Gate::class, function ($c) {
+            return new Gate($c->get(Connection::class));
+        });
+
+        $c->singleton(AuthorizePermission::class, function ($c) {
+            return new AuthorizePermission($c->get(Gate::class), $c->get(AuthService::class));
+        });
+    }
+
+    public function registerModuleProviders(): void
+    {
+        if ($this->moduleProvidersRegistered) {
+            return;
+        }
+        $this->moduleProvidersRegistered = true;
+
+        if (!$this->container->has(ModuleManager::class)) {
+            return;
+        }
+
+        try {
+            $moduleManager = $this->container->get(ModuleManager::class);
+            $activeModules = $moduleManager->getActiveModules();
+
+            foreach ($activeModules as $module) {
+                $id = (string) $module['id'];
+                $folder = $module['folder'] ?? ucfirst($id);
+                $modulePath = $this->basePath . '/app/Modules/' . $folder;
+
+                $providerClass = $module['provider'] ?? null;
+                if (empty($providerClass)) {
+                    $defaultClass = "App\\Modules\\{$folder}\\{$folder}ServiceProvider";
+                    if (class_exists($defaultClass)) {
+                        $providerClass = $defaultClass;
+                    }
+                }
+
+                if ($providerClass && class_exists($providerClass) && is_subclass_of($providerClass, ModuleProviderInterface::class)) {
+                    $provider = new $providerClass($this, $modulePath);
+                } else {
+                    $provider = new DefaultModuleProvider($this, $modulePath);
+                }
+
+                $provider->register();
+                $this->moduleProviders[$id] = $provider;
+            }
+        } catch (\Throwable $e) {
+            // Graceful fallback during initial setup/migration
+        }
+    }
+
+    public function bootModuleProviders(): void
+    {
+        if ($this->moduleProvidersBooted) {
+            return;
+        }
+        $this->moduleProvidersBooted = true;
+
+        // Pastikan seluruh provider sudah register
+        $this->registerModuleProviders();
+
+        foreach ($this->moduleProviders as $provider) {
+            $provider->boot();
+        }
+    }
+
+    /**
+     * @return array<string, ModuleProviderInterface>
+     */
+    public function getModuleProviders(): array
+    {
+        return $this->moduleProviders;
+    }
+
+    public function getModuleProvider(string $id): ?ModuleProviderInterface
+    {
+        return $this->moduleProviders[$id] ?? null;
     }
 
     public function setupInertia(Request $request): Inertia
@@ -219,6 +311,16 @@ class Application
                 'role' => $authService->currentRole(),
                 'is_superadmin' => $authService->isSuperadmin(),
                 'tenants' => $authService->user() ? $authService->user()->getTenants($db) : [],
+                'permissions' => function () use ($authService, $c) {
+                    $user = $authService->user();
+                    $tenant = $authService->currentTenant();
+                    if (!$user || !$tenant) {
+                        return [];
+                    }
+                    /** @var Gate $gate */
+                    $gate = $c->get(Gate::class);
+                    return $gate->getPermissionsForUser($user, (int) $tenant->id);
+                },
             ],
             'active_modules' => function () use ($authService, $moduleManager) {
                 $tenant = $authService->currentTenant();
@@ -265,6 +367,9 @@ class Application
         if (file_exists($routesFile)) {
             require $routesFile;
         }
+
+        // Boot module providers untuk memuat routes dan listeners modular
+        $this->bootModuleProviders();
 
         $session = $this->container->get(Session::class);
 
@@ -368,6 +473,8 @@ HTML;
         // Registrasi seluruh perintah CLI
         $kernel->register(new ListCommand())
             ->register(new MigrateCommand())
+            ->register(new MigrateRollbackCommand())
+            ->register(new SeedCommand())
             ->register(new MakeModuleCommand())
             ->register(new CreateSuperadminCommand())
             ->register(new ModuleListCommand())
@@ -384,6 +491,9 @@ HTML;
             ->register(new QueueRetryCommand())
             ->register(new WebhookListCommand())
             ->register(new WebhookTestCommand());
+
+        // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
+        $this->bootModuleProviders();
 
         return $kernel;
     }

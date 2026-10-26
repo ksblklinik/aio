@@ -10,5 +10,6 @@
   "dependencies": ["auth", "workspaces"],
   "is_core": false,
   "is_active": true,
-  "table_name": "projects"
+  "table_name": "projects",
+  "provider": "App\\Modules\\Projects\\ProjectsServiceProvider"
 }

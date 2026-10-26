@@ -54,6 +54,11 @@ abstract class Command
         echo "\033[33m⚠ " . $message . "\033[0m" . PHP_EOL;
     }
 
+    public function warning(string $message): void
+    {
+        $this->warn($message);
+    }
+
     public function error(string $message): void
     {
         echo "\033[31m✖ " . $message . "\033[0m" . PHP_EOL;

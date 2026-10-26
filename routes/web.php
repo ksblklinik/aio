@@ -32,21 +32,7 @@ $router->group(['middleware' => [Authenticate::class]], function (Router $r) {
     $r->get('/dashboard', [DashboardController::class, 'index']);
 });
 
-// Dynamic Route Loader for Active Modules
-try {
-    $moduleManager = app(\Core\Modules\ModuleManager::class);
-    if ($moduleManager instanceof \Core\Modules\ModuleManager) {
-        foreach ($moduleManager->getActiveModules() as $activeModule) {
-            $folder = $activeModule['folder'] ?? ucfirst($activeModule['id']);
-            $moduleRouteFile = dirname(__DIR__) . "/app/Modules/{$folder}/routes.php";
-            if (file_exists($moduleRouteFile)) {
-                require $moduleRouteFile;
-            }
-        }
-    }
-} catch (\Throwable $e) {
-    // Graceful fallback during initial boot
-}
+// Dynamic routes for active modules are booted via Module Providers in Application::bootModuleProviders()
 
 // Dev Fast Testing Persona Switcher (Local only)
 $router->get('/_dev/switch-persona', [DevPersonaController::class, 'switchPersona']);

@@ -1,0 +1,19 @@
+{
+    "id": "sample_contract",
+    "name": "Sample Contract Module",
+    "version": "1.0.0",
+    "author": "Antigravity Pair",
+    "description": "Fixture module to verify autonomous plug-and-play extension contract.",
+    "category": "collaboration",
+    "icon": "Box",
+    "route": "/sample-contract",
+    "dependencies": [],
+    "provider": "Tests\\Fixtures\\Modules\\SampleContractModule\\SampleContractServiceProvider",
+    "permissions": [
+        "sample.read",
+        "sample.write"
+    ],
+    "is_core": false,
+    "is_active": true,
+    "table_name": "sample_contracts"
+}

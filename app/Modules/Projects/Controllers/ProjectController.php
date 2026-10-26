@@ -157,9 +157,9 @@ class ProjectController
 
     public function destroy(Request $request, int $id): Response
     {
-        // RBAC: Hanya Owner atau Admin yang boleh menghapus proyek
+        // RBAC: Hanya role dengan izin projects.delete (default: Owner atau Admin) yang boleh menghapus proyek
         $role = $this->auth->currentRole();
-        if ($role !== 'owner' && $role !== 'admin') {
+        if ($role !== 'owner' && $role !== 'admin' && !can('projects.delete')) {
             $this->session->flash('error', 'Akses ditolak: Hanya Owner atau Admin yang dapat menghapus proyek.');
             return Response::redirect('/projects');
         }

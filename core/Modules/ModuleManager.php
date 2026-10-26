@@ -43,6 +43,8 @@ class ModuleManager
             is_core INTEGER NOT NULL DEFAULT 0,
             is_active INTEGER NOT NULL DEFAULT 1,
             table_name TEXT,
+            provider TEXT,
+            permissions TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -55,6 +57,19 @@ class ModuleManager
             PRIMARY KEY (tenant_id, module_id)
         );";
         $this->pdo->exec($sql);
+
+        try {
+            $cols = $this->pdo->query("PRAGMA table_info(system_modules)")->fetchAll(PDO::FETCH_ASSOC);
+            $colNames = array_column($cols, 'name');
+            if (!in_array('provider', $colNames, true)) {
+                $this->pdo->exec("ALTER TABLE system_modules ADD COLUMN provider TEXT");
+            }
+            if (!in_array('permissions', $colNames, true)) {
+                $this->pdo->exec("ALTER TABLE system_modules ADD COLUMN permissions TEXT");
+            }
+        } catch (\Throwable $e) {
+            // Ignore PRAGMA errors on mocked PDOs
+        }
     }
 
     /**
@@ -97,6 +112,8 @@ class ModuleManager
             $dependencies = json_encode($content['dependencies'] ?? []);
             $isCore = !empty($content['is_core']) ? 1 : 0;
             $tableName = (string) ($content['table_name'] ?? '');
+            $provider = !empty($content['provider']) ? (string) $content['provider'] : null;
+            $permissions = isset($content['permissions']) ? json_encode($content['permissions']) : null;
 
             // Cek apakah sudah ada di database
             $stmt = $this->pdo->prepare("SELECT id, is_active FROM system_modules WHERE id = ?");
@@ -107,20 +124,23 @@ class ModuleManager
                 // Update metadata tanpa mengubah status is_active yang sudah disetel user
                 $update = $this->pdo->prepare("UPDATE system_modules SET 
                     name = ?, version = ?, author = ?, description = ?, category = ?, 
-                    icon = ?, route = ?, dependencies = ?, is_core = ?, table_name = ?, updated_at = CURRENT_TIMESTAMP
+                    icon = ?, route = ?, dependencies = ?, is_core = ?, table_name = ?, 
+                    provider = ?, permissions = ?, updated_at = CURRENT_TIMESTAMP
                     WHERE id = ?");
                 $update->execute([
                     $name, $version, $author, $description, $category,
-                    $icon, $route, $dependencies, $isCore, $tableName, $id
+                    $icon, $route, $dependencies, $isCore, $tableName,
+                    $provider, $permissions, $id
                 ]);
             } else {
                 // Insert baru
                 $insert = $this->pdo->prepare("INSERT INTO system_modules 
-                    (id, name, version, author, description, category, icon, route, dependencies, is_core, is_active, table_name)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)");
+                    (id, name, version, author, description, category, icon, route, dependencies, is_core, is_active, table_name, provider, permissions)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)");
                 $insert->execute([
                     $id, $name, $version, $author, $description, $category,
-                    $icon, $route, $dependencies, $isCore, $tableName
+                    $icon, $route, $dependencies, $isCore, $tableName,
+                    $provider, $permissions
                 ]);
             }
 
@@ -142,6 +162,7 @@ class ModuleManager
 
         return array_map(function ($row) {
             $row['dependencies'] = json_decode($row['dependencies'] ?? '[]', true) ?: [];
+            $row['permissions'] = json_decode($row['permissions'] ?? '[]', true) ?: [];
             $row['is_core'] = (bool) $row['is_core'];
             $row['is_active'] = (bool) $row['is_active'];
             $row['folder'] = $this->resolveFolderForModule((string) $row['id']);
@@ -545,10 +566,12 @@ class ModuleManager
             throw new DomainException("Folder modul [{$folderName}] sudah ada di filesystem.");
         }
 
-        // Buat struktur direktori
+        // Buat struktur direktori modular terstandar
         mkdir($moduleDir . '/Controllers', 0755, true);
         mkdir($moduleDir . '/Models', 0755, true);
-        mkdir($moduleDir . '/database/migrations', 0755, true);
+        mkdir($moduleDir . '/Database/Migrations', 0755, true);
+        mkdir($moduleDir . '/Database/Seeders', 0755, true);
+        mkdir($moduleDir . '/Pages', 0755, true);
         mkdir($frontendDir, 0755, true);
 
         $description = trim((string) ($data['description'] ?? "Modul {$name} untuk framework aio."));
@@ -558,6 +581,13 @@ class ModuleManager
         $route = '/' . $id;
         $dependencies = is_array($data['dependencies'] ?? null) ? $data['dependencies'] : [];
         $tableName = $id;
+        $providerClass = "App\\Modules\\{$folderName}\\{$folderName}ServiceProvider";
+        $permissions = [
+            "{$id}.view",
+            "{$id}.create",
+            "{$id}.update",
+            "{$id}.delete",
+        ];
 
         // 1. Tulis module.json
         $manifest = [
@@ -570,13 +600,76 @@ class ModuleManager
             'icon' => $icon,
             'route' => $route,
             'dependencies' => $dependencies,
+            'provider' => $providerClass,
+            'permissions' => $permissions,
             'is_core' => false,
             'is_active' => true,
             'table_name' => $tableName,
         ];
         file_put_contents($moduleDir . '/module.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-        // 2. Tulis Controller
+        // 2. Tulis Module Service Provider
+        $providerContent = <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\\{$folderName};
+
+use Core\Modules\ModuleProvider;
+
+class {$folderName}ServiceProvider extends ModuleProvider
+{
+    public function register(): void
+    {
+        // Daftarkan service binding atau singleton spesifik modul
+    }
+
+    public function boot(): void
+    {
+        // Daftarkan event listeners, custom CLI commands, atau share inertia data
+    }
+}
+PHP;
+        file_put_contents($moduleDir . "/{$folderName}ServiceProvider.php", $providerContent);
+
+        // 3. Tulis Migration dengan Up dan Down markers
+        $migrationContent = <<<SQL
+-- @up
+CREATE TABLE IF NOT EXISTS {$tableName} (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- @down
+DROP TABLE IF EXISTS {$tableName};
+SQL;
+        file_put_contents($moduleDir . "/Database/Migrations/001_create_{$tableName}_table.sql", $migrationContent);
+
+        // 4. Tulis Seeder Modul
+        $seederContent = <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\\{$folderName}\Database\Seeders;
+
+use Core\Database\Seeder;
+
+class {$folderName}Seeder extends Seeder
+{
+    public function run(): void
+    {
+        // Seed data awal untuk modul {$name}
+    }
+}
+PHP;
+        file_put_contents($moduleDir . "/Database/Seeders/{$folderName}Seeder.php", $seederContent);
+
+        // 5. Tulis Controller
         $controllerContent = <<<PHP
 <?php
 
@@ -600,7 +693,7 @@ class {$folderName}Controller
 PHP;
         file_put_contents($moduleDir . "/Controllers/{$folderName}Controller.php", $controllerContent);
 
-        // 3. Tulis Routes
+        // 6. Tulis Routes
         $routesContent = <<<PHP
 <?php
 
@@ -618,11 +711,11 @@ use Core\Router;
 PHP;
         file_put_contents($moduleDir . '/routes.php', $routesContent);
 
-        // 4. Tulis Frontend React Page
+        // 7. Tulis Frontend React Page (Co-located & Pages fallback)
         $reactContent = <<<TSX
 import React from 'react';
-import AppLayout from '../../Layouts/AppLayout';
-import { Package } from 'lucide-react';
+import AppLayout from '@/Layouts/AppLayout';
+import DynamicIcon from '@/Components/DynamicIcon';
 
 interface Props {
   title: string;
@@ -633,9 +726,9 @@ export default function Index({ title, message }: Props) {
   return (
     <AppLayout title={title}>
       <div className="space-y-6 max-w-7xl mx-auto">
-        <div className="p-6 rounded-xl bg-surface border border-border-subtle shadow-xs flex items-center gap-4">
+        <div className="p-6 rounded-xl bg-surface border border-border-subtle shadow-2xs flex items-center gap-4">
           <div className="h-12 w-12 rounded-xl bg-brand-primary-light flex items-center justify-center text-brand-primary">
-            <Package className="h-6 w-6" />
+            <DynamicIcon name="{$icon}" size={24} />
           </div>
           <div>
             <h2 className="text-xl font-bold text-text-main">{title}</h2>
@@ -647,15 +740,16 @@ export default function Index({ title, message }: Props) {
   );
 }
 TSX;
+        file_put_contents($moduleDir . '/Pages/Index.tsx', $reactContent);
         file_put_contents($frontendDir . '/Index.tsx', $reactContent);
 
-        // 5. Simpan ke database
+        // 8. Simpan ke database
         $insert = $this->pdo->prepare("INSERT INTO system_modules 
-            (id, name, version, author, description, category, icon, route, dependencies, is_core, is_active, table_name)
-            VALUES (?, ?, '1.0.0', ?, ?, ?, ?, ?, ?, 0, 1, ?)");
+            (id, name, version, author, description, category, icon, route, dependencies, provider, permissions, is_core, is_active, table_name)
+            VALUES (?, ?, '1.0.0', ?, ?, ?, ?, ?, ?, ?, ?, 0, 1, ?)");
         $insert->execute([
             $id, $name, $manifest['author'], $description, $category,
-            $icon, $route, json_encode($dependencies), $tableName
+            $icon, $route, json_encode($dependencies), $providerClass, json_encode($permissions), $tableName
         ]);
 
         return $this->listModules();
@@ -717,7 +811,7 @@ TSX;
     /**
      * Cari nama folder asli di filesystem berdasarkan id modul
      */
-    private function resolveFolderForModule(string $id): string
+    public function resolveFolderForModule(string $id): string
     {
         if (!is_dir($this->modulesBasePath)) {
             return ucfirst($id);
@@ -739,6 +833,16 @@ TSX;
         }
 
         return ucfirst($id);
+    }
+
+    /**
+     * Dapatkan path absolut direktori modul berdasarkan id modul
+     */
+    public function getModulePath(string $id): ?string
+    {
+        $folder = $this->resolveFolderForModule($id);
+        $path = $this->modulesBasePath . '/' . $folder;
+        return is_dir($path) ? $path : null;
     }
 
     /**

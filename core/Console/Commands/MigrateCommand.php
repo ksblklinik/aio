@@ -8,21 +8,26 @@ use Core\Console\Command;
 use Core\Database\Connection;
 use Core\Database\Migrator;
 
+use Core\Modules\ModuleManager;
+
 class MigrateCommand extends Command
 {
-    protected string $signature = 'migrate';
-    protected string $description = 'Menjalankan seluruh file migrasi skema SQL database';
+    protected string $signature = 'migrate {--module= : ID modul spesifik yang ingin dimigrasikan}';
+    protected string $description = 'Menjalankan seluruh file migrasi skema SQL database (core dan modul aktif)';
 
     public function handle(array $arguments = [], array $options = []): int
     {
-        $this->info("Menjalankan migrasi database...");
-
         /** @var Connection $db */
         $db = $this->container->get(Connection::class);
-        $migrator = new Migrator($db);
+        $moduleManager = $this->container->has(ModuleManager::class) ? $this->container->get(ModuleManager::class) : null;
+        $migrator = new Migrator($db, null, $moduleManager);
 
-        $migrationsDir = dirname(__DIR__, 3) . '/database/migrations';
-        $applied = $migrator->runMigrationsFrom($migrationsDir);
+        $module = !empty($options['module']) ? (string) $options['module'] : null;
+        $target = $module ? "modul '{$module}'" : "seluruh modul & core";
+
+        $this->info("Menjalankan migrasi database ({$target})...");
+
+        $applied = $migrator->runAllMigrations($module);
 
         if (empty($applied)) {
             $this->line("Tidak ada migrasi baru untuk dijalankan (Database up-to-date).");
