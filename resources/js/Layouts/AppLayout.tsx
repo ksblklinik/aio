@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import { 
   LayoutDashboard, 
-  Layers, 
   ChevronDown, 
   Zap,
   Menu,
@@ -13,9 +12,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Blocks,
-  Package,
   ShieldCheck,
-  LifeBuoy,
   History,
   Key,
   Bell,
@@ -24,6 +21,7 @@ import {
 } from 'lucide-react';
 import DevPersonaBar from '../Components/DevPersonaBar';
 import ThemeToggle from '../Components/ThemeToggle';
+import DynamicIcon from '../Components/DynamicIcon';
 
 interface AuthProp {
   user: { id: number; name: string; email: string; is_superadmin?: boolean } | null;
@@ -50,16 +48,6 @@ interface AppLayoutProps {
     plan: string;
   };
 }
-
-const iconRegistry: Record<string, React.ElementType> = {
-  LayoutDashboard,
-  Layers,
-  Blocks,
-  Package,
-  ShieldCheck,
-  LifeBuoy,
-  History,
-};
 
 export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
   const { props } = usePage<{ 
@@ -117,14 +105,19 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
     },
   ];
 
-  // Dynamic active module items from backend
-  const dynamicNavItems = (props.active_modules || [
+  // Dynamic active module items grouped by taxonomy category
+  const activeModules: ActiveModuleNav[] = props.active_modules || [
     { id: 'projects', label: 'Proyek & Tugas', icon: 'Layers', href: '/projects', category: 'Produktivitas' },
-  ]).map((m) => ({
-    label: m.label,
-    icon: iconRegistry[m.icon] || Package,
-    href: m.href,
-  }));
+  ];
+
+  const groupedModules = activeModules.reduce<Record<string, ActiveModuleNav[]>>((acc, mod) => {
+    const category = mod.category?.trim() || 'Modul Aktif';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(mod);
+    return acc;
+  }, {});
 
   const handleSwitchTenant = (tenantId: number) => {
     setWorkspaceMenuOpen(false);
@@ -158,6 +151,15 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
           </button>
         </div>
       </div>
+
+      {/* Mobile Drawer Overlay Backdrop */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 z-30 md:hidden backdrop-blur-2xs transition-opacity"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Sidebar for Desktop & Mobile Overlay */}
       <aside className={`
@@ -265,18 +267,17 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
               })}
             </div>
 
-            {/* Modul Bisnis Dinamis */}
-            {dynamicNavItems.length > 0 && (
-              <div className="space-y-1">
+            {/* Modul Bisnis Dinamis Terkelompok */}
+            {Object.entries(groupedModules).map(([categoryName, items]) => (
+              <div key={categoryName} className="space-y-1">
                 <div className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-text-muted">
-                  Modul Aktif
+                  {categoryName}
                 </div>
-                {dynamicNavItems.map((item) => {
+                {items.map((item) => {
                   const isActive = currentPath.startsWith(item.href);
-                  const Icon = item.icon;
                   return (
                     <Link
-                      key={item.label}
+                      key={item.id}
                       href={item.href}
                       className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                         isActive
@@ -284,13 +285,13 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
                           : 'text-text-muted hover:text-text-main hover:bg-surface-subtle'
                       }`}
                     >
-                      <Icon className="h-4 w-4 shrink-0" />
+                      <DynamicIcon name={item.icon} className="h-4 w-4 shrink-0" />
                       <span>{item.label}</span>
                     </Link>
                   );
                 })}
               </div>
-            )}
+            ))}
 
             {/* Menu Administrasi Modul (Owner/Admin only) */}
             {isOwnerOrAdmin && (

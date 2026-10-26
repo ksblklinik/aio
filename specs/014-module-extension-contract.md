@@ -92,10 +92,10 @@ CREATE TABLE IF NOT EXISTS role_permissions (
   - [x] 3.5 Refactor pengecekan `$role === 'owner'` di controller bawaan menjadi berbasis Gate permission.
   - [x] 3.6 Bagikan permissions aktif pengguna ke Inertia props dan buat custom React hook `useCan(permission)`.
 
-- [ ] **Phase 4: Dynamic Frontend Navigation & Co-located Pages**
-  - [ ] 4.1 Buat dynamic Lucide icon resolver di frontend dengan fallback visual yang elegan.
-  - [ ] 4.2 Dukung grouping navigasi berdasarkan kategori taksonomi dan sub-menu di `AppLayout.tsx`.
-  - [ ] 4.3 Konfigurasi Inertia resolver agar mendukung co-located pages di `app/Modules/*/Pages/*.tsx`.
+- [x] **Phase 4: Dynamic Frontend Navigation & Co-located Pages**
+  - [x] 4.1 Buat dynamic Lucide icon resolver di frontend dengan fallback visual yang elegan.
+  - [x] 4.2 Dukung grouping navigasi berdasarkan kategori taksonomi dan sub-menu di `AppLayout.tsx`.
+  - [x] 4.3 Konfigurasi Inertia resolver agar mendukung co-located pages di `app/Modules/*/Pages/*.tsx`.
 
 - [ ] **Phase 5: Fixture Contract Test & CLI Generator Update**
   - [ ] 5.1 Buat modul uji coba dummy di `tests/Fixtures/Modules/SampleContractModule` yang mengimplementasikan provider, listener, migrasi, dan permission.
