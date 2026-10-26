@@ -43,6 +43,8 @@ class ModuleManager
             is_core INTEGER NOT NULL DEFAULT 0,
             is_active INTEGER NOT NULL DEFAULT 1,
             table_name TEXT,
+            provider TEXT,
+            permissions TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -55,6 +57,19 @@ class ModuleManager
             PRIMARY KEY (tenant_id, module_id)
         );";
         $this->pdo->exec($sql);
+
+        try {
+            $cols = $this->pdo->query("PRAGMA table_info(system_modules)")->fetchAll(PDO::FETCH_ASSOC);
+            $colNames = array_column($cols, 'name');
+            if (!in_array('provider', $colNames, true)) {
+                $this->pdo->exec("ALTER TABLE system_modules ADD COLUMN provider TEXT");
+            }
+            if (!in_array('permissions', $colNames, true)) {
+                $this->pdo->exec("ALTER TABLE system_modules ADD COLUMN permissions TEXT");
+            }
+        } catch (\Throwable $e) {
+            // Ignore PRAGMA errors on mocked PDOs
+        }
     }
 
     /**
@@ -97,6 +112,8 @@ class ModuleManager
             $dependencies = json_encode($content['dependencies'] ?? []);
             $isCore = !empty($content['is_core']) ? 1 : 0;
             $tableName = (string) ($content['table_name'] ?? '');
+            $provider = !empty($content['provider']) ? (string) $content['provider'] : null;
+            $permissions = isset($content['permissions']) ? json_encode($content['permissions']) : null;
 
             // Cek apakah sudah ada di database
             $stmt = $this->pdo->prepare("SELECT id, is_active FROM system_modules WHERE id = ?");
@@ -107,20 +124,23 @@ class ModuleManager
                 // Update metadata tanpa mengubah status is_active yang sudah disetel user
                 $update = $this->pdo->prepare("UPDATE system_modules SET 
                     name = ?, version = ?, author = ?, description = ?, category = ?, 
-                    icon = ?, route = ?, dependencies = ?, is_core = ?, table_name = ?, updated_at = CURRENT_TIMESTAMP
+                    icon = ?, route = ?, dependencies = ?, is_core = ?, table_name = ?, 
+                    provider = ?, permissions = ?, updated_at = CURRENT_TIMESTAMP
                     WHERE id = ?");
                 $update->execute([
                     $name, $version, $author, $description, $category,
-                    $icon, $route, $dependencies, $isCore, $tableName, $id
+                    $icon, $route, $dependencies, $isCore, $tableName,
+                    $provider, $permissions, $id
                 ]);
             } else {
                 // Insert baru
                 $insert = $this->pdo->prepare("INSERT INTO system_modules 
-                    (id, name, version, author, description, category, icon, route, dependencies, is_core, is_active, table_name)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)");
+                    (id, name, version, author, description, category, icon, route, dependencies, is_core, is_active, table_name, provider, permissions)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)");
                 $insert->execute([
                     $id, $name, $version, $author, $description, $category,
-                    $icon, $route, $dependencies, $isCore, $tableName
+                    $icon, $route, $dependencies, $isCore, $tableName,
+                    $provider, $permissions
                 ]);
             }
 
@@ -142,6 +162,7 @@ class ModuleManager
 
         return array_map(function ($row) {
             $row['dependencies'] = json_decode($row['dependencies'] ?? '[]', true) ?: [];
+            $row['permissions'] = json_decode($row['permissions'] ?? '[]', true) ?: [];
             $row['is_core'] = (bool) $row['is_core'];
             $row['is_active'] = (bool) $row['is_active'];
             $row['folder'] = $this->resolveFolderForModule((string) $row['id']);
@@ -717,7 +738,7 @@ TSX;
     /**
      * Cari nama folder asli di filesystem berdasarkan id modul
      */
-    private function resolveFolderForModule(string $id): string
+    public function resolveFolderForModule(string $id): string
     {
         if (!is_dir($this->modulesBasePath)) {
             return ucfirst($id);
@@ -739,6 +760,16 @@ TSX;
         }
 
         return ucfirst($id);
+    }
+
+    /**
+     * Dapatkan path absolut direktori modul berdasarkan id modul
+     */
+    public function getModulePath(string $id): ?string
+    {
+        $folder = $this->resolveFolderForModule($id);
+        $path = $this->modulesBasePath . '/' . $folder;
+        return is_dir($path) ? $path : null;
     }
 
     /**

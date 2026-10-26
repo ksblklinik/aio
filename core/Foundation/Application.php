@@ -39,7 +39,9 @@ use Core\Http\Session;
 use Core\Inertia\Inertia;
 use Core\Middleware\StartSession;
 use Core\Middleware\VerifyCsrfToken;
+use Core\Modules\DefaultModuleProvider;
 use Core\Modules\ModuleManager;
+use Core\Modules\ModuleProviderInterface;
 use Core\Notification\NotificationService;
 use Core\Queue\QueueManager;
 use Core\Router;
@@ -52,6 +54,10 @@ class Application
     private static ?self $instance = null;
     private Container $container;
     private string $basePath;
+    /** @var array<string, \Core\Modules\ModuleProviderInterface> */
+    private array $moduleProviders = [];
+    private bool $moduleProvidersRegistered = false;
+    private bool $moduleProvidersBooted = false;
 
     public function __construct(?string $basePath = null)
     {
@@ -83,6 +89,9 @@ class Application
 
         // 2. Registrasi Binding Layanan Core
         $this->registerCoreBindings();
+
+        // 3. Registrasi Module Providers untuk modul aktif
+        $this->registerModuleProviders();
     }
 
     private function registerCoreBindings(): void
@@ -185,6 +194,76 @@ class Application
         });
     }
 
+    public function registerModuleProviders(): void
+    {
+        if ($this->moduleProvidersRegistered) {
+            return;
+        }
+        $this->moduleProvidersRegistered = true;
+
+        if (!$this->container->has(ModuleManager::class)) {
+            return;
+        }
+
+        try {
+            $moduleManager = $this->container->get(ModuleManager::class);
+            $activeModules = $moduleManager->getActiveModules();
+
+            foreach ($activeModules as $module) {
+                $id = (string) $module['id'];
+                $folder = $module['folder'] ?? ucfirst($id);
+                $modulePath = $this->basePath . '/app/Modules/' . $folder;
+
+                $providerClass = $module['provider'] ?? null;
+                if (empty($providerClass)) {
+                    $defaultClass = "App\\Modules\\{$folder}\\{$folder}ServiceProvider";
+                    if (class_exists($defaultClass)) {
+                        $providerClass = $defaultClass;
+                    }
+                }
+
+                if ($providerClass && class_exists($providerClass) && is_subclass_of($providerClass, ModuleProviderInterface::class)) {
+                    $provider = new $providerClass($this, $modulePath);
+                } else {
+                    $provider = new DefaultModuleProvider($this, $modulePath);
+                }
+
+                $provider->register();
+                $this->moduleProviders[$id] = $provider;
+            }
+        } catch (\Throwable $e) {
+            // Graceful fallback during initial setup/migration
+        }
+    }
+
+    public function bootModuleProviders(): void
+    {
+        if ($this->moduleProvidersBooted) {
+            return;
+        }
+        $this->moduleProvidersBooted = true;
+
+        // Pastikan seluruh provider sudah register
+        $this->registerModuleProviders();
+
+        foreach ($this->moduleProviders as $provider) {
+            $provider->boot();
+        }
+    }
+
+    /**
+     * @return array<string, ModuleProviderInterface>
+     */
+    public function getModuleProviders(): array
+    {
+        return $this->moduleProviders;
+    }
+
+    public function getModuleProvider(string $id): ?ModuleProviderInterface
+    {
+        return $this->moduleProviders[$id] ?? null;
+    }
+
     public function setupInertia(Request $request): Inertia
     {
         $c = $this->container;
@@ -265,6 +344,9 @@ class Application
         if (file_exists($routesFile)) {
             require $routesFile;
         }
+
+        // Boot module providers untuk memuat routes dan listeners modular
+        $this->bootModuleProviders();
 
         $session = $this->container->get(Session::class);
 
@@ -384,6 +466,9 @@ HTML;
             ->register(new QueueRetryCommand())
             ->register(new WebhookListCommand())
             ->register(new WebhookTestCommand());
+
+        // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
+        $this->bootModuleProviders();
 
         return $kernel;
     }

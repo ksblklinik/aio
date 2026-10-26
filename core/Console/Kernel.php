@@ -30,6 +30,12 @@ class Kernel
         return $this;
     }
 
+    public function registerCommand(string|Command $command): self
+    {
+        $instance = is_string($command) ? new $command() : $command;
+        return $this->register($instance);
+    }
+
     /**
      * @return array<string, Command>
      */

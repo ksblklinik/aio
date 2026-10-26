@@ -1,6 +1,6 @@
 # SPEC-014: Module Extension Contract
 
-- **Status**: `Draft`
+- **Status**: `In Progress`
 - **Owner / Author**: Antigravity & User
 - **Tanggal Dibuat**: 2026-10-26
 - **Target File / Modul**: `core/Modules/`, `core/Auth/`, `app/Modules/`, `resources/js/`
@@ -71,11 +71,11 @@ CREATE TABLE IF NOT EXISTS role_permissions (
 
 ## 4. Atomic Task Checklist
 
-- [ ] **Phase 1: Module Provider Contract**
-  - [ ] 1.1 Buat kontrak interface `Core\Modules\ModuleProviderInterface` dan abstract class `Core\Modules\ModuleProvider`.
-  - [ ] 1.2 Perbarui `module.json` schema agar mendukung deklarasi `"provider": "App\\Modules\\{Module}\\{Module}ServiceProvider"`.
-  - [ ] 1.3 Perbarui `ModuleManager` dan `Application` agar menjalankan lifecycle provider (`register()` dan `boot()`) hanya untuk modul yang aktif.
-  - [ ] 1.4 Sediakan API helper di provider: `listen()`, `bind()`, `command()`, `shareInertia()`.
+- [x] **Phase 1: Module Provider Contract**
+  - [x] 1.1 Buat kontrak interface `Core\Modules\ModuleProviderInterface` dan abstract class `Core\Modules\ModuleProvider`.
+  - [x] 1.2 Perbarui `module.json` schema agar mendukung deklarasi `"provider": "App\\Modules\\{Module}\\{Module}ServiceProvider"`.
+  - [x] 1.3 Perbarui `ModuleManager` dan `Application` agar menjalankan lifecycle provider (`register()` dan `boot()`) hanya untuk modul yang aktif.
+  - [x] 1.4 Sediakan API helper di provider: `listen()`, `bind()`, `command()`, `shareInertia()`.
 
 - [ ] **Phase 2: Modular Migrations & Seeders**
   - [ ] 2.1 Perbarui `Core\Database\Migrator` untuk mendukung scanning direktori modul `app/Modules/*/Database/Migrations/*.sql`.
