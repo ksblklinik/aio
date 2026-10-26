@@ -173,4 +173,109 @@ if (!function_exists('storage')) {
     }
 }
 
+if (!function_exists('setting')) {
+    /**
+     * Helper global untuk membaca setting konfigurasi dinamis tenant
+     */
+    function setting(string $key, mixed $default = null, ?int $tenantId = null): mixed
+    {
+        try {
+            /** @var \Core\Settings\TenantSettings $settings */
+            $settings = app(\Core\Settings\TenantSettings::class);
+            return $settings->get($key, $default, $tenantId);
+        } catch (\Throwable) {
+            return $default;
+        }
+    }
+}
+
+if (!function_exists('format_currency')) {
+    /**
+     * Helper universal untuk memformat mata uang sesuai konfigurasi tenant
+     */
+    function format_currency(float|int $amount, ?string $currency = null, ?string $locale = null, ?int $tenantId = null): string
+    {
+        try {
+            /** @var \Core\Settings\TenantSettings $settings */
+            $settings = app(\Core\Settings\TenantSettings::class);
+            $profile = $settings->getTenantProfile($tenantId);
+            $currency = $currency ?? (string) ($profile['currency'] ?? 'USD');
+            $locale = $locale ?? (string) ($profile['locale'] ?? 'en_US');
+        } catch (\Throwable) {
+            $currency = $currency ?? 'USD';
+            $locale = $locale ?? 'en_US';
+        }
+
+        $upperCurr = strtoupper($currency);
+
+        if (class_exists(\NumberFormatter::class)) {
+            try {
+                $formatter = new \NumberFormatter($locale, \NumberFormatter::CURRENCY);
+                $formatted = $formatter->formatCurrency((float) $amount, $upperCurr);
+                if ($formatted !== false) {
+                    return $formatted;
+                }
+            } catch (\Throwable) {
+                // Fallback to manual formatting below
+            }
+        }
+
+        // Standard robust offline fallbacks
+        return match ($upperCurr) {
+            'IDR' => 'Rp ' . number_format($amount, 0, ',', '.'),
+            'USD' => '$' . number_format($amount, 2, '.', ','),
+            'EUR' => '€' . number_format($amount, 2, ',', '.'),
+            'GBP' => '£' . number_format($amount, 2, '.', ','),
+            default => $upperCurr . ' ' . number_format($amount, 2, '.', ','),
+        };
+    }
+}
+
+if (!function_exists('money')) {
+    /**
+     * Alias singkat format_currency
+     */
+    function money(float|int $amount, ?string $currency = null): string
+    {
+        return format_currency($amount, $currency);
+    }
+}
+
+if (!function_exists('format_date_local')) {
+    /**
+     * Helper universal untuk memformat tanggal dan waktu sesuai timezone tenant
+     */
+    function format_date_local(string|\DateTimeInterface $date, string $format = 'Y-m-d H:i:s', ?string $timezone = null, ?int $tenantId = null): string
+    {
+        try {
+            if ($timezone === null) {
+                /** @var \Core\Settings\TenantSettings $settings */
+                $settings = app(\Core\Settings\TenantSettings::class);
+                $profile = $settings->getTenantProfile($tenantId);
+                $timezone = (string) ($profile['timezone'] ?? 'UTC');
+            }
+        } catch (\Throwable) {
+            $timezone = $timezone ?? 'UTC';
+        }
+
+        try {
+            $tz = new \DateTimeZone($timezone);
+        } catch (\Throwable) {
+            $tz = new \DateTimeZone('UTC');
+        }
+
+        if ($date instanceof \DateTimeInterface) {
+            $dt = \DateTimeImmutable::createFromInterface($date)->setTimezone($tz);
+        } else {
+            try {
+                $dt = (new \DateTimeImmutable($date, new \DateTimeZone('UTC')))->setTimezone($tz);
+            } catch (\Throwable) {
+                return (string) $date;
+            }
+        }
+
+        return $dt->format($format);
+    }
+}
+
 

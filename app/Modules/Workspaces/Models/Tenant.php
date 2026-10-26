@@ -13,7 +13,11 @@ class Tenant
         public string $name = '',
         public string $slug = '',
         public string $plan = 'pro',
-        public ?string $createdAt = null
+        public ?string $createdAt = null,
+        public string $orgType = 'general',
+        public string $timezone = 'UTC',
+        public string $currency = 'USD',
+        public string $locale = 'en_US'
     ) {
     }
 
@@ -24,7 +28,11 @@ class Tenant
             name: (string) ($row['name'] ?? ''),
             slug: (string) ($row['slug'] ?? ''),
             plan: (string) ($row['plan'] ?? 'pro'),
-            createdAt: isset($row['created_at']) ? (string) $row['created_at'] : null
+            createdAt: isset($row['created_at']) ? (string) $row['created_at'] : null,
+            orgType: (string) ($row['org_type'] ?? 'general'),
+            timezone: (string) ($row['timezone'] ?? 'UTC'),
+            currency: (string) ($row['currency'] ?? 'USD'),
+            locale: (string) ($row['locale'] ?? 'en_US')
         );
     }
 
@@ -46,13 +54,21 @@ class Tenant
             'name' => trim((string) ($data['name'] ?? '')),
             'slug' => trim(strtolower((string) ($data['slug'] ?? ''))),
             'plan' => (string) ($data['plan'] ?? 'pro'),
+            'org_type' => (string) ($data['org_type'] ?? 'general'),
+            'timezone' => (string) ($data['timezone'] ?? 'UTC'),
+            'currency' => (string) ($data['currency'] ?? 'USD'),
+            'locale' => (string) ($data['locale'] ?? 'en_US'),
         ]);
 
         return new self(
             id: (int) $id,
             name: (string) $data['name'],
             slug: trim(strtolower((string) $data['slug'])),
-            plan: (string) ($data['plan'] ?? 'pro')
+            plan: (string) ($data['plan'] ?? 'pro'),
+            orgType: (string) ($data['org_type'] ?? 'general'),
+            timezone: (string) ($data['timezone'] ?? 'UTC'),
+            currency: (string) ($data['currency'] ?? 'USD'),
+            locale: (string) ($data['locale'] ?? 'en_US')
         );
     }
 

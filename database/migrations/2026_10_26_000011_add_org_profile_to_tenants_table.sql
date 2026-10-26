@@ -1,0 +1,11 @@
+-- @up
+ALTER TABLE tenants ADD COLUMN org_type TEXT NOT NULL DEFAULT 'general';
+ALTER TABLE tenants ADD COLUMN timezone TEXT NOT NULL DEFAULT 'UTC';
+ALTER TABLE tenants ADD COLUMN currency TEXT NOT NULL DEFAULT 'USD';
+ALTER TABLE tenants ADD COLUMN locale TEXT NOT NULL DEFAULT 'en_US';
+
+-- @down
+ALTER TABLE tenants DROP COLUMN org_type;
+ALTER TABLE tenants DROP COLUMN timezone;
+ALTER TABLE tenants DROP COLUMN currency;
+ALTER TABLE tenants DROP COLUMN locale;

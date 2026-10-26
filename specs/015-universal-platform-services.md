@@ -56,12 +56,12 @@ Storage       Settings       Sequence       Schedule        Mail
   - [x] 1.4 Tambahkan aturan validasi file di `Validator` (`file`, `mimes:pdf,jpg,png`, `max_kb:2048`).
   - [x] 1.5 Implementasikan rute download privat bertanda tangan (signed URL dengan TTL).
 
-- [ ] **Phase 2: Tenant Settings & Multi-Domain Organization Profile**
-  - [ ] 2.1 Tambahkan kolom `org_type`, `timezone`, `currency`, dan `locale` pada tabel `tenants`.
-  - [ ] 2.2 Buat tabel `tenant_settings` (`tenant_id`, `module`, `key`, `value`, `type`).
-  - [ ] 2.3 Implementasikan service `TenantSettings` dan helper global `setting(key, default)`.
-  - [ ] 2.4 Implementasikan helper formatting seragam: `format_currency()` / `money()`, `format_date_local()`.
-  - [ ] 2.5 Buat halaman pengaturan profil organisasi di antarmuka web Settings.
+- [x] **Phase 2: Tenant Settings & Multi-Domain Organization Profile**
+  - [x] 2.1 Tambahkan kolom `org_type`, `timezone`, `currency`, dan `locale` pada tabel `tenants`.
+  - [x] 2.2 Buat tabel `tenant_settings` (`tenant_id`, `module`, `key`, `value`, `type`).
+  - [x] 2.3 Implementasikan service `TenantSettings` dan helper global `setting(key, default)`.
+  - [x] 2.4 Implementasikan helper formatting seragam: `format_currency()` / `money()`, `format_date_local()`.
+  - [x] 2.5 Buat halaman pengaturan profil organisasi di antarmuka web Settings.
 
 - [ ] **Phase 3: Atomic Document Sequence Generator**
   - [ ] 3.1 Buat tabel database `sequences` (`tenant_id`, `name`, `prefix`, `current_value`, `padding`, `reset_period`).

@@ -220,6 +220,11 @@ class Application
             $appKey = (string) (config('app.key') ?: 'aio-universal-secret-key-32chars!!');
             return new StorageManager($driver, $db, $appKey);
         });
+
+        // Universal Tenant Settings
+        $c->singleton(\Core\Settings\TenantSettings::class, function ($c) {
+            return new \Core\Settings\TenantSettings($c->get(Connection::class));
+        });
     }
 
     public function registerModuleProviders(): void
