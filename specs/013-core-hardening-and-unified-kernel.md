@@ -85,11 +85,11 @@ Tidak ada perubahan skema database baru di SPEC-013. Konfigurasi path database d
   - [x] 2.5 Buat unit test komprehensif untuk `Core\Database\TenantScope`.
   - [x] 2.6 Implementasikan metode `update()`, `delete()`, `count()`, `exists()`, dan `paginate()` di `TenantScope`.
 
-- [ ] **Phase 3: Unified Application Kernel**
-  - [ ] 3.1 Buat unit test keselarasan container web vs CLI.
-  - [ ] 3.2 Implementasikan `Core\Foundation\Application` sebagai single source of truth inisialisasi framework.
-  - [ ] 3.3 Refactor `public/index.php` dan `aio` untuk menggunakan `Core\Foundation\Application`.
-  - [ ] 3.4 Standarisasi inisialisasi `AuditLogger` di lingkungan CLI dan Web.
+- [x] **Phase 3: Unified Application Kernel**
+  - [x] 3.1 Buat unit test keselarasan container web vs CLI.
+  - [x] 3.2 Implementasikan `Core\Foundation\Application` sebagai single source of truth inisialisasi framework.
+  - [x] 3.3 Refactor `public/index.php` dan `aio` untuk menggunakan `Core\Foundation\Application`.
+  - [x] 3.4 Standarisasi inisialisasi `AuditLogger` di lingkungan CLI dan Web.
 
 - [ ] **Phase 4: Queue Tenant Context Propagation**
   - [ ] 4.1 Buat integration test queue worker dengan job yang mengakses `TenantScope`.
