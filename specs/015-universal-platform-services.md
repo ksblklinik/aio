@@ -63,10 +63,10 @@ Storage       Settings       Sequence       Schedule        Mail
   - [x] 2.4 Implementasikan helper formatting seragam: `format_currency()` / `money()`, `format_date_local()`.
   - [x] 2.5 Buat halaman pengaturan profil organisasi di antarmuka web Settings.
 
-- [ ] **Phase 3: Atomic Document Sequence Generator**
-  - [ ] 3.1 Buat tabel database `sequences` (`tenant_id`, `name`, `prefix`, `current_value`, `padding`, `reset_period`).
-  - [ ] 3.2 Implementasikan `Core\Sequence\SequenceManager` dengan locking atomik SQLite untuk mencegah duplikasi nomor faktur/surat.
-  - [ ] 3.3 Tulis unit test konkurensi untuk verifikasi zero duplicate numbering.
+- [x] **Phase 3: Atomic Document Sequence Generator**
+  - [x] 3.1 Buat tabel database `sequences` (`tenant_id`, `name`, `prefix`, `current_value`, `padding`, `reset_period`).
+  - [x] 3.2 Implementasikan `Core\Sequence\SequenceManager` dengan locking atomik SQLite untuk mencegah duplikasi nomor faktur/surat.
+  - [x] 3.3 Tulis unit test konkurensi untuk verifikasi zero duplicate numbering.
 
 - [ ] **Phase 4: Scheduled Task Runner**
   - [ ] 4.1 Buat interface penjadwalan `Schedule` yang dapat didaftarkan dari `ModuleProvider`.

@@ -225,6 +225,11 @@ class Application
         $c->singleton(\Core\Settings\TenantSettings::class, function ($c) {
             return new \Core\Settings\TenantSettings($c->get(Connection::class));
         });
+
+        // Atomic Document Sequence Generator
+        $c->singleton(\Core\Sequence\SequenceManager::class, function ($c) {
+            return new \Core\Sequence\SequenceManager($c->get(Connection::class));
+        });
     }
 
     public function registerModuleProviders(): void

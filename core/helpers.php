@@ -278,4 +278,22 @@ if (!function_exists('format_date_local')) {
     }
 }
 
+if (!function_exists('sequence')) {
+    /**
+     * Helper global untuk menghasilkan penomoran dokumen atomik (anti-tabrakan)
+     */
+    function sequence(
+        string $name,
+        ?string $prefix = null,
+        int $padding = 5,
+        string $resetPeriod = 'never',
+        ?string $formatPattern = null,
+        ?int $tenantId = null
+    ): string {
+        /** @var \Core\Sequence\SequenceManager $manager */
+        $manager = app(\Core\Sequence\SequenceManager::class);
+        return $manager->next($name, $prefix, $padding, $resetPeriod, $formatPattern, $tenantId);
+    }
+}
+
 
