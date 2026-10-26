@@ -42,11 +42,15 @@ class MakeModuleCommand extends Command
                 'icon' => 'Package',
             ]);
 
-            $this->success("Modul [{$created['name']}] berhasil di-scaffold!");
-            $this->line("  - Manifest:   app/Modules/{$created['id']}/module.json");
-            $this->line("  - Controller: app/Modules/{$created['id']}/Controllers/{$created['name']}Controller.php");
-            $this->line("  - Routes:     app/Modules/{$created['id']}/routes.php");
-            $this->line("  - Frontend:   resources/js/Pages/{$created['id']}/Index.tsx");
+            $folderName = ucfirst($id);
+            $this->success("Modul [{$name}] berhasil di-scaffold!");
+            $this->line("  - Manifest:   app/Modules/{$folderName}/module.json");
+            $this->line("  - Provider:   app/Modules/{$folderName}/{$folderName}ServiceProvider.php");
+            $this->line("  - Migration:  app/Modules/{$folderName}/Database/Migrations/001_create_{$id}_table.sql");
+            $this->line("  - Seeder:     app/Modules/{$folderName}/Database/Seeders/{$folderName}Seeder.php");
+            $this->line("  - Controller: app/Modules/{$folderName}/Controllers/{$folderName}Controller.php");
+            $this->line("  - Routes:     app/Modules/{$folderName}/routes.php");
+            $this->line("  - Page:       app/Modules/{$folderName}/Pages/Index.tsx");
             return 0;
         } catch (DomainException $e) {
             $this->error("Gagal membuat modul: " . $e->getMessage());

@@ -1,6 +1,6 @@
 # SPEC-014: Module Extension Contract
 
-- **Status**: `In Progress`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity & User
 - **Tanggal Dibuat**: 2026-10-26
 - **Target File / Modul**: `core/Modules/`, `core/Auth/`, `app/Modules/`, `resources/js/`
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS role_permissions (
   - [x] 4.2 Dukung grouping navigasi berdasarkan kategori taksonomi dan sub-menu di `AppLayout.tsx`.
   - [x] 4.3 Konfigurasi Inertia resolver agar mendukung co-located pages di `app/Modules/*/Pages/*.tsx`.
 
-- [ ] **Phase 5: Fixture Contract Test & CLI Generator Update**
-  - [ ] 5.1 Buat modul uji coba dummy di `tests/Fixtures/Modules/SampleContractModule` yang mengimplementasikan provider, listener, migrasi, dan permission.
-  - [ ] 5.2 Tulis contract integration test: verifikasi seluruh fungsionalitas modul berjalan tanpa mengedit baris kode pun di `core/`.
-  - [ ] 5.3 Perbarui perintah `php aio make:module` agar otomatis men-generate struktur modular baru yang patuh kontrak.
+- [x] **Phase 5: Fixture Contract Test & CLI Generator Update**
+  - [x] 5.1 Buat modul uji coba dummy di `tests/Fixtures/Modules/SampleContractModule` yang mengimplementasikan provider, listener, migrasi, dan permission.
+  - [x] 5.2 Tulis contract integration test: verifikasi seluruh fungsionalitas modul berjalan tanpa mengedit baris kode pun di `core/`.
+  - [x] 5.3 Perbarui perintah `php aio make:module` agar otomatis men-generate struktur modular baru yang patuh kontrak.

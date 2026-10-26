@@ -82,7 +82,9 @@ class Connection
     {
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll();
+        $rows = $stmt->fetchAll();
+        $stmt->closeCursor();
+        return $rows;
     }
 
     public function select(string $sql, array $params = []): array
@@ -104,6 +106,7 @@ class Connection
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $row = $stmt->fetch();
+        $stmt->closeCursor();
         return $row !== false ? $row : null;
     }
 
