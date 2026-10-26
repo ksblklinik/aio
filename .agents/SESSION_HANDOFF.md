@@ -4,16 +4,16 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 📌 Status Terakhir Sesi (Last Updated: 2026-10-26 13:25 WIB)
+## 📌 Status Terakhir Sesi (Last Updated: 2026-10-26 13:48 WIB)
 
 * **Conversation ID Terakhir**: `3a77ac8e-b820-4cd1-9f4a-02f73f4aff87`
-* **Active Git Branch**: `main` (SPEC-014 merged cleanly via `--no-ff`)
+* **Active Git Branch**: `feat/015-universal-platform-services`
 * **Status Dokumen / Roadmap**:
   - SPEC-013 ([`specs/013-core-hardening-and-unified-kernel.md`](file:///c:/aplikasi/aio/specs/013-core-hardening-and-unified-kernel.md)): `Completed` (merged to `main`).
   - SPEC-014 ([`specs/014-module-extension-contract.md`](file:///c:/aplikasi/aio/specs/014-module-extension-contract.md)): `Completed` (merged to `main`).
-  - SPEC-015 ([`specs/015-universal-platform-services.md`](file:///c:/aplikasi/aio/specs/015-universal-platform-services.md)): `Draft` / Next to execute on `feat/015-universal-platform-services`.
+  - SPEC-015 ([`specs/015-universal-platform-services.md`](file:///c:/aplikasi/aio/specs/015-universal-platform-services.md)): `In Progress` (Phase 1 & Phase 2 completed).
   - SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md)): `Draft`.
-* **Test Suite Status**: **192 tests (1042 assertions) PASS 100%**, `tsc --noEmit` clean, `verify.ps1` all passed.
+* **Test Suite Status**: **205 tests (1111 assertions) PASS 100%**, `tsc --noEmit` clean, `verify.ps1` all passed.
 * **Database File**: `database.sqlite` di root repositori.
 
 ---
@@ -33,18 +33,25 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ### 2. SPEC-014: Module Extension Contract & Dynamic RBAC
 - Status: `Completed` (commit `4479a8c` & merge to `main`).
-- Hasil: `ModuleProvider` otonom (`register()`, `boot()`), modul bawa migrasi sendiri (`Database/Migrations/`), rollback batch per-modul (`php aio migrate:rollback --module=`), seeding per-modul (`php aio db:seed --module=`), RBAC v2 (`roles`, `role_permissions`, `Gate::allows()`, `useCan` React hook, middleware `can:permission`), dynamic Lucide icon resolver di frontend, grouping kategori navigasi di `AppLayout.tsx`, co-located module pages resolver di `app.tsx`, scaffold generator update (`make:module`), serta autonomous fixture contract integration test.
 
 ### 3. SPEC-015: Universal Platform Services
-- Buat branch: `feat/015-universal-platform-services`
-- Focus: File Storage terisolasi tenant (`storage/app/tenants/{id}/`), signed download URL, generic `tenant_settings` (key-value), profil organisasi (`org_type`, timezone, format mata uang/tanggal lokal), atomic `Sequence::next()`, internal scheduler `php aio schedule:run`, Mailer via queue, alur undangan & reset password, universal pagination component.
+- Status: `In Progress` di branch `feat/015-universal-platform-services`.
+- **Phase 1: Tenant-Isolated File Storage** (Done - commit `d9dc20b`).
+  - `StorageDriverInterface`, `LocalStorageDriver`, migrasi `files`, `StorageManager` terisolasi `storage/app/tenants/{id}/`, signed URL dengan TTL HMAC SHA-256, `FileDownloadController`, validator file rules.
+- **Phase 2: Tenant Settings & Multi-Domain Organization Profile** (Done - commit `565e3f3`).
+  - Kolom profil `tenants` (`org_type`, `timezone`, `currency`, `locale`), migrasi `tenant_settings` (key-value dengan tipe data), service `TenantSettings` dengan in-memory cache per-request, helpers global `setting()`, `format_currency()` / `money()`, `format_date_local()`, controller `OrganizationSettingsController`, dan halaman React `Settings/Organization.tsx`.
+- **Phase 3: Atomic Document Sequence Generator** (Next).
+  - Migrasi `sequences`, service `SequenceManager`, format pola nomor (`{PREFIX}/{YEAR}/{NUMBER}`), locking atomik SQLite anti-tabrakan.
+- **Phase 4: Scheduled Task Runner** (`php aio schedule:run`).
+- **Phase 5: Mailer & Account Lifecycle Workflows** (`symfony/mailer`, `SendMailJob`, invitation, password reset).
+- **Phase 6: Universal Pagination** (`Paginator` & React `<Pagination>`).
 
 ### 4. SPEC-016: Template Packaging & Release
 - Buat branch: `feat/016-template-packaging`
-- Focus: Dynamic branding via config, CLI installer wizard `php aio app:install`, sanitasi database (seeder bersih), panduan `docs/MODULE_DEVELOPMENT.md`, git tag `v1.0.0-core`, dan push ke repo GitHub Template.
 
 ---
 
 ## 🎯 Instruksi Untuk Langkah Segera (Immediate Next Step)
-1. Buat branch baru untuk SPEC-015: `git checkout -b feat/015-universal-platform-services`.
-2. Mulai eksekusi **Phase 1: Tenant File Storage & Signed URLs** di [`specs/015-universal-platform-services.md`](file:///c:/aplikasi/aio/specs/015-universal-platform-services.md).
+1. Lanjutkan eksekusi **Phase 3: Atomic Document Sequence Generator** di [`specs/015-universal-platform-services.md`](file:///c:/aplikasi/aio/specs/015-universal-platform-services.md).
+2. Buat migrasi tabel `sequences` (`2026_10_26_000013_create_sequences_table.sql`).
+3. Implementasikan `Core\Sequence\SequenceManager` dengan auto-padding dan atomic concurrency locking.

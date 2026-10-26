@@ -27,6 +27,7 @@ use Core\Console\Commands\TenantListCommand;
 use Core\Console\Commands\TokenCreateCommand;
 use Core\Console\Commands\TokenListCommand;
 use Core\Console\Commands\TokenRevokeCommand;
+use Core\Console\Commands\ScheduleRunCommand;
 use Core\Console\Commands\WebhookListCommand;
 use Core\Console\Commands\WebhookTestCommand;
 use Core\Console\Kernel;
@@ -48,6 +49,9 @@ use Core\Modules\ModuleManager;
 use Core\Modules\ModuleProviderInterface;
 use Core\Notification\NotificationService;
 use Core\Queue\QueueManager;
+use Core\Storage\LocalStorageDriver;
+use Core\Storage\StorageDriverInterface;
+use Core\Storage\StorageManager;
 use Core\Router;
 use Core\Validation\ValidationException;
 use Core\Webhook\WebhookDispatcher;
@@ -205,6 +209,49 @@ class Application
         $c->singleton(AuthorizePermission::class, function ($c) {
             return new AuthorizePermission($c->get(Gate::class), $c->get(AuthService::class));
         });
+
+        // Universal Tenant-Isolated File Storage
+        $c->singleton(StorageDriverInterface::class, function () use ($base) {
+            return new LocalStorageDriver($base . '/storage/app');
+        });
+
+        $c->singleton(StorageManager::class, function ($c) {
+            $driver = $c->get(StorageDriverInterface::class);
+            $db = $c->has(Connection::class) ? $c->get(Connection::class) : null;
+            $appKey = (string) (config('app.key') ?: 'aio-universal-secret-key-32chars!!');
+            return new StorageManager($driver, $db, $appKey);
+        });
+
+        // Universal Tenant Settings
+        $c->singleton(\Core\Settings\TenantSettings::class, function ($c) {
+            return new \Core\Settings\TenantSettings($c->get(Connection::class));
+        });
+
+        // Atomic Document Sequence Generator
+        $c->singleton(\Core\Sequence\SequenceManager::class, function ($c) {
+            return new \Core\Sequence\SequenceManager($c->get(Connection::class));
+        });
+
+        // Scheduled Task Engine
+        $c->singleton(\Core\Schedule\Schedule::class, function () {
+            return new \Core\Schedule\Schedule();
+        });
+
+        // Universal Mailer Service
+        $c->singleton(\Core\Mail\Mailer::class, function ($c) use ($base) {
+            $logPath = $base . '/storage/logs/mail.log';
+            $defaultDriver = new \Core\Mail\LogMailerDriver($logPath);
+            $queue = $c->has(QueueManager::class) ? $c->get(QueueManager::class) : null;
+            return new \Core\Mail\Mailer($defaultDriver, $queue);
+        });
+
+        // Account Lifecycle Service (Invitations & Password Reset)
+        $c->singleton(\Core\Mail\AccountLifecycleService::class, function ($c) {
+            return new \Core\Mail\AccountLifecycleService(
+                $c->get(Connection::class),
+                $c->get(\Core\Mail\Mailer::class)
+            );
+        });
     }
 
     public function registerModuleProviders(): void
@@ -259,8 +306,11 @@ class Application
         // Pastikan seluruh provider sudah register
         $this->registerModuleProviders();
 
+        $schedule = $this->container->get(\Core\Schedule\Schedule::class);
+
         foreach ($this->moduleProviders as $provider) {
             $provider->boot();
+            $provider->schedule($schedule);
         }
     }
 
@@ -490,7 +540,8 @@ HTML;
             ->register(new QueueFailedCommand())
             ->register(new QueueRetryCommand())
             ->register(new WebhookListCommand())
-            ->register(new WebhookTestCommand());
+            ->register(new WebhookTestCommand())
+            ->register(new ScheduleRunCommand());
 
         // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
         $this->bootModuleProviders();

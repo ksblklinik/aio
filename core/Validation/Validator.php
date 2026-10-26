@@ -231,6 +231,42 @@ class Validator
                 }
                 break;
 
+            case 'file':
+                $isValidFile = ($value instanceof \Core\Http\UploadedFile && $value->isValid())
+                    || (is_array($value) && isset($value['tmp_name']) && ($value['error'] ?? null) === UPLOAD_ERR_OK);
+                if (!$isValidFile) {
+                    $this->addError($field, "{$label} harus berupa berkas file yang valid.");
+                }
+                break;
+
+            case 'mimes':
+                $ext = '';
+                if ($value instanceof \Core\Http\UploadedFile) {
+                    $ext = strtolower($value->getClientOriginalExtension());
+                } elseif (is_array($value) && isset($value['name'])) {
+                    $ext = strtolower(pathinfo((string) $value['name'], PATHINFO_EXTENSION));
+                } elseif (is_string($value)) {
+                    $ext = strtolower(pathinfo($value, PATHINFO_EXTENSION));
+                }
+                $allowedMimes = array_map('trim', explode(',', strtolower((string) $param)));
+                if (!in_array($ext, $allowedMimes, true)) {
+                    $this->addError($field, "Berkas {$label} harus memiliki ekstensi: {$param}.");
+                }
+                break;
+
+            case 'max_kb':
+                $maxKb = (int) $param;
+                $sizeInBytes = 0;
+                if ($value instanceof \Core\Http\UploadedFile) {
+                    $sizeInBytes = $value->getSize();
+                } elseif (is_array($value) && isset($value['size'])) {
+                    $sizeInBytes = (int) $value['size'];
+                }
+                if ($sizeInBytes > ($maxKb * 1024)) {
+                    $this->addError($field, "Ukuran berkas {$label} tidak boleh lebih dari {$maxKb} KB.");
+                }
+                break;
+
             case 'unique':
                 $this->validateUnique($field, $value, (string) $param);
                 break;

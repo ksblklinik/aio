@@ -47,3 +47,6 @@ $router->get('/api/health', function () {
     ]);
 });
 
+// Universal Tenant Storage Download (Signed URL & Public files)
+$router->get('/storage/download/{id}', [\Core\Storage\FileDownloadController::class, 'download']);
+

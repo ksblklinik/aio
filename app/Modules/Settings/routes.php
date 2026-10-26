@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 use App\Modules\Auth\Middleware\Authenticate;
 use App\Modules\Settings\Controllers\ApiTokenController;
+use App\Modules\Settings\Controllers\OrganizationSettingsController;
 use App\Modules\Settings\Controllers\WebhookController;
 use Core\Router;
 
 /** @var Router $router */
 
 $router->group(['middleware' => [Authenticate::class]], function (Router $r) {
+    // Organization Profile & Settings
+    $r->get('/settings/organization', [OrganizationSettingsController::class, 'index']);
+    $r->post('/settings/organization', [OrganizationSettingsController::class, 'update']);
+
     // API Tokens Management
     $r->get('/settings/api-tokens', [ApiTokenController::class, 'index']);
     $r->post('/settings/api-tokens', [ApiTokenController::class, 'store']);

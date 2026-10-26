@@ -1,6 +1,6 @@
 # SPEC-015: Universal Platform Services
 
-- **Status**: `Draft`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity & User
 - **Tanggal Dibuat**: 2026-10-26
 - **Target File / Modul**: `core/Storage/`, `core/Settings/`, `core/Sequence/`, `core/Schedule/`, `core/Mail/`
@@ -49,36 +49,36 @@ Storage       Settings       Sequence       Schedule        Mail
 
 ## 4. Atomic Task Checklist
 
-- [ ] **Phase 1: Tenant-Isolated File Storage**
-  - [ ] 1.1 Buat interface `StorageDriverInterface` dan implementasi `LocalStorageDriver`.
-  - [ ] 1.2 Buat tabel database `files` untuk metadata, checksum, ownership, dan relasi polimorfik.
-  - [ ] 1.3 Implementasikan `Core\Storage\StorageManager` dengan isolasi folder otomatis per `tenant_id`.
-  - [ ] 1.4 Tambahkan aturan validasi file di `Validator` (`file`, `mimes:pdf,jpg,png`, `max_kb:2048`).
-  - [ ] 1.5 Implementasikan rute download privat bertanda tangan (signed URL dengan TTL).
+- [x] **Phase 1: Tenant-Isolated File Storage**
+  - [x] 1.1 Buat interface `StorageDriverInterface` dan implementasi `LocalStorageDriver`.
+  - [x] 1.2 Buat tabel database `files` untuk metadata, checksum, ownership, dan relasi polimorfik.
+  - [x] 1.3 Implementasikan `Core\Storage\StorageManager` dengan isolasi folder otomatis per `tenant_id`.
+  - [x] 1.4 Tambahkan aturan validasi file di `Validator` (`file`, `mimes:pdf,jpg,png`, `max_kb:2048`).
+  - [x] 1.5 Implementasikan rute download privat bertanda tangan (signed URL dengan TTL).
 
-- [ ] **Phase 2: Tenant Settings & Multi-Domain Organization Profile**
-  - [ ] 2.1 Tambahkan kolom `org_type`, `timezone`, `currency`, dan `locale` pada tabel `tenants`.
-  - [ ] 2.2 Buat tabel `tenant_settings` (`tenant_id`, `module`, `key`, `value`, `type`).
-  - [ ] 2.3 Implementasikan service `TenantSettings` dan helper global `setting(key, default)`.
-  - [ ] 2.4 Implementasikan helper formatting seragam: `format_currency()` / `money()`, `format_date_local()`.
-  - [ ] 2.5 Buat halaman pengaturan profil organisasi di antarmuka web Settings.
+- [x] **Phase 2: Tenant Settings & Multi-Domain Organization Profile**
+  - [x] 2.1 Tambahkan kolom `org_type`, `timezone`, `currency`, dan `locale` pada tabel `tenants`.
+  - [x] 2.2 Buat tabel `tenant_settings` (`tenant_id`, `module`, `key`, `value`, `type`).
+  - [x] 2.3 Implementasikan service `TenantSettings` dan helper global `setting(key, default)`.
+  - [x] 2.4 Implementasikan helper formatting seragam: `format_currency()` / `money()`, `format_date_local()`.
+  - [x] 2.5 Buat halaman pengaturan profil organisasi di antarmuka web Settings.
 
-- [ ] **Phase 3: Atomic Document Sequence Generator**
-  - [ ] 3.1 Buat tabel database `sequences` (`tenant_id`, `name`, `prefix`, `current_value`, `padding`, `reset_period`).
-  - [ ] 3.2 Implementasikan `Core\Sequence\SequenceManager` dengan locking atomik SQLite untuk mencegah duplikasi nomor faktur/surat.
-  - [ ] 3.3 Tulis unit test konkurensi untuk verifikasi zero duplicate numbering.
+- [x] **Phase 3: Atomic Document Sequence Generator**
+  - [x] 3.1 Buat tabel database `sequences` (`tenant_id`, `name`, `prefix`, `current_value`, `padding`, `reset_period`).
+  - [x] 3.2 Implementasikan `Core\Sequence\SequenceManager` dengan locking atomik SQLite untuk mencegah duplikasi nomor faktur/surat.
+  - [x] 3.3 Tulis unit test konkurensi untuk verifikasi zero duplicate numbering.
 
-- [ ] **Phase 4: Scheduled Task Runner**
-  - [ ] 4.1 Buat interface penjadwalan `Schedule` yang dapat didaftarkan dari `ModuleProvider`.
-  - [ ] 4.2 Buat sub-perintah CLI `php aio schedule:run` dengan mekanisme lock anti-overlap.
-  - [ ] 4.3 Tambahkan pencatatan riwayat eksekusi task runner ke tabel/log.
+- [x] **Phase 4: Scheduled Task Runner**
+  - [x] 4.1 Buat interface penjadwalan `Schedule` yang dapat didaftarkan dari `ModuleProvider`.
+  - [x] 4.2 Buat sub-perintah CLI `php aio schedule:run` dengan mekanisme lock anti-overlap.
+  - [x] 4.3 Tambahkan pencatatan riwayat eksekusi task runner ke tabel/log.
 
-- [ ] **Phase 5: Mailer & Account Lifecycle Workflows**
-  - [ ] 5.1 Pasang paket `symfony/mailer` dan buat abstraction `Core\Mail\Mailer` (driver `log` dan `smtp`).
-  - [ ] 5.2 Integrasikan pengiriman email dengan Database Queue (`SendMailJob`).
-  - [ ] 5.3 Buat alur undangan anggota ke workspace (generate invitation token, link aktivasi via email).
-  - [ ] 5.4 Buat alur lupa password dan reset password berbasis token kedaluwarsa.
+- [x] **Phase 5: Mailer & Account Lifecycle Workflows**
+  - [x] 5.1 Pasang paket `symfony/mailer` dan buat abstraction `Core\Mail\Mailer` (driver `log` dan `smtp`).
+  - [x] 5.2 Integrasikan pengiriman email dengan Database Queue (`SendMailJob`).
+  - [x] 5.3 Buat alur undangan anggota ke workspace (generate invitation token, link aktivasi via email).
+  - [x] 5.4 Buat alur lupa password dan reset password berbasis token kedaluwarsa.
 
-- [ ] **Phase 6: Universal Pagination**
-  - [ ] 6.1 Implementasikan helper pagination `Paginator` di backend (`TenantScope::paginate()`).
-  - [ ] 6.2 Buat komponen reusable React `<Pagination>` yang patuh semantic design tokens.
+- [x] **Phase 6: Universal Pagination**
+  - [x] 6.1 Implementasikan helper pagination `Paginator` di backend (`TenantScope::paginate()`).
+  - [x] 6.2 Buat komponen reusable React `<Pagination>` yang patuh semantic design tokens.

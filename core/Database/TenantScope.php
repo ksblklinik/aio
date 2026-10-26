@@ -175,12 +175,13 @@ class TenantScope
 
         $items = $this->connection->selectAll($sql, $allParams);
 
-        return [
-            'data' => $items,
-            'total' => $total,
-            'per_page' => $perPage,
-            'current_page' => $page,
-            'last_page' => $lastPage,
-        ];
+        $paginator = new \Core\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $page
+        );
+
+        return $paginator->toArray();
     }
 }
