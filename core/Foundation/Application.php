@@ -39,6 +39,8 @@ use Core\Http\Request;
 use Core\Http\Response;
 use Core\Http\Session;
 use Core\Inertia\Inertia;
+use Core\Auth\Gate;
+use Core\Middleware\AuthorizePermission;
 use Core\Middleware\StartSession;
 use Core\Middleware\VerifyCsrfToken;
 use Core\Modules\DefaultModuleProvider;
@@ -194,6 +196,15 @@ class Application
         $c->singleton(Router::class, function ($c) {
             return new Router($c);
         });
+
+        // Authorization Gate & Middleware
+        $c->singleton(Gate::class, function ($c) {
+            return new Gate($c->get(Connection::class));
+        });
+
+        $c->singleton(AuthorizePermission::class, function ($c) {
+            return new AuthorizePermission($c->get(Gate::class), $c->get(AuthService::class));
+        });
     }
 
     public function registerModuleProviders(): void
@@ -300,6 +311,16 @@ class Application
                 'role' => $authService->currentRole(),
                 'is_superadmin' => $authService->isSuperadmin(),
                 'tenants' => $authService->user() ? $authService->user()->getTenants($db) : [],
+                'permissions' => function () use ($authService, $c) {
+                    $user = $authService->user();
+                    $tenant = $authService->currentTenant();
+                    if (!$user || !$tenant) {
+                        return [];
+                    }
+                    /** @var Gate $gate */
+                    $gate = $c->get(Gate::class);
+                    return $gate->getPermissionsForUser($user, (int) $tenant->id);
+                },
             ],
             'active_modules' => function () use ($authService, $moduleManager) {
                 $tenant = $authService->currentTenant();

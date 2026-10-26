@@ -84,13 +84,13 @@ CREATE TABLE IF NOT EXISTS role_permissions (
   - [x] 2.4 Perbarui `php aio migrate` dengan opsi `--module=` dan buat perintah `php aio migrate:rollback`.
   - [x] 2.5 Dukung seed data per-modul (`php aio db:seed --module=`).
 
-- [ ] **Phase 3: Permission Registry & Dynamic RBAC (RBAC v2)**
-  - [ ] 3.1 Buat migrasi tabel `roles` dan `role_permissions` terisolasi tenancy dengan data default migration (`owner`, `admin`, `member`).
-  - [ ] 3.2 Dukung deklarasi `permissions` pada manifest `module.json`.
-  - [ ] 3.3 Implementasikan service `Core\Auth\Gate` dan helper `can(string $permission): bool`.
-  - [ ] 3.4 Buat middleware `Core\Middleware\AuthorizePermission` (`can:permission_key`).
-  - [ ] 3.5 Refactor pengecekan `$role === 'owner'` di controller bawaan menjadi berbasis Gate permission.
-  - [ ] 3.6 Bagikan permissions aktif pengguna ke Inertia props dan buat custom React hook `useCan(permission)`.
+- [x] **Phase 3: Permission Registry & Dynamic RBAC (RBAC v2)**
+  - [x] 3.1 Buat migrasi tabel `roles` dan `role_permissions` terisolasi tenancy dengan data default migration (`owner`, `admin`, `member`).
+  - [x] 3.2 Dukung deklarasi `permissions` pada manifest `module.json`.
+  - [x] 3.3 Implementasikan service `Core\Auth\Gate` dan helper `can(string $permission): bool`.
+  - [x] 3.4 Buat middleware `Core\Middleware\AuthorizePermission` (`can:permission_key`).
+  - [x] 3.5 Refactor pengecekan `$role === 'owner'` di controller bawaan menjadi berbasis Gate permission.
+  - [x] 3.6 Bagikan permissions aktif pengguna ke Inertia props dan buat custom React hook `useCan(permission)`.
 
 - [ ] **Phase 4: Dynamic Frontend Navigation & Co-located Pages**
   - [ ] 4.1 Buat dynamic Lucide icon resolver di frontend dengan fallback visual yang elegan.

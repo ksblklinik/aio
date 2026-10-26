@@ -158,10 +158,18 @@ class Router
             return $middleware($request, $next);
         }
 
-        if (is_string($middleware) && $this->container) {
-            $instance = $this->container->get($middleware);
-            if (is_callable([$instance, 'handle'])) {
-                return $instance->handle($request, $next);
+        if (is_string($middleware)) {
+            if (str_starts_with($middleware, 'can:')) {
+                $permission = substr($middleware, 4);
+                $closure = \Core\Middleware\AuthorizePermission::can($permission, $this->container);
+                return $closure($request, $next);
+            }
+
+            if ($this->container) {
+                $instance = $this->container->get($middleware);
+                if (is_callable([$instance, 'handle'])) {
+                    return $instance->handle($request, $next);
+                }
             }
         }
 

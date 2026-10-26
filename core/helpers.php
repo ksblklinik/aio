@@ -135,4 +135,31 @@ if (!function_exists('logger')) {
     }
 }
 
+if (!function_exists('can')) {
+    /**
+     * Helper global untuk mengevaluasi hak akses/izin user aktif pada tenant aktif
+     */
+    function can(string $permission): bool
+    {
+        try {
+            $gate = app(\Core\Auth\Gate::class);
+            $auth = app(\App\Modules\Auth\Services\AuthService::class);
+            if (!$gate instanceof \Core\Auth\Gate || !$auth instanceof \App\Modules\Auth\Services\AuthService) {
+                return false;
+            }
+
+            $user = $auth->user();
+            $tenant = $auth->currentTenant();
+            if (!$user || !$tenant) {
+                return false;
+            }
+
+            return $gate->allows($user, $permission, (int) $tenant->id);
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+}
+
+
 
