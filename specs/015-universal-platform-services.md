@@ -73,11 +73,11 @@ Storage       Settings       Sequence       Schedule        Mail
   - [x] 4.2 Buat sub-perintah CLI `php aio schedule:run` dengan mekanisme lock anti-overlap.
   - [x] 4.3 Tambahkan pencatatan riwayat eksekusi task runner ke tabel/log.
 
-- [ ] **Phase 5: Mailer & Account Lifecycle Workflows**
-  - [ ] 5.1 Pasang paket `symfony/mailer` dan buat abstraction `Core\Mail\Mailer` (driver `log` dan `smtp`).
-  - [ ] 5.2 Integrasikan pengiriman email dengan Database Queue (`SendMailJob`).
-  - [ ] 5.3 Buat alur undangan anggota ke workspace (generate invitation token, link aktivasi via email).
-  - [ ] 5.4 Buat alur lupa password dan reset password berbasis token kedaluwarsa.
+- [x] **Phase 5: Mailer & Account Lifecycle Workflows**
+  - [x] 5.1 Pasang paket `symfony/mailer` dan buat abstraction `Core\Mail\Mailer` (driver `log` dan `smtp`).
+  - [x] 5.2 Integrasikan pengiriman email dengan Database Queue (`SendMailJob`).
+  - [x] 5.3 Buat alur undangan anggota ke workspace (generate invitation token, link aktivasi via email).
+  - [x] 5.4 Buat alur lupa password dan reset password berbasis token kedaluwarsa.
 
 - [ ] **Phase 6: Universal Pagination**
   - [ ] 6.1 Implementasikan helper pagination `Paginator` di backend (`TenantScope::paginate()`).

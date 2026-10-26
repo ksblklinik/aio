@@ -296,4 +296,14 @@ if (!function_exists('sequence')) {
     }
 }
 
+if (!function_exists('mailer')) {
+    /**
+     * Helper global untuk mengakses layanan Mailer universal
+     */
+    function mailer(): \Core\Mail\Mailer
+    {
+        return app(\Core\Mail\Mailer::class);
+    }
+}
+
 

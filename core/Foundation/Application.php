@@ -236,6 +236,22 @@ class Application
         $c->singleton(\Core\Schedule\Schedule::class, function () {
             return new \Core\Schedule\Schedule();
         });
+
+        // Universal Mailer Service
+        $c->singleton(\Core\Mail\Mailer::class, function ($c) use ($base) {
+            $logPath = $base . '/storage/logs/mail.log';
+            $defaultDriver = new \Core\Mail\LogMailerDriver($logPath);
+            $queue = $c->has(QueueManager::class) ? $c->get(QueueManager::class) : null;
+            return new \Core\Mail\Mailer($defaultDriver, $queue);
+        });
+
+        // Account Lifecycle Service (Invitations & Password Reset)
+        $c->singleton(\Core\Mail\AccountLifecycleService::class, function ($c) {
+            return new \Core\Mail\AccountLifecycleService(
+                $c->get(Connection::class),
+                $c->get(\Core\Mail\Mailer::class)
+            );
+        });
     }
 
     public function registerModuleProviders(): void
