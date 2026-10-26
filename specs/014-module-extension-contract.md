@@ -77,12 +77,12 @@ CREATE TABLE IF NOT EXISTS role_permissions (
   - [x] 1.3 Perbarui `ModuleManager` dan `Application` agar menjalankan lifecycle provider (`register()` dan `boot()`) hanya untuk modul yang aktif.
   - [x] 1.4 Sediakan API helper di provider: `listen()`, `bind()`, `command()`, `shareInertia()`.
 
-- [ ] **Phase 2: Modular Migrations & Seeders**
-  - [ ] 2.1 Perbarui `Core\Database\Migrator` untuk mendukung scanning direktori modul `app/Modules/*/Database/Migrations/*.sql`.
-  - [ ] 2.2 Tambahkan metadata kolom `module` pada tabel database `migrations`.
-  - [ ] 2.3 Implementasikan parser file migrasi dua arah (`-- @up` dan `-- @down`) untuk rollback.
-  - [ ] 2.4 Perbarui `php aio migrate` dengan opsi `--module=` dan buat perintah `php aio migrate:rollback`.
-  - [ ] 2.5 Dukung seed data per-modul (`php aio db:seed --module=`).
+- [x] **Phase 2: Modular Migrations & Seeders**
+  - [x] 2.1 Perbarui `Core\Database\Migrator` untuk mendukung scanning direktori modul `app/Modules/*/Database/Migrations/*.sql`.
+  - [x] 2.2 Tambahkan metadata kolom `module` pada tabel database `migrations`.
+  - [x] 2.3 Implementasikan parser file migrasi dua arah (`-- @up` dan `-- @down`) untuk rollback.
+  - [x] 2.4 Perbarui `php aio migrate` dengan opsi `--module=` dan buat perintah `php aio migrate:rollback`.
+  - [x] 2.5 Dukung seed data per-modul (`php aio db:seed --module=`).
 
 - [ ] **Phase 3: Permission Registry & Dynamic RBAC (RBAC v2)**
   - [ ] 3.1 Buat migrasi tabel `roles` dan `role_permissions` terisolasi tenancy dengan data default migration (`owner`, `admin`, `member`).

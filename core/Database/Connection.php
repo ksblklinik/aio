@@ -90,6 +90,15 @@ class Connection
         return $this->selectAll($sql, $params);
     }
 
+    public function tableExists(string $tableName): bool
+    {
+        $res = $this->selectOne(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name = ?",
+            [$tableName]
+        );
+        return $res !== null;
+    }
+
     public function selectOne(string $sql, array $params = []): ?array
     {
         $stmt = $this->pdo->prepare($sql);

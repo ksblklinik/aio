@@ -14,6 +14,7 @@ use Core\Console\Commands\CreateSuperadminCommand;
 use Core\Console\Commands\ListCommand;
 use Core\Console\Commands\MakeModuleCommand;
 use Core\Console\Commands\MigrateCommand;
+use Core\Console\Commands\MigrateRollbackCommand;
 use Core\Console\Commands\ModuleListCommand;
 use Core\Console\Commands\NotificationListCommand;
 use Core\Console\Commands\NotificationSendCommand;
@@ -21,6 +22,7 @@ use Core\Console\Commands\QueueFailedCommand;
 use Core\Console\Commands\QueueRetryCommand;
 use Core\Console\Commands\QueueWorkCommand;
 use Core\Console\Commands\RouteListCommand;
+use Core\Console\Commands\SeedCommand;
 use Core\Console\Commands\TenantListCommand;
 use Core\Console\Commands\TokenCreateCommand;
 use Core\Console\Commands\TokenListCommand;
@@ -450,6 +452,8 @@ HTML;
         // Registrasi seluruh perintah CLI
         $kernel->register(new ListCommand())
             ->register(new MigrateCommand())
+            ->register(new MigrateRollbackCommand())
+            ->register(new SeedCommand())
             ->register(new MakeModuleCommand())
             ->register(new CreateSuperadminCommand())
             ->register(new ModuleListCommand())

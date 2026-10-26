@@ -60,6 +60,8 @@ class ApplicationKernelTest extends TestCase
 
         $this->assertArrayHasKey('list', $commands);
         $this->assertArrayHasKey('migrate', $commands);
+        $this->assertArrayHasKey('migrate:rollback', $commands);
+        $this->assertArrayHasKey('db:seed', $commands);
         $this->assertArrayHasKey('make:module', $commands);
         $this->assertArrayHasKey('user:create-superadmin', $commands);
         $this->assertArrayHasKey('module:list', $commands);
