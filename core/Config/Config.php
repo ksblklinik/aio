@@ -93,7 +93,7 @@ class Config
         if (file_exists($filePath)) {
             $data = require $filePath;
             if (is_array($data)) {
-                $this->items[$file] = array_replace_recursive($this->items[$file] ?? [], $data);
+                $this->items[$file] = array_replace_recursive($data, $this->items[$file] ?? []);
             }
         }
 

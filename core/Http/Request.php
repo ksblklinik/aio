@@ -12,6 +12,7 @@ class Request
      * @param array<string, mixed> $bodyParams
      * @param array<string, mixed> $serverParams
      * @param array<string, mixed> $cookieParams
+     * @param array<string, UploadedFile> $files
      */
     public function __construct(
         private string $method = 'GET',
@@ -21,13 +22,29 @@ class Request
         private array $bodyParams = [],
         private array $serverParams = [],
         private array $cookieParams = [],
-        private array $attributes = []
+        private array $attributes = [],
+        private array $files = []
     ) {
         $this->headers = array_change_key_case($this->headers, CASE_LOWER);
+        $this->method = strtoupper($this->method);
+
+        // HTTP Method Spoofing (_method atau header X-HTTP-Method-Override)
+        if ($this->method === 'POST') {
+            $spoofed = null;
+            if (isset($this->bodyParams['_method'])) {
+                $spoofed = strtoupper((string) $this->bodyParams['_method']);
+            } elseif (isset($this->headers['x-http-method-override'])) {
+                $spoofed = strtoupper((string) $this->headers['x-http-method-override']);
+            }
+
+            if ($spoofed !== null && in_array($spoofed, ['PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'], true)) {
+                $this->method = $spoofed;
+            }
+        }
     }
 
     /**
-     * Tangkap request aktif dari variabel global PHP ($_SERVER, $_GET, $_POST, php://input)
+     * Tangkap request aktif dari variabel global PHP ($_SERVER, $_GET, $_POST, $_FILES, php://input)
      */
     public static function capture(): self
     {
@@ -59,6 +76,21 @@ class Request
             }
         }
 
+        $files = [];
+        if (!empty($_FILES)) {
+            foreach ($_FILES as $key => $fileData) {
+                if (isset($fileData['name'], $fileData['tmp_name'])) {
+                    $files[$key] = new UploadedFile(
+                        name: (string) $fileData['name'],
+                        type: (string) ($fileData['type'] ?? 'application/octet-stream'),
+                        tmpName: (string) $fileData['tmp_name'],
+                        error: (int) ($fileData['error'] ?? UPLOAD_ERR_OK),
+                        size: (int) ($fileData['size'] ?? 0)
+                    );
+                }
+            }
+        }
+
         return new self(
             method: strtoupper($method),
             uri: $uri,
@@ -66,7 +98,8 @@ class Request
             queryParams: $queryParams,
             bodyParams: $bodyParams,
             serverParams: $_SERVER,
-            cookieParams: $_COOKIE
+            cookieParams: $_COOKIE,
+            files: $files
         );
     }
 
@@ -142,6 +175,24 @@ class Request
     public function all(): array
     {
         return array_merge($this->queryParams, $this->bodyParams);
+    }
+
+    public function file(string $key): ?UploadedFile
+    {
+        return $this->files[$key] ?? null;
+    }
+
+    public function hasFile(string $key): bool
+    {
+        return isset($this->files[$key]) && $this->files[$key] instanceof UploadedFile;
+    }
+
+    /**
+     * @return array<string, UploadedFile>
+     */
+    public function files(): array
+    {
+        return $this->files;
     }
 
     public function isJson(): bool

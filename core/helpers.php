@@ -113,11 +113,26 @@ if (!function_exists('env')) {
 
 if (!function_exists('config')) {
     /**
-     * Helper global untuk mengakses item konfigurasi (dot notation)
+     * Helper global untuk mengakses item konfigurasi (dot notation) atau instance Config
      */
-    function config(string $key, mixed $default = null): mixed
+    function config(?string $key = null, mixed $default = null): mixed
     {
-        return \Core\Config\Config::getInstance()->get($key, $default);
+        $instance = \Core\Config\Config::getInstance();
+        if ($key === null) {
+            return $instance;
+        }
+        return $instance->get($key, $default);
     }
 }
+
+if (!function_exists('logger')) {
+    /**
+     * Helper global untuk logging PSR-3
+     */
+    function logger(): \Core\Log\Logger
+    {
+        return \Core\Log\Logger::getInstance();
+    }
+}
+
 

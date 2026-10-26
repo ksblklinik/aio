@@ -99,6 +99,11 @@ class Application
             return new Connection("sqlite:{$path}");
         });
 
+        // Logger
+        $c->singleton(\Core\Log\Logger::class, function () use ($base) {
+            return new \Core\Log\Logger($base . '/storage/logs');
+        });
+
         // Tenant Context & Scoping
         $c->singleton(TenantContext::class, fn() => TenantContext::getInstance());
 
@@ -296,6 +301,22 @@ class Application
     private function handleHttpException(Throwable $e, Request $request): Response
     {
         $debug = (bool) config('app.debug', true);
+
+        // Catat selalu ke file log terlepas dari status APP_DEBUG
+        try {
+            $logger = $this->container->get(\Core\Log\Logger::class);
+            if ($logger instanceof \Core\Log\Logger) {
+                $logger->error("HTTP 500: " . $e->getMessage(), [
+                    'exception' => get_class($e),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'uri' => $request->uri(),
+                    'method' => $request->method(),
+                ]);
+            }
+        } catch (Throwable) {
+            // Abaikan kegagalan logger saat emergency
+        }
 
         if ($request->isJson() || $request->isInertia()) {
             $payload = [

@@ -95,13 +95,13 @@ Tidak ada perubahan skema database baru di SPEC-013. Konfigurasi path database d
   - [x] 4.1 Buat integration test queue worker dengan job yang mengakses `TenantScope`.
   - [x] 4.2 Perbarui `QueueWorkCommand` dan runner queue agar menyetel `TenantContext::setTenantId()` sebelum eksekusi dan mereset di blok `finally`.
 
-- [ ] **Phase 5: Logging, Error Handling & HTTP Completeness**
-  - [ ] 5.1 Buat unit test untuk `Core\Log\Logger`.
-  - [ ] 5.2 Implementasi `Core\Log\Logger` dengan rotasi harian file di `storage/logs/aio-YYYY-MM-DD.log`.
-  - [ ] 5.3 Buat exception handler yang menyembunyikan detail stack trace saat `APP_DEBUG=false` dan selalu mencatat error ke Logger.
-  - [ ] 5.4 Buat unit test `UploadedFile` dan method spoofing `_method`.
-  - [ ] 5.5 Implementasi `Core\Http\UploadedFile` dan integrasikan ke `Request::capture()` dan helper `Request::file()`.
-  - [ ] 5.6 Implementasi dukungan method spoofing (`_method`) pada `Request::capture()`.
+- [x] **Phase 5: Logging, Error Handling & HTTP Completeness**
+  - [x] 5.1 Buat unit test untuk `Core\Log\Logger`.
+  - [x] 5.2 Implementasi `Core\Log\Logger` dengan rotasi harian file di `storage/logs/aio-YYYY-MM-DD.log`.
+  - [x] 5.3 Buat exception handler yang menyembunyikan detail stack trace saat `APP_DEBUG=false` dan selalu mencatat error ke Logger.
+  - [x] 5.4 Buat unit test `UploadedFile` dan method spoofing `_method`.
+  - [x] 5.5 Implementasi `Core\Http\UploadedFile` dan integrasikan ke `Request::capture()` dan helper `Request::file()`.
+  - [x] 5.6 Implementasi dukungan method spoofing (`_method`) pada `Request::capture()`.
 
 - [ ] **Phase 6: Verification & Documentation Sync**
   - [ ] 6.1 Jalankan seluruh test suite (`phpunit`) dan verifikasi `scripts/verify.ps1`.
