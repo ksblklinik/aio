@@ -1,6 +1,6 @@
 # SPEC-013: Core Hardening & Unified Kernel
 
-- **Status**: `In Progress`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity & User
 - **Tanggal Dibuat**: 2026-10-26
 - **Target File / Modul**: `core/`, `public/index.php`, `aio`, `config/`
@@ -103,6 +103,6 @@ Tidak ada perubahan skema database baru di SPEC-013. Konfigurasi path database d
   - [x] 5.5 Implementasi `Core\Http\UploadedFile` dan integrasikan ke `Request::capture()` dan helper `Request::file()`.
   - [x] 5.6 Implementasi dukungan method spoofing (`_method`) pada `Request::capture()`.
 
-- [ ] **Phase 6: Verification & Documentation Sync**
-  - [ ] 6.1 Jalankan seluruh test suite (`phpunit`) dan verifikasi `scripts/verify.ps1`.
-  - [ ] 6.2 Sinkronkan dokumentasi handoff dan bersihkan anomali doc-drift path database.
+- [x] **Phase 6: Verification & Documentation Sync**
+  - [x] 6.1 Jalankan seluruh test suite (`phpunit`) dan verifikasi `scripts/verify.ps1`.
+  - [x] 6.2 Sinkronkan dokumentasi handoff dan bersihkan anomali doc-drift path database.
