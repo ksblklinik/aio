@@ -1,6 +1,6 @@
 # SPEC-015: Universal Platform Services
 
-- **Status**: `In Progress`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity & User
 - **Tanggal Dibuat**: 2026-10-26
 - **Target File / Modul**: `core/Storage/`, `core/Settings/`, `core/Sequence/`, `core/Schedule/`, `core/Mail/`
@@ -79,6 +79,6 @@ Storage       Settings       Sequence       Schedule        Mail
   - [x] 5.3 Buat alur undangan anggota ke workspace (generate invitation token, link aktivasi via email).
   - [x] 5.4 Buat alur lupa password dan reset password berbasis token kedaluwarsa.
 
-- [ ] **Phase 6: Universal Pagination**
-  - [ ] 6.1 Implementasikan helper pagination `Paginator` di backend (`TenantScope::paginate()`).
-  - [ ] 6.2 Buat komponen reusable React `<Pagination>` yang patuh semantic design tokens.
+- [x] **Phase 6: Universal Pagination**
+  - [x] 6.1 Implementasikan helper pagination `Paginator` di backend (`TenantScope::paginate()`).
+  - [x] 6.2 Buat komponen reusable React `<Pagination>` yang patuh semantic design tokens.
