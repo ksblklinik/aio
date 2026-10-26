@@ -126,6 +126,7 @@ class ConsoleTest extends TestCase
 
     public function test_tenant_list_command_displays_tenants(): void
     {
+        $this->db->statement("INSERT INTO users (id, name, email, password_hash) VALUES (10, 'User Ten', 'user10@test.com', 'hash')");
         $this->db->statement("INSERT INTO tenants (id, name, slug, plan) VALUES (1, 'Test Corp', 'testcorp', 'ENTERPRISE')");
         $this->db->statement("INSERT INTO tenant_user (tenant_id, user_id, role) VALUES (1, 10, 'OWNER')");
 
@@ -205,6 +206,8 @@ class ConsoleTest extends TestCase
 
     public function test_activity_list_command_displays_logs(): void
     {
+        $this->db->statement("INSERT INTO tenants (id, name, slug) VALUES (1, 'AIO Corp', 'aiocorp')");
+
         /** @var \Core\Audit\AuditLogger $logger */
         $logger = $this->container->get(\Core\Audit\AuditLogger::class);
         $logger->log('project.created', 'Proyek AIO diluncurkan', tenantId: 1, userName: 'John Doe');

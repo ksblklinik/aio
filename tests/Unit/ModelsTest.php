@@ -86,6 +86,9 @@ class ModelsTest extends TestCase
 
     public function test_project_and_task_crud_with_tenant_scoping(): void
     {
+        $this->db->statement("INSERT INTO users (id, name, email, password_hash) VALUES (1, 'Alice', 'alice@test.com', 'hash')");
+        $this->db->statement("INSERT INTO tenants (id, name, slug) VALUES (1, 'Acme Corp', 'acme')");
+
         $this->tenantContext->setTenantId('1');
 
         $project = Project::createForTenant($this->tenantScope, [

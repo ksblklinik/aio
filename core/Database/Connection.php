@@ -6,10 +6,12 @@ namespace Core\Database;
 
 use PDO;
 use PDOException;
+use Throwable;
 
 class Connection
 {
-    private PDO $pdo;
+    private ?PDO $pdo = null;
+    private int $transactionLevel = 0;
 
     public function __construct(string $dsn, ?string $username = null, ?string $password = null, array $options = [])
     {
@@ -20,6 +22,18 @@ class Connection
         ];
 
         $this->pdo = new PDO($dsn, $username, $password, array_replace($defaultOptions, $options));
+        $this->initializePragmas($dsn);
+    }
+
+    private function initializePragmas(string $dsn): void
+    {
+        if (str_starts_with($dsn, 'sqlite:')) {
+            $this->pdo->exec("PRAGMA foreign_keys = ON;");
+            $this->pdo->exec("PRAGMA busy_timeout = 5000;");
+            if (!str_contains($dsn, ':memory:')) {
+                $this->pdo->exec("PRAGMA journal_mode = WAL;");
+            }
+        }
     }
 
     public static function fromConfig(array $config): self
@@ -45,6 +59,12 @@ class Connection
     public function getPdo(): PDO
     {
         return $this->pdo;
+    }
+
+    public function close(): void
+    {
+        // @phpstan-ignore-next-line
+        $this->pdo = null;
     }
 
     public function statement(string $sql, array $params = []): bool
@@ -94,15 +114,72 @@ class Connection
         return (string) $this->pdo->lastInsertId();
     }
 
+    public function update(string $table, array $data, string $where = '', array $whereParams = []): int
+    {
+        $sets = [];
+        $values = [];
+
+        foreach ($data as $col => $val) {
+            $sets[] = "{$col} = ?";
+            $values[] = $val;
+        }
+
+        $sql = "UPDATE {$table} SET " . implode(', ', $sets);
+        if ($where !== '') {
+            $sql .= " WHERE {$where}";
+            $values = array_merge($values, $whereParams);
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($values);
+        return $stmt->rowCount();
+    }
+
+    public function delete(string $table, string $where = '', array $whereParams = []): int
+    {
+        $sql = "DELETE FROM {$table}";
+        if ($where !== '') {
+            $sql .= " WHERE {$where}";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($whereParams);
+        return $stmt->rowCount();
+    }
+
+    /**
+     * Eksekusi callback di dalam transaksi database dengan dukungan nested savepoints dan rollback Throwable
+     */
     public function transaction(callable $callback): mixed
     {
-        $this->pdo->beginTransaction();
+        if ($this->transactionLevel === 0) {
+            $this->pdo->beginTransaction();
+        } else {
+            $this->pdo->exec("SAVEPOINT trans_{$this->transactionLevel}");
+        }
+
+        $this->transactionLevel++;
+
         try {
             $result = $callback($this);
-            $this->pdo->commit();
+            $this->transactionLevel--;
+
+            if ($this->transactionLevel === 0) {
+                $this->pdo->commit();
+            } else {
+                $this->pdo->exec("RELEASE SAVEPOINT trans_{$this->transactionLevel}");
+            }
+
             return $result;
-        } catch (PDOException $e) {
-            $this->pdo->rollBack();
+        } catch (Throwable $e) {
+            $this->transactionLevel--;
+
+            if ($this->transactionLevel === 0) {
+                $this->pdo->rollBack();
+            } else {
+                $this->pdo->exec("ROLLBACK TO SAVEPOINT trans_{$this->transactionLevel}");
+            }
+
             throw $e;
         }
     }

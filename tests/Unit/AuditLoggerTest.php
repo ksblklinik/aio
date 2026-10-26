@@ -35,6 +35,9 @@ class AuditLoggerTest extends TestCase
 
     public function test_audit_logger_records_log_with_explicit_data(): void
     {
+        $tenantId = (int) $this->db->insert('tenants', ['name' => 'Acme', 'slug' => 'acme', 'plan' => 'pro']);
+        $userId = (int) $this->db->insert('users', ['name' => 'John Doe', 'email' => 'john@test.com', 'password_hash' => 'hash']);
+
         $logger = new AuditLogger($this->db);
 
         $logId = $logger->log(
@@ -43,14 +46,14 @@ class AuditLoggerTest extends TestCase
             entityType: 'project',
             entityId: '42',
             properties: ['name' => 'Website Redesign', 'status' => 'planned'],
-            tenantId: 1,
-            userId: 5,
+            tenantId: $tenantId,
+            userId: $userId,
             userName: 'John Doe'
         );
 
         $this->assertGreaterThan(0, $logId);
 
-        $logs = $logger->getForTenant(1);
+        $logs = $logger->getForTenant($tenantId);
         $this->assertCount(1, $logs);
         $this->assertSame('project.created', $logs[0]['action']);
         $this->assertSame('Membuat proyek baru: Website Redesign', $logs[0]['description']);
@@ -109,23 +112,26 @@ class AuditLoggerTest extends TestCase
 
     public function test_audit_logger_tenant_isolation(): void
     {
+        $t1 = (int) $this->db->insert('tenants', ['name' => 'T1', 'slug' => 't1', 'plan' => 'pro']);
+        $t2 = (int) $this->db->insert('tenants', ['name' => 'T2', 'slug' => 't2', 'plan' => 'pro']);
+
         $logger = new AuditLogger($this->db);
 
         // Log untuk Tenant 1
-        $logger->log('task.created', 'Task for tenant 1', tenantId: 1);
-        $logger->log('task.completed', 'Task completed for tenant 1', tenantId: 1);
+        $logger->log('task.created', 'Task for tenant 1', tenantId: $t1);
+        $logger->log('task.completed', 'Task completed for tenant 1', tenantId: $t1);
 
         // Log untuk Tenant 2
-        $logger->log('task.created', 'Task for tenant 2', tenantId: 2);
+        $logger->log('task.created', 'Task for tenant 2', tenantId: $t2);
 
-        $this->assertSame(2, $logger->countForTenant(1));
-        $this->assertSame(1, $logger->countForTenant(2));
+        $this->assertSame(2, $logger->countForTenant($t1));
+        $this->assertSame(1, $logger->countForTenant($t2));
         $this->assertSame(0, $logger->countForTenant(999));
 
-        $tenant1Logs = $logger->getForTenant(1);
+        $tenant1Logs = $logger->getForTenant($t1);
         $this->assertCount(2, $tenant1Logs);
 
-        $tenant2Logs = $logger->getForTenant(2);
+        $tenant2Logs = $logger->getForTenant($t2);
         $this->assertCount(1, $tenant2Logs);
     }
 }

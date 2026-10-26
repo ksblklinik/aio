@@ -77,13 +77,13 @@ Tidak ada perubahan skema database baru di SPEC-013. Konfigurasi path database d
   - [x] 1.4 Buat `config/app.php` dan `config/database.php`; perbarui `.env.example`.
   - [x] 1.5 Hilangkan hardcoded path database di seluruh repositori, arahkan ke `config('database.path')`.
 
-- [ ] **Phase 2: Database Integrity & TenantScope Completeness**
-  - [ ] 2.1 Buat unit test untuk PRAGMA SQLite, `transaction()` rollback Throwable, dan nested savepoints.
-  - [ ] 2.2 Perbarui `Core\Database\Connection` untuk mengaktifkan `foreign_keys = ON`, `journal_mode = WAL`, dan `busy_timeout = 5000`.
-  - [ ] 2.3 Perbaiki `Connection::transaction()` agar me-rollback pada `Throwable` apa pun dan mendukung savepoints.
-  - [ ] 2.4 Tambahkan metode `update(string $table, array $data, string $where, array $params): int` dan `delete(...)` di `Connection`.
-  - [ ] 2.5 Buat unit test komprehensif untuk `Core\Database\TenantScope`.
-  - [ ] 2.6 Implementasikan metode `update()`, `delete()`, `count()`, `exists()`, dan `paginate()` di `TenantScope`.
+- [x] **Phase 2: Database Integrity & TenantScope Completeness**
+  - [x] 2.1 Buat unit test untuk PRAGMA SQLite, `transaction()` rollback Throwable, dan nested savepoints.
+  - [x] 2.2 Perbarui `Core\Database\Connection` untuk mengaktifkan `foreign_keys = ON`, `journal_mode = WAL`, dan `busy_timeout = 5000`.
+  - [x] 2.3 Perbaiki `Connection::transaction()` agar me-rollback pada `Throwable` apa pun dan mendukung savepoints.
+  - [x] 2.4 Tambahkan metode `update(string $table, array $data, string $where, array $params): int` dan `delete(...)` di `Connection`.
+  - [x] 2.5 Buat unit test komprehensif untuk `Core\Database\TenantScope`.
+  - [x] 2.6 Implementasikan metode `update()`, `delete()`, `count()`, `exists()`, dan `paginate()` di `TenantScope`.
 
 - [ ] **Phase 3: Unified Application Kernel**
   - [ ] 3.1 Buat unit test keselarasan container web vs CLI.
