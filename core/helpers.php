@@ -100,3 +100,24 @@ if (!function_exists('event')) {
         }
     }
 }
+
+if (!function_exists('env')) {
+    /**
+     * Helper global untuk mengakses variabel environment
+     */
+    function env(string $key, mixed $default = null): mixed
+    {
+        return \Core\Config\Env::get($key, $default);
+    }
+}
+
+if (!function_exists('config')) {
+    /**
+     * Helper global untuk mengakses item konfigurasi (dot notation)
+     */
+    function config(string $key, mixed $default = null): mixed
+    {
+        return \Core\Config\Config::getInstance()->get($key, $default);
+    }
+}
+

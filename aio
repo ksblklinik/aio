@@ -12,6 +12,9 @@ define('AIO_START', microtime(true));
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Load Environment Configuration (.env)
+\Core\Config\Env::loadFile(__DIR__ . '/.env');
+
 use App\Modules\Auth\Services\AuthService;
 use Core\Console\Commands\CreateSuperadminCommand;
 use Core\Console\Commands\ListCommand;
@@ -33,7 +36,7 @@ use Core\Router;
 $container = Container::getInstance();
 
 // 2. Inisialisasi Database SQLite
-$dbPath = __DIR__ . '/database.sqlite';
+$dbPath = config('database.path', __DIR__ . '/database.sqlite');
 $db = new Connection("sqlite:{$dbPath}");
 $container->singleton(Connection::class, fn() => $db);
 

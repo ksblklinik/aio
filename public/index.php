@@ -15,6 +15,9 @@ if (php_sapi_name() === 'cli-server') {
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// Load Environment Configuration (.env)
+\Core\Config\Env::loadFile(dirname(__DIR__) . '/.env');
+
 use Core\Container;
 use Core\Http\Request;
 use Core\Http\Response;
@@ -36,7 +39,7 @@ $session = new Session();
 $container->singleton(Session::class, fn() => $session);
 
 // 4. Initialize Database & Tenant Context
-$dbPath = dirname(__DIR__) . '/database.sqlite';
+$dbPath = config('database.path', dirname(__DIR__) . '/database.sqlite');
 $db = new \Core\Database\Connection("sqlite:{$dbPath}");
 $container->singleton(\Core\Database\Connection::class, fn() => $db);
 

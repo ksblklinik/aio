@@ -16,7 +16,8 @@ class ModuleManager
 
     public function __construct(?PDO $pdo = null, ?string $modulesBasePath = null, ?string $pagesBasePath = null)
     {
-        $this->pdo = $pdo ?? (new Connection('sqlite:' . dirname(__DIR__, 2) . '/database.sqlite'))->getPdo();
+        $defaultDbPath = function_exists('config') ? config('database.path', dirname(__DIR__, 2) . '/database.sqlite') : dirname(__DIR__, 2) . '/database.sqlite';
+        $this->pdo = $pdo ?? (new Connection('sqlite:' . $defaultDbPath))->getPdo();
         $this->modulesBasePath = $modulesBasePath ?? dirname(__DIR__, 2) . '/app/Modules';
         $this->pagesBasePath = $pagesBasePath ?? dirname(__DIR__, 2) . '/resources/js/Pages';
         

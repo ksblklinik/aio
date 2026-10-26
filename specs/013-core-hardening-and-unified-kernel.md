@@ -1,6 +1,6 @@
 # SPEC-013: Core Hardening & Unified Kernel
 
-- **Status**: `Draft`
+- **Status**: `In Progress`
 - **Owner / Author**: Antigravity & User
 - **Tanggal Dibuat**: 2026-10-26
 - **Target File / Modul**: `core/`, `public/index.php`, `aio`, `config/`
@@ -70,12 +70,12 @@ Tidak ada perubahan skema database baru di SPEC-013. Konfigurasi path database d
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Config & Environment Engine**
-  - [ ] 1.1 Buat unit test untuk `Core\Config\Env` dan `Core\Config\Config`.
-  - [ ] 1.2 Implementasi `Core\Config\Env` (parser `.env` native mandiri) dan helper `env()`.
-  - [ ] 1.3 Implementasi `Core\Config\Config` dan helper `config()`.
-  - [ ] 1.4 Buat `config/app.php` dan `config/database.php`; perbarui `.env.example`.
-  - [ ] 1.5 Hilangkan hardcoded path database di seluruh repositori, arahkan ke `config('database.path')`.
+- [x] **Phase 1: Config & Environment Engine**
+  - [x] 1.1 Buat unit test untuk `Core\Config\Env` dan `Core\Config\Config`.
+  - [x] 1.2 Implementasi `Core\Config\Env` (parser `.env` native mandiri) dan helper `env()`.
+  - [x] 1.3 Implementasi `Core\Config\Config` dan helper `config()`.
+  - [x] 1.4 Buat `config/app.php` dan `config/database.php`; perbarui `.env.example`.
+  - [x] 1.5 Hilangkan hardcoded path database di seluruh repositori, arahkan ke `config('database.path')`.
 
 - [ ] **Phase 2: Database Integrity & TenantScope Completeness**
   - [ ] 2.1 Buat unit test untuk PRAGMA SQLite, `transaction()` rollback Throwable, dan nested savepoints.

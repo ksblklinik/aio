@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+\Core\Config\Env::loadFile(dirname(__DIR__) . '/.env');
+
 use Core\Database\Connection;
 use Core\Database\Migrator;
 
-$dbPath = dirname(__DIR__) . '/database.sqlite';
+$dbPath = config('database.path', dirname(__DIR__) . '/database.sqlite');
 $db = new Connection("sqlite:{$dbPath}");
 $migrator = new Migrator($db);
 
