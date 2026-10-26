@@ -29,6 +29,10 @@ abstract class ModuleProvider implements ModuleProviderInterface
     {
     }
 
+    public function schedule(\Core\Schedule\Schedule $schedule): void
+    {
+    }
+
     public function getModulePath(): string
     {
         return $this->modulePath;

@@ -68,10 +68,10 @@ Storage       Settings       Sequence       Schedule        Mail
   - [x] 3.2 Implementasikan `Core\Sequence\SequenceManager` dengan locking atomik SQLite untuk mencegah duplikasi nomor faktur/surat.
   - [x] 3.3 Tulis unit test konkurensi untuk verifikasi zero duplicate numbering.
 
-- [ ] **Phase 4: Scheduled Task Runner**
-  - [ ] 4.1 Buat interface penjadwalan `Schedule` yang dapat didaftarkan dari `ModuleProvider`.
-  - [ ] 4.2 Buat sub-perintah CLI `php aio schedule:run` dengan mekanisme lock anti-overlap.
-  - [ ] 4.3 Tambahkan pencatatan riwayat eksekusi task runner ke tabel/log.
+- [x] **Phase 4: Scheduled Task Runner**
+  - [x] 4.1 Buat interface penjadwalan `Schedule` yang dapat didaftarkan dari `ModuleProvider`.
+  - [x] 4.2 Buat sub-perintah CLI `php aio schedule:run` dengan mekanisme lock anti-overlap.
+  - [x] 4.3 Tambahkan pencatatan riwayat eksekusi task runner ke tabel/log.
 
 - [ ] **Phase 5: Mailer & Account Lifecycle Workflows**
   - [ ] 5.1 Pasang paket `symfony/mailer` dan buat abstraction `Core\Mail\Mailer` (driver `log` dan `smtp`).

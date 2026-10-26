@@ -15,4 +15,9 @@ interface ModuleProviderInterface
      * Bootstrapping modul: daftarkan routes, CLI commands, event listeners, shared Inertia props
      */
     public function boot(): void;
+
+    /**
+     * Daftarkan recurring task ke internal task scheduler
+     */
+    public function schedule(\Core\Schedule\Schedule $schedule): void;
 }

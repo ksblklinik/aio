@@ -27,6 +27,7 @@ use Core\Console\Commands\TenantListCommand;
 use Core\Console\Commands\TokenCreateCommand;
 use Core\Console\Commands\TokenListCommand;
 use Core\Console\Commands\TokenRevokeCommand;
+use Core\Console\Commands\ScheduleRunCommand;
 use Core\Console\Commands\WebhookListCommand;
 use Core\Console\Commands\WebhookTestCommand;
 use Core\Console\Kernel;
@@ -230,6 +231,11 @@ class Application
         $c->singleton(\Core\Sequence\SequenceManager::class, function ($c) {
             return new \Core\Sequence\SequenceManager($c->get(Connection::class));
         });
+
+        // Scheduled Task Engine
+        $c->singleton(\Core\Schedule\Schedule::class, function () {
+            return new \Core\Schedule\Schedule();
+        });
     }
 
     public function registerModuleProviders(): void
@@ -284,8 +290,11 @@ class Application
         // Pastikan seluruh provider sudah register
         $this->registerModuleProviders();
 
+        $schedule = $this->container->get(\Core\Schedule\Schedule::class);
+
         foreach ($this->moduleProviders as $provider) {
             $provider->boot();
+            $provider->schedule($schedule);
         }
     }
 
@@ -515,7 +524,8 @@ HTML;
             ->register(new QueueFailedCommand())
             ->register(new QueueRetryCommand())
             ->register(new WebhookListCommand())
-            ->register(new WebhookTestCommand());
+            ->register(new WebhookTestCommand())
+            ->register(new ScheduleRunCommand());
 
         // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
         $this->bootModuleProviders();
