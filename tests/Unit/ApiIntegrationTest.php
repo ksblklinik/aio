@@ -133,7 +133,8 @@ class ApiIntegrationTest extends TestCase
         ]);
 
         // Insert project for another tenant
-        $this->db->statement("INSERT INTO projects (tenant_id, user_id, name, status) VALUES (999, 1, 'Beta Project', 'in_progress')");
+        $this->db->statement("INSERT INTO tenants (id, name, slug) VALUES (999, 'Beta', 'beta')");
+        $this->db->statement("INSERT INTO projects (tenant_id, user_id, name, status) VALUES (999, {$this->userId}, 'Beta Project', 'in_progress')");
 
         $created = $this->tokenService->createToken($this->tenantId, $this->userId, 'CI Pipeline');
 

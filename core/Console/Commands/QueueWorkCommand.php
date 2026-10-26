@@ -57,7 +57,18 @@ class QueueWorkCommand extends Command
 
         $this->line("⚡ [Pekerjaan #{$jobId}] Memproses: {$jobClass} (Percobaan {$attempts}/{$maxTries})...");
 
+        /** @var \Core\Database\TenantContext $tenantContext */
+        $tenantContext = $this->container->get(\Core\Database\TenantContext::class);
+        $previousTenantId = $tenantContext->getTenantId();
+        $jobTenantId = $job->getTenantId();
+
         try {
+            if ($jobTenantId !== null) {
+                $tenantContext->setTenantId((string) $jobTenantId);
+            } else {
+                $tenantContext->setTenantId(null);
+            }
+
             if (!class_exists($jobClass)) {
                 throw new \RuntimeException("Kelas job [{$jobClass}] tidak ditemukan.");
             }
@@ -82,6 +93,8 @@ class QueueWorkCommand extends Command
                 $queue->release($job, $delay);
                 $this->info("ℹ [Pekerjaan #{$jobId}] Dilepaskan kembali ke antrean untuk dicoba lagi dalam {$delay} detik.");
             }
+        } finally {
+            $tenantContext->setTenantId($previousTenantId);
         }
     }
 }

@@ -73,8 +73,13 @@ class ActivityLogControllerTest extends TestCase
         $this->tenantContext->setTenantId((string) $tenantId);
 
         // Record logs for Tenant 1 and Tenant 2
+        $tenantBetaId = $this->db->insert('tenants', [
+            'name' => 'Workspace Beta',
+            'slug' => 'beta',
+            'plan' => 'pro',
+        ]);
         $this->auditLogger->log('project.created', 'Proyek Alfa Dibuat', tenantId: (int) $tenantId);
-        $this->auditLogger->log('project.created', 'Proyek Beta Dibuat', tenantId: 999);
+        $this->auditLogger->log('project.created', 'Proyek Beta Dibuat', tenantId: (int) $tenantBetaId);
 
         $request = new Request('GET', '/activity', headers: ['x-inertia' => 'true']);
         $this->inertia->setRequest($request);
@@ -100,9 +105,11 @@ class ActivityLogControllerTest extends TestCase
         ]);
 
         $this->session->set('auth_user_id', (int) $userId);
+        $t1 = $this->db->insert('tenants', ['name' => 'T1', 'slug' => 't1', 'plan' => 'pro']);
+        $t2 = $this->db->insert('tenants', ['name' => 'T2', 'slug' => 't2', 'plan' => 'pro']);
 
-        $this->auditLogger->log('system.backup', 'Full Database Backup Selesai', tenantId: 1);
-        $this->auditLogger->log('module.toggled', 'Modul CRM Diaktifkan', tenantId: 2);
+        $this->auditLogger->log('system.backup', 'Full Database Backup Selesai', tenantId: (int) $t1);
+        $this->auditLogger->log('module.toggled', 'Modul CRM Diaktifkan', tenantId: (int) $t2);
 
         $request = new Request('GET', '/activity?scope=global', headers: ['x-inertia' => 'true'], queryParams: ['scope' => 'global']);
         $this->inertia->setRequest($request);
