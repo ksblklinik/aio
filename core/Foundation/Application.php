@@ -48,6 +48,9 @@ use Core\Modules\ModuleManager;
 use Core\Modules\ModuleProviderInterface;
 use Core\Notification\NotificationService;
 use Core\Queue\QueueManager;
+use Core\Storage\LocalStorageDriver;
+use Core\Storage\StorageDriverInterface;
+use Core\Storage\StorageManager;
 use Core\Router;
 use Core\Validation\ValidationException;
 use Core\Webhook\WebhookDispatcher;
@@ -204,6 +207,18 @@ class Application
 
         $c->singleton(AuthorizePermission::class, function ($c) {
             return new AuthorizePermission($c->get(Gate::class), $c->get(AuthService::class));
+        });
+
+        // Universal Tenant-Isolated File Storage
+        $c->singleton(StorageDriverInterface::class, function () use ($base) {
+            return new LocalStorageDriver($base . '/storage/app');
+        });
+
+        $c->singleton(StorageManager::class, function ($c) {
+            $driver = $c->get(StorageDriverInterface::class);
+            $db = $c->has(Connection::class) ? $c->get(Connection::class) : null;
+            $appKey = (string) (config('app.key') ?: 'aio-universal-secret-key-32chars!!');
+            return new StorageManager($driver, $db, $appKey);
         });
     }
 

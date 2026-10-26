@@ -1,6 +1,6 @@
 # SPEC-015: Universal Platform Services
 
-- **Status**: `Draft`
+- **Status**: `In Progress`
 - **Owner / Author**: Antigravity & User
 - **Tanggal Dibuat**: 2026-10-26
 - **Target File / Modul**: `core/Storage/`, `core/Settings/`, `core/Sequence/`, `core/Schedule/`, `core/Mail/`
@@ -49,12 +49,12 @@ Storage       Settings       Sequence       Schedule        Mail
 
 ## 4. Atomic Task Checklist
 
-- [ ] **Phase 1: Tenant-Isolated File Storage**
-  - [ ] 1.1 Buat interface `StorageDriverInterface` dan implementasi `LocalStorageDriver`.
-  - [ ] 1.2 Buat tabel database `files` untuk metadata, checksum, ownership, dan relasi polimorfik.
-  - [ ] 1.3 Implementasikan `Core\Storage\StorageManager` dengan isolasi folder otomatis per `tenant_id`.
-  - [ ] 1.4 Tambahkan aturan validasi file di `Validator` (`file`, `mimes:pdf,jpg,png`, `max_kb:2048`).
-  - [ ] 1.5 Implementasikan rute download privat bertanda tangan (signed URL dengan TTL).
+- [x] **Phase 1: Tenant-Isolated File Storage**
+  - [x] 1.1 Buat interface `StorageDriverInterface` dan implementasi `LocalStorageDriver`.
+  - [x] 1.2 Buat tabel database `files` untuk metadata, checksum, ownership, dan relasi polimorfik.
+  - [x] 1.3 Implementasikan `Core\Storage\StorageManager` dengan isolasi folder otomatis per `tenant_id`.
+  - [x] 1.4 Tambahkan aturan validasi file di `Validator` (`file`, `mimes:pdf,jpg,png`, `max_kb:2048`).
+  - [x] 1.5 Implementasikan rute download privat bertanda tangan (signed URL dengan TTL).
 
 - [ ] **Phase 2: Tenant Settings & Multi-Domain Organization Profile**
   - [ ] 2.1 Tambahkan kolom `org_type`, `timezone`, `currency`, dan `locale` pada tabel `tenants`.

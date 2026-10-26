@@ -161,5 +161,16 @@ if (!function_exists('can')) {
     }
 }
 
+if (!function_exists('storage')) {
+    /**
+     * Helper global untuk mengakses StorageManager terisolasi tenant
+     */
+    function storage(?int $tenantId = null): \Core\Storage\StorageManager
+    {
+        /** @var \Core\Storage\StorageManager $manager */
+        $manager = app(\Core\Storage\StorageManager::class);
+        return $tenantId !== null ? $manager->forTenant($tenantId) : $manager;
+    }
+}
 
 
