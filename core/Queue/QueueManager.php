@@ -32,6 +32,13 @@ class QueueManager
         int $delaySeconds = 0,
         int $maxTries = 3
     ): int {
+        if ($tenantId === null) {
+            $activeTenant = \Core\Database\TenantContext::getInstance()->getTenantId();
+            if ($activeTenant !== null) {
+                $tenantId = (int) $activeTenant;
+            }
+        }
+
         $now = time();
         $availableAt = date('Y-m-d H:i:s', $now + $delaySeconds);
         $createdAt = date('Y-m-d H:i:s', $now);

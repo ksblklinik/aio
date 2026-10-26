@@ -91,9 +91,9 @@ Tidak ada perubahan skema database baru di SPEC-013. Konfigurasi path database d
   - [x] 3.3 Refactor `public/index.php` dan `aio` untuk menggunakan `Core\Foundation\Application`.
   - [x] 3.4 Standarisasi inisialisasi `AuditLogger` di lingkungan CLI dan Web.
 
-- [ ] **Phase 4: Queue Tenant Context Propagation**
-  - [ ] 4.1 Buat integration test queue worker dengan job yang mengakses `TenantScope`.
-  - [ ] 4.2 Perbarui `QueueWorkCommand` dan runner queue agar menyetel `TenantContext::setTenantId()` sebelum eksekusi dan mereset di blok `finally`.
+- [x] **Phase 4: Queue Tenant Context Propagation**
+  - [x] 4.1 Buat integration test queue worker dengan job yang mengakses `TenantScope`.
+  - [x] 4.2 Perbarui `QueueWorkCommand` dan runner queue agar menyetel `TenantContext::setTenantId()` sebelum eksekusi dan mereset di blok `finally`.
 
 - [ ] **Phase 5: Logging, Error Handling & HTTP Completeness**
   - [ ] 5.1 Buat unit test untuk `Core\Log\Logger`.
