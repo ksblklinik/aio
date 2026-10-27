@@ -41,6 +41,8 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 027 | [027-universal-contact-registry.md](file:///c:/aplikasi/aio/specs/027-universal-contact-registry.md) | Universal Contact & Role Registry | `Completed` | 2026-10-27 |
 | 028 | [028-universal-finance-engine.md](file:///c:/aplikasi/aio/specs/028-universal-finance-engine.md) | Universal Finance & Cash Flow Engine | `Completed` | 2026-10-27 |
 | 029 | [029-universal-inventory-and-items.md](file:///c:/aplikasi/aio/specs/029-universal-inventory-and-items.md) | Universal Items, Catalog & Inventory Engine | `Completed` | 2026-10-27 |
+| 030 | [030-universal-billing-and-invoicing.md](file:///c:/aplikasi/aio/specs/030-universal-billing-and-invoicing.md) | Universal Invoicing, Billing & Document Engine | `In Progress` | 2026-10-28 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
+
 
