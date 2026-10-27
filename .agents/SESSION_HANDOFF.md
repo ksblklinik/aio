@@ -4,61 +4,54 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 📌 Status Terakhir Sesi (Last Updated: 2026-10-26 14:28 WIB)
+## 📌 Status Terakhir Sesi (Last Updated: 2026-10-27 10:25 WIB)
 
-* **Conversation ID Terakhir**: `3a77ac8e-b820-4cd1-9f4a-02f73f4aff87`
-* **Active Git Branch**: `main` (Working tree clean, all SPEC-013, 014, 015 merged cleanly via `--no-ff`)
+* **Conversation ID Terakhir**: `d87e3d0e-5cf2-48d5-a152-173bd04012f7`
+* **Active Git Branch**: `main` (Working tree clean, all SPEC-013, 014, 015, dan 015B merged cleanly via `--no-ff`)
 * **Status Dokumen / Roadmap**:
   - SPEC-013 ([`specs/013-core-hardening-and-unified-kernel.md`](file:///c:/aplikasi/aio/specs/013-core-hardening-and-unified-kernel.md)): `Completed` (merged to `main`).
   - SPEC-014 ([`specs/014-module-extension-contract.md`](file:///c:/aplikasi/aio/specs/014-module-extension-contract.md)): `Completed` (merged to `main`).
   - SPEC-015 ([`specs/015-universal-platform-services.md`](file:///c:/aplikasi/aio/specs/015-universal-platform-services.md)): `Completed` (merged to `main`).
-  - **SPEC-015B (Platform Hardening & Auth Lifecycle UI)**: `Planned` (Next priority sebelum release template).
-  - SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md)): `Deferred / On-Hold` atas instruksi user sampai fondasi benar-benar zero-gap.
-* **Test Suite Status**: **226 tests (1220 assertions) PASS 100%**, `tsc --noEmit` clean, `verify.ps1` all passed.
+  - **SPEC-015B ([`specs/015b-platform-hardening-and-auth-ui.md`](file:///c:/aplikasi/aio/specs/015b-platform-hardening-and-auth-ui.md))**: `Completed` (merged to `main`).
+  - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Ready to Execute` (Template Packaging, Sanitasi & Release Checklist).
+* **Test Suite Status**: **241 tests (1293 assertions) PASS 100%**, `tsc --noEmit` clean, `verify.ps1` all passed.
 * **Database File**: `database.sqlite` di root repositori.
 
 ---
 
-## 🛡️ Catatan Mitigasi Masalah Layar Blank & Cursor Table Lock (Post-Mortem Guardrails):
-- Guard otomatis di `public/index.php` untuk melayani file statis (`cli-server`).
-- Unit test `ServerEnvironmentTest.php` untuk mencegah regresi bypass file statis.
-- Skrip `./scripts/verify.ps1` memeriksa integritas bundle assets (`manifest.json`) dan proteksi server.
-- Driver SQLite Connection otomatis memanggil `closeCursor()` pada `selectAll()` dan `selectOne()` untuk mencegah `database table is locked` saat migrasi rollback / drop table.
+## 🛡️ Capaian & Hasil Eksekusi SPEC-015B:
+1. **Rate Limiting Middleware**:
+   - `Core\Middleware\ThrottleRequests` berbasis file/cache storage mandiri (zero external dependency).
+   - Parsing otomatis format route `throttle:maxAttempts,decayMinutes` (e.g. `throttle:10,1`, `throttle:5,1`) di `Core\Router`.
+   - Header standar `X-RateLimit-Limit`, `X-RateLimit-Remaining`, dan `Retry-After` dengan response 429 Too Many Requests.
+2. **Database Soft Deletes di `TenantScope`**:
+   - Method `softDelete()`, `restore()`, dan `forceDelete()`.
+   - Modifiers `withoutTrashed()` (default), `withTrashed()`, dan `onlyTrashed()`.
+   - Inspeksi PRAGMA dinamis untuk memeriksa keberadaan kolom `deleted_at` secara transparan.
+3. **Global Audit Helper**:
+   - Helper function `audit()` di `core/helpers.php` untuk memanggil `AuditLogger` langsung dari controller, model, dan listener.
+4. **Auth Lifecycle UI & Routes**:
+   - Controllers: `ForgotPasswordController`, `ResetPasswordController`, `InvitationController`.
+   - React Pages: `Auth/ForgotPassword.tsx`, `Auth/ResetPassword.tsx`, dan `Workspaces/AcceptInvitation.tsx`.
+   - Tautan "Lupa kata sandi?" di `Auth/Login.tsx`.
+   - Kepatuhan 100% semantic design tokens & dark/light mode compatibility.
 
 ---
 
-## 🔍 Temuan Hasil Review Kesiapan Template Universal:
-Meskipun core framework dan universal platform services (Storage, Settings, Sequence, Schedule, Mailer, Pagination) sudah selesai di SPEC-015, review mendalam menemukan 4 celah infrastruktur yang harus ditutup sebelum packaging template (SPEC-016):
-1. **Frontend Auth Lifecycle Belum Ada**: Backend `AccountLifecycleService` sudah lengkap, namun belum memiliki endpoint HTTP dan UI React untuk `/forgot-password`, `/reset-password?token=...`, dan `/invitations/accept?token=...`.
-2. **Ketiadaan Rate Limiting Middleware**: Belum ada middleware throttling (`throttle:attempts,minutes`) untuk proteksi brute-force login dan API public abuse.
-3. **Ketiadaan Soft Deletes di TenantScope**: Aplikasi bisnis (klinik, POS, invoice, yayasan) membutuhkan penghapusan aman berbasis `deleted_at` dan filter otomatis `WHERE deleted_at IS NULL` dengan opsi `withTrashed()`.
-4. **Audit Helper Global & Token Alignment**: Belum ada helper `audit(...)` di `helpers.php`, dan beberapa inline style di UI baru perlu diselaraskan 100% dengan semantic design tokens di `resources/css/app.css` (`--bg-canvas`, `--bg-surface`, `--brand-primary`, dsb.).
+## 🚀 Rencana Eksekusi Sesi Berikutnya: SPEC-016 (Template Packaging & Release)
 
----
-
-## 🚀 Rencana Eksekusi Sesi Berikutnya
-
-### Prioritas 1: SPEC-015B (Platform Hardening & Auth Lifecycle UI)
-- Buat branch: `feat/015b-platform-hardening-and-auth-ui`
-- Susun dokumen spec: `specs/015b-platform-hardening-and-auth-ui.md`
-- **Scope Pekerjaan**:
-  1. **Auth Lifecycle UI**: Buat routes, controller, dan React pages untuk `Auth/ForgotPassword.tsx`, `Auth/ResetPassword.tsx`, dan `Workspaces/AcceptInvitation.tsx`.
-  2. **Rate Limiting Middleware**: Buat `Core\Middleware\ThrottleRequests` berbasis file/cache storage dengan proteksi rate limit per IP/user.
-  3. **Soft Deletes**: Tambahkan method `softDelete()`, `restore()`, dan method `withoutTrashed()` / `withTrashed()` di `Core\Database\TenantScope`.
-  4. **Audit Helper & Token Polish**: Tambahkan helper global `audit()` di `helpers.php` dan rapikan inline styles agar 100% patuh CSS semantic tokens di `resources/css/app.css`.
-
-### Prioritas 2: SPEC-016 (Template Packaging & Release)
-- Dijalankan setelah SPEC-015B selesai dan diverifikasi:
-  - Dynamic branding via config (`app.name`, `app.logo`).
-  - CLI installer wizard `php aio app:install`.
-  - Sanitasi database & seeder template bersih (zero dummy data).
-  - Panduan `docs/MODULE_DEVELOPMENT.md`.
-  - Git tag `v1.0.0-core` dan release template GitHub.
+Target utama adalah menyegel fondasi repositori aio menjadi open-source template SaaS multi-tenant yang siap di-fork dan dipakai langsung oleh developer.
+- Buat branch: `feat/016-template-packaging-and-release`
+- Buka dan review checklist [`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md):
+  1. **Dynamic Branding Configuration**: Ambil nama aplikasi dan logo dari file konfigurasi `config('app.name')` dan `config('app.logo')` pada landing page dan navbar dashboard.
+  2. **Interactive CLI Installer Wizard**: Perintah `php aio app:install` untuk inisialisasi `.env`, generate `APP_KEY`, migrasi tabel master, dan wizard pembuatan Superadmin pertama kali.
+  3. **Database Sanitization & Clean Seeder**: Sediakan command `php aio db:clean` atau seeder template yang bersih dari data dummy developer namun siap dipakai produksi.
+  4. **Dokumentasi Pengembang (`docs/MODULE_DEVELOPMENT.md`)**: Panduan langkah demi langkah membuat modul baru mandiri di aio.
+  5. **Release Checklist & Git Tag**: Buat tag `v1.0.0-core` setelah seluruh pengujian akhir lulus 100%.
 
 ---
 
 ## 🎯 Instruksi Untuk Langkah Segera Saat Sesi Baru Dimulai (Immediate Next Step)
-1. Sambut pengguna dengan mengonfirmasi pemulihan konteks dari `SESSION_HANDOFF.md`.
-2. Konfirmasi pembukaan branch `feat/015b-platform-hardening-and-auth-ui`.
-3. Buat dokumen spesifikasi [`specs/015b-platform-hardening-and-auth-ui.md`](file:///c:/aplikasi/aio/specs/015b-platform-hardening-and-auth-ui.md).
-4. Mulai eksekusi Phase 1: Auth Lifecycle UI (Forgot Password, Reset Password, Accept Invitation).
+1. Sambut pengguna dengan mengonfirmasi bahwa **SPEC-015B telah 100% tuntas dan di-merge ke main**.
+2. Buat branch baru `feat/016-template-packaging-and-release`.
+3. Mulai eksekusi Phase 1 dari SPEC-016: Dynamic Branding via Config & Landing Page cleanup.
