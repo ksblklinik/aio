@@ -212,7 +212,8 @@ class Application
 
         // Universal Tenant-Isolated File Storage
         $c->singleton(StorageDriverInterface::class, function () use ($base) {
-            return new LocalStorageDriver($base . '/storage/app');
+            $root = (string) config('storage.disks.local.root', $base . '/storage/app');
+            return new LocalStorageDriver($root);
         });
 
         $c->singleton(StorageManager::class, function ($c) {
@@ -237,12 +238,23 @@ class Application
             return new \Core\Schedule\Schedule();
         });
 
-        // Universal Mailer Service
+        // Universal Mailer Service (mendukung driver log & smtp dinamis via config)
         $c->singleton(\Core\Mail\Mailer::class, function ($c) use ($base) {
-            $logPath = $base . '/storage/logs/mail.log';
-            $defaultDriver = new \Core\Mail\LogMailerDriver($logPath);
+            $logPath = (string) config('mail.mailers.log.path', $base . '/storage/logs/mail.log');
+            $logDriver = new \Core\Mail\LogMailerDriver($logPath);
+
+            $smtpConfig = (array) config('mail.mailers.smtp', []);
+            $smtpDriver = new \Core\Mail\SmtpMailerDriver($smtpConfig);
+
+            $defaultDriverName = (string) config('mail.default', 'log');
+            $defaultDriver = $defaultDriverName === 'smtp' ? $smtpDriver : $logDriver;
+
             $queue = $c->has(QueueManager::class) ? $c->get(QueueManager::class) : null;
-            return new \Core\Mail\Mailer($defaultDriver, $queue);
+            $mailer = new \Core\Mail\Mailer($defaultDriver, $queue);
+            $mailer->setDriver('log', $logDriver);
+            $mailer->setDriver('smtp', $smtpDriver);
+
+            return $mailer;
         });
 
         // Account Lifecycle Service (Invitations & Password Reset)

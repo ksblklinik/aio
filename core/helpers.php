@@ -425,4 +425,80 @@ if (!function_exists('db')) {
     }
 }
 
+if (!function_exists('queue')) {
+    /**
+     * Helper global untuk mengakses QueueManager atau push pekerjaan langsung ke antrean
+     *
+     * @param string|null $jobClass FQCN kelas yang mengimplementasikan JobInterface
+     * @param array<string, mixed> $data Parameter data untuk job
+     * @param int|null $tenantId Override tenant id
+     * @param string $queue Nama antrean (default: 'default')
+     * @param int $delaySeconds Penundaan dalam detik
+     * @return \Core\Queue\QueueManager|int
+     */
+    function queue(
+        ?string $jobClass = null,
+        array $data = [],
+        ?int $tenantId = null,
+        string $queue = 'default',
+        int $delaySeconds = 0
+    ): \Core\Queue\QueueManager|int {
+        /** @var \Core\Queue\QueueManager $manager */
+        $manager = app(\Core\Queue\QueueManager::class);
+
+        if ($jobClass === null) {
+            return $manager;
+        }
+
+        return $manager->push($jobClass, $data, $tenantId, $queue, $delaySeconds);
+    }
+}
+
+if (!function_exists('notify')) {
+    /**
+     * Helper global untuk mengirim in-app notification atau mengakses NotificationService
+     *
+     * @param int|null $userId ID penerima
+     * @param string|null $title Judul notifikasi
+     * @param string|null $message Isi pesan notifikasi
+     * @param string $type Jenis notifikasi: 'info' | 'success' | 'warning' | 'danger'
+     * @param string|null $actionUrl Tautan navigasi UI
+     * @param string|null $icon Nama icon lucide
+     * @param int|null $tenantId Override tenant id
+     * @return \Core\Notification\NotificationService|int
+     */
+    function notify(
+        ?int $userId = null,
+        ?string $title = null,
+        ?string $message = null,
+        string $type = 'info',
+        ?string $actionUrl = null,
+        ?string $icon = null,
+        ?int $tenantId = null
+    ): \Core\Notification\NotificationService|int {
+        /** @var \Core\Notification\NotificationService $service */
+        $service = app(\Core\Notification\NotificationService::class);
+
+        if ($userId === null && $title === null) {
+            return $service;
+        }
+
+        if ($tenantId === null) {
+            $activeTenant = \Core\Database\TenantContext::getInstance()->getTenantId();
+            $tenantId = $activeTenant !== null ? (int) $activeTenant : 0;
+        }
+
+        return $service->send(
+            tenantId: $tenantId,
+            userId: (int) $userId,
+            title: (string) $title,
+            message: (string) ($message ?? ''),
+            type: $type,
+            actionUrl: $actionUrl,
+            icon: $icon
+        );
+    }
+}
+
+
 

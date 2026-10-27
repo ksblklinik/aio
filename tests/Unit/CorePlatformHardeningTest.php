@@ -66,4 +66,47 @@ class CorePlatformHardeningTest extends TestCase
         $this->assertSame('Nama wajib diisi.', $body['message']);
         $this->assertSame('Nama wajib diisi.', $body['errors']['name']);
     }
+
+    public function test_core_configurations(): void
+    {
+        $this->assertNotEmpty(config('mail.default'));
+        $this->assertSame('log', config('mail.mailers.log.transport'));
+        $this->assertSame('smtp', config('mail.mailers.smtp.transport'));
+        $this->assertNotEmpty(config('mail.from.address'));
+
+        $this->assertSame('database', config('queue.default'));
+        $this->assertSame('jobs', config('queue.connections.database.table'));
+
+        $this->assertSame('local', config('storage.default'));
+        $this->assertStringContainsString('storage/app', config('storage.disks.local.root'));
+
+        $this->assertSame('daily', config('logging.default'));
+        $this->assertStringContainsString('storage/logs', config('logging.channels.daily.path'));
+    }
+
+    public function test_queue_and_notify_and_storage_helpers(): void
+    {
+        $queueMgr = queue();
+        $this->assertInstanceOf(\Core\Queue\QueueManager::class, $queueMgr);
+
+        $notifService = notify();
+        $this->assertInstanceOf(\Core\Notification\NotificationService::class, $notifService);
+
+        $storageMgr = storage();
+        $this->assertInstanceOf(\Core\Storage\StorageManager::class, $storageMgr);
+    }
+
+    public function test_mailer_dynamic_driver(): void
+    {
+        /** @var \Core\Mail\Mailer $mailer */
+        $mailer = $this->app->getContainer()->get(\Core\Mail\Mailer::class);
+        $this->assertInstanceOf(\Core\Mail\Mailer::class, $mailer);
+
+        $logDriver = $mailer->driver('log');
+        $this->assertInstanceOf(\Core\Mail\LogMailerDriver::class, $logDriver);
+
+        $smtpDriver = $mailer->driver('smtp');
+        $this->assertInstanceOf(\Core\Mail\SmtpMailerDriver::class, $smtpDriver);
+    }
 }
+
