@@ -641,6 +641,31 @@ if (!function_exists('barcode')) {
     }
 }
 
+if (!function_exists('notification')) {
+    /**
+     * Helper global untuk broadcaster notifikasi multi-channel (Database, Email, WA, Telegram)
+     */
+    function notification(mixed $recipient = null, int|string|null $tenantId = null): \Core\Notification\ChannelManager|\Core\Notification\PendingNotification
+    {
+        /** @var \Core\Notification\ChannelManager $manager */
+        $manager = app(\Core\Notification\ChannelManager::class);
+        if ($recipient !== null) {
+            return $manager->to($recipient, $tenantId);
+        }
+        return $manager;
+    }
+}
+
+if (!function_exists('custom_fields')) {
+    /**
+     * Helper global untuk mengelola Dynamic Custom Fields per tenant
+     */
+    function custom_fields(): \Core\CustomField\FieldManager
+    {
+        return app(\Core\CustomField\FieldManager::class);
+    }
+}
+
 
 
 
