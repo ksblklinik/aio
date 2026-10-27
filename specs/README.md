@@ -26,7 +26,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 013 | [013-core-hardening-and-unified-kernel.md](file:///c:/aplikasi/aio/specs/013-core-hardening-and-unified-kernel.md) | Core Hardening & Unified Application Kernel | `Completed` | 2026-10-26 |
 | 014 | [014-module-extension-contract.md](file:///c:/aplikasi/aio/specs/014-module-extension-contract.md) | Module Extension Contract & Dynamic RBAC | `Completed` | 2026-10-26 |
 | 015 | [015-universal-platform-services.md](file:///c:/aplikasi/aio/specs/015-universal-platform-services.md) | Universal Platform Services (Storage, Settings, Sequence, Mail) | `Completed` | 2026-10-26 |
-| 015B | [015b-platform-hardening-and-auth-ui.md](file:///c:/aplikasi/aio/specs/015b-platform-hardening-and-auth-ui.md) | Platform Hardening, Auth Lifecycle UI & Infrastructure Resilience | `Approved` | 2026-10-27 |
+| 015B | [015b-platform-hardening-and-auth-ui.md](file:///c:/aplikasi/aio/specs/015b-platform-hardening-and-auth-ui.md) | Platform Hardening, Auth Lifecycle UI & Infrastructure Resilience | `Completed` | 2026-10-27 |
 | 016 | [016-template-packaging-and-release.md](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md) | Template Packaging, Documentation & Release Checklist | `Deferred` | 2026-10-26 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*

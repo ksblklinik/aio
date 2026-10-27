@@ -1,6 +1,6 @@
 # SPEC-015B: Platform Hardening, Auth Lifecycle UI & Infrastructure Resilience
 
-- **Status**: `Approved`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity & Architecture Team
 - **Tanggal Dibuat**: 2026-10-27
 - **Target File / Modul**:
@@ -161,8 +161,8 @@ Jika dipanggil tanpa parameter `audit()`, mengembalikan instance `Core\Audit\Aud
   - [x] 5.5 Audit penerapan CSS Semantic Tokens pada seluruh form auth baru.
   - [x] 5.6 Jalankan `npx tsc --noEmit` dan `npm run build` untuk memvalidasi bundle aset.
 
-- [ ] **Phase 6: Full Verification, Clean-up & Handoff Update**
-  - [ ] 6.1 Jalankan seluruh test suite PHPUnit (`vendor/bin/phpunit`).
-  - [ ] 6.2 Jalankan verifikasi lengkap via `./scripts/verify.ps1`.
-  - [ ] 6.3 Perbarui tabel indeks di `specs/README.md`.
-  - [ ] 6.4 Perbarui catatan status di `.agents/SESSION_HANDOFF.md`.
+- [x] **Phase 6: Full Verification, Clean-up & Handoff Update**
+  - [x] 6.1 Jalankan seluruh test suite PHPUnit (`vendor/bin/phpunit`).
+  - [x] 6.2 Jalankan verifikasi lengkap via `./scripts/verify.ps1`.
+  - [x] 6.3 Perbarui tabel indeks di `specs/README.md`.
+  - [x] 6.4 Perbarui catatan status di `.agents/SESSION_HANDOFF.md`.
