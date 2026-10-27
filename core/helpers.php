@@ -721,6 +721,17 @@ if (!function_exists('document')) {
     }
 }
 
+if (!function_exists('escpos')) {
+    /**
+     * Helper global untuk membuat perintah ESC/POS binary printer thermal
+     */
+    function escpos(int $cols = 32): \Core\Document\EscPos
+    {
+        return \Core\Document\EscPos::create($cols);
+    }
+}
+
+
 
 
 
