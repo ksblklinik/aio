@@ -122,6 +122,16 @@ class AuthService
         }
     }
 
+    public function loginUsingId(int $userId, ?int $tenantId = null): ?User
+    {
+        $user = User::findById($this->db, $userId);
+        if ($user) {
+            $this->login($user, $tenantId);
+            return $user;
+        }
+        return null;
+    }
+
     public function register(string $name, string $email, string $password, string $workspaceName): User
     {
         $user = User::create($this->db, [
