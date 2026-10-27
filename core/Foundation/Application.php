@@ -381,6 +381,21 @@ class Application
             $pdo = $c->has(Connection::class) ? $c->get(Connection::class)->getPdo() : null;
             return new \Core\Export\ExporterManager($pdo);
         });
+
+        // Authenticated AES-256-GCM Encrypter
+        $c->singleton(\Core\Security\Encrypter::class, function () {
+            $key = (string) (config('app.key') ?: env('APP_KEY', 'aio-universal-secret-key-32chars!!'));
+            return new \Core\Security\Encrypter($key);
+        });
+
+        // Native Two-Factor Authentication / TOTP Engine
+        $c->singleton(\Core\Security\Totp::class, function () {
+            return new \Core\Security\Totp();
+        });
+
+        // Security Middlewares
+        $c->singleton(\Core\Middleware\SecurityHeaders::class, fn() => new \Core\Middleware\SecurityHeaders());
+        $c->singleton(\Core\Middleware\SanitizeInput::class, fn() => new \Core\Middleware\SanitizeInput());
     }
 
     public function registerModuleProviders(): void

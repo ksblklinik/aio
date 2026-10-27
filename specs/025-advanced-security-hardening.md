@@ -1,6 +1,6 @@
 # SPEC-025: Advanced Platform Security Hardening
 
-- **Status**: `In Progress`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity Platform Team
 - **Tanggal Dibuat**: 2026-10-27
 - **Target File / Modul**: `core/Middleware/SecurityHeaders.php`, `core/Security/Encrypter.php`, `core/Security/Totp.php`, `core/Middleware/SanitizeInput.php`, `core/helpers.php`
@@ -78,18 +78,18 @@ Meskipun platform telah memiliki 6 lapis keamanan dasar (Isolasi multi-tenant, a
 
 ## 5. Atomic Task Checklist
 
-- [ ] **Phase 1: HTTP Security Headers Middleware (`core/Middleware/SecurityHeaders.php`)**
-  - [ ] 1.1 Buat class `Core\Middleware\SecurityHeaders` yang menyuntikkan header keamanan OWASP ke Response.
-- [ ] **Phase 2: AES-256-GCM Authenticated Encryption Engine (`core/Security/Encrypter.php`)**
-  - [ ] 2.1 Buat class `Core\Security\Encrypter` dengan cipher `aes-256-gcm`.
-  - [ ] 2.2 Daftarkan singleton di `Application.php` dan tambahkan helper `encrypt()` & `decrypt()` di `core/helpers.php`.
-- [ ] **Phase 3: Native Two-Factor Authentication Engine (`core/Security/Totp.php`)**
-  - [ ] 3.1 Buat class `Core\Security\Totp` dengan RFC 6238 TOTP algorithm dan Base32 encoder/decoder.
-  - [ ] 3.2 Tambahkan helper `totp()` di `core/helpers.php`.
-- [ ] **Phase 4: Input Sanitizer Middleware (`core/Middleware/SanitizeInput.php`)**
-  - [ ] 4.1 Buat class `Core\Middleware\SanitizeInput` yang mensterilkan null-bytes dan membersihkan string input.
-- [ ] **Phase 5: Unit Testing & Self-Verification**
-  - [ ] 5.1 Buat unit test komprehensif di `tests/Unit/CoreAdvancedSecurityTest.php`.
-  - [ ] 5.2 Jalankan `./scripts/verify.ps1`, pastikan seluruh test lolos 100%.
-  - [ ] 5.3 Lakukan atomic commit dan merge branch fitur ke `main`.
-  - [ ] 5.4 Perbarui dokumentasi spec dan `SESSION_HANDOFF.md`.
+- [x] **Phase 1: HTTP Security Headers Middleware (`core/Middleware/SecurityHeaders.php`)**
+  - [x] 1.1 Buat class `Core\Middleware\SecurityHeaders` yang menyuntikkan header keamanan OWASP ke Response.
+- [x] **Phase 2: AES-256-GCM Authenticated Encryption Engine (`core/Security/Encrypter.php`)**
+  - [x] 2.1 Buat class `Core\Security\Encrypter` dengan cipher `aes-256-gcm`.
+  - [x] 2.2 Daftarkan singleton di `Application.php` dan tambahkan helper `encrypt()` & `decrypt()` di `core/helpers.php`.
+- [x] **Phase 3: Native Two-Factor Authentication Engine (`core/Security/Totp.php`)**
+  - [x] 3.1 Buat class `Core\Security\Totp` dengan RFC 6238 TOTP algorithm dan Base32 encoder/decoder.
+  - [x] 3.2 Tambahkan helper `totp()` di `core/helpers.php`.
+- [x] **Phase 4: Input Sanitizer Middleware (`core/Middleware/SanitizeInput.php`)**
+  - [x] 4.1 Buat class `Core\Middleware\SanitizeInput` yang mensterilkan null-bytes dan membersihkan string input.
+- [x] **Phase 5: Unit Testing & Self-Verification**
+  - [x] 5.1 Buat unit test komprehensif di `tests/Unit/CoreAdvancedSecurityTest.php`.
+  - [x] 5.2 Jalankan `./scripts/verify.ps1`, pastikan seluruh test lolos 100%.
+  - [x] 5.3 Lakukan atomic commit dan merge branch fitur ke `main`.
+  - [x] 5.4 Perbarui dokumentasi spec dan `SESSION_HANDOFF.md`.
