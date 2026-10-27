@@ -153,13 +153,13 @@ Jika dipanggil tanpa parameter `audit()`, mengembalikan instance `Core\Audit\Aud
   - [x] 4.4 Daftarkan routes lifecycle di `routes/web.php` dengan proteksi middleware `throttle`.
   - [x] 4.5 Buat unit test `tests/Unit/AuthLifecycleUiTest.php` untuk menguji alur controller & respons Inertia/JSON.
 
-- [ ] **Phase 5: Auth Lifecycle React Pages & Semantic Tokens Alignment**
-  - [ ] 5.1 Buat komponen `resources/js/Pages/Auth/ForgotPassword.tsx`.
-  - [ ] 5.2 Buat komponen `resources/js/Pages/Auth/ResetPassword.tsx`.
-  - [ ] 5.3 Buat komponen `resources/js/Pages/Workspaces/AcceptInvitation.tsx`.
-  - [ ] 5.4 Perbarui `resources/js/Pages/Auth/Login.tsx` untuk menyertakan tautan "Lupa kata sandi?".
-  - [ ] 5.5 Audit penerapan CSS Semantic Tokens pada seluruh form auth baru.
-  - [ ] 5.6 Jalankan `npx tsc --noEmit` dan `npm run build` untuk memvalidasi bundle aset.
+- [x] **Phase 5: Auth Lifecycle React Pages & Semantic Tokens Alignment**
+  - [x] 5.1 Buat komponen `resources/js/Pages/Auth/ForgotPassword.tsx`.
+  - [x] 5.2 Buat komponen `resources/js/Pages/Auth/ResetPassword.tsx`.
+  - [x] 5.3 Buat komponen `resources/js/Pages/Workspaces/AcceptInvitation.tsx`.
+  - [x] 5.4 Perbarui `resources/js/Pages/Auth/Login.tsx` untuk menyertakan tautan "Lupa kata sandi?".
+  - [x] 5.5 Audit penerapan CSS Semantic Tokens pada seluruh form auth baru.
+  - [x] 5.6 Jalankan `npx tsc --noEmit` dan `npm run build` untuk memvalidasi bundle aset.
 
 - [ ] **Phase 6: Full Verification, Clean-up & Handoff Update**
   - [ ] 6.1 Jalankan seluruh test suite PHPUnit (`vendor/bin/phpunit`).
