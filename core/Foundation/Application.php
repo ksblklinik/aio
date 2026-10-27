@@ -340,6 +340,24 @@ class Application
             $manager->setDriver('file', $fileDriver);
             return $manager;
         });
+
+        // Multi-Channel Notification Broadcaster
+        $c->singleton(\Core\Notification\ChannelManager::class, function ($c) {
+            $manager = new \Core\Notification\ChannelManager($c->get(TenantContext::class));
+            $manager->registerChannel('database', new \Core\Notification\Channels\DatabaseChannel($c->get(\Core\Notification\NotificationService::class)));
+            $manager->registerChannel('email', new \Core\Notification\Channels\EmailChannel($c->has(\Core\Mail\MailerDriverInterface::class) ? $c->get(\Core\Mail\MailerDriverInterface::class) : null));
+            $manager->registerChannel('whatsapp', new \Core\Notification\Channels\WhatsAppChannel((string) config('services.whatsapp.url', env('WA_GATEWAY_URL')), (string) config('services.whatsapp.token', env('WA_GATEWAY_TOKEN'))));
+            $manager->registerChannel('telegram', new \Core\Notification\Channels\TelegramChannel((string) config('services.telegram.token', env('TELEGRAM_BOT_TOKEN'))));
+            return $manager;
+        });
+
+        // Dynamic Custom Field Registry
+        $c->singleton(\Core\CustomField\FieldManager::class, function ($c) {
+            return new \Core\CustomField\FieldManager(
+                $c->get(Connection::class),
+                $c->get(TenantContext::class)
+            );
+        });
     }
 
     public function registerModuleProviders(): void
