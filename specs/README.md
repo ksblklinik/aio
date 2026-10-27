@@ -29,6 +29,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 015B | [015b-platform-hardening-and-auth-ui.md](file:///c:/aplikasi/aio/specs/015b-platform-hardening-and-auth-ui.md) | Platform Hardening, Auth Lifecycle UI & Infrastructure Resilience | `Completed` | 2026-10-27 |
 | 016 | [016-template-packaging-and-release.md](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md) | Template Packaging, Documentation & Release Checklist | `Deferred` | 2026-10-26 |
 | 017 | [017-core-enterprise-ai-and-interop.md](file:///c:/aplikasi/aio/specs/017-core-enterprise-ai-and-interop.md) | Core Enterprise Data, AI Gateway, and Interoperability Engine | `Completed` | 2026-10-27 |
+| 018 | [018-geo-ledger-and-idempotency.md](file:///c:/aplikasi/aio/specs/018-geo-ledger-and-idempotency.md) | Geolocation Engine, Atomic Financial Ledger, and Idempotency Guard | `In Progress` | 2026-10-27 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 
