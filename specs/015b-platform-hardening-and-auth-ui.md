@@ -135,11 +135,11 @@ Jika dipanggil tanpa parameter `audit()`, mengembalikan instance `Core\Audit\Aud
   - [x] 1.3 Integrasikan parsing prefix `throttle:max,decay` ke dalam `Core\Router.php`.
   - [x] 1.4 Verifikasi test `RateLimiterTest.php` lulus 100%.
 
-- [ ] **Phase 2: Database Soft Deletes di `Core\Database\TenantScope`**
-  - [ ] 2.1 Buat unit test `tests/Unit/SoftDeletesTenantScopeTest.php`.
-  - [ ] 2.2 Implementasikan `softDelete()`, `restore()`, `forceDelete()`, `withoutTrashed()`, `withTrashed()`, dan `onlyTrashed()` di `TenantScope`.
-  - [ ] 2.3 Verifikasi kompatibilitas terhadap query `selectAll`, `selectOne`, `count`, dan `paginate`.
-  - [ ] 2.4 Verifikasi test `SoftDeletesTenantScopeTest.php` lulus 100%.
+- [x] **Phase 2: Database Soft Deletes di `Core\Database\TenantScope`**
+  - [x] 2.1 Buat unit test `tests/Unit/SoftDeletesTenantScopeTest.php`.
+  - [x] 2.2 Implementasikan `softDelete()`, `restore()`, `forceDelete()`, `withoutTrashed()`, `withTrashed()`, dan `onlyTrashed()` di `TenantScope`.
+  - [x] 2.3 Verifikasi kompatibilitas terhadap query `selectAll`, `selectOne`, `count`, dan `paginate`.
+  - [x] 2.4 Verifikasi test `SoftDeletesTenantScopeTest.php` lulus 100%.
 
 - [ ] **Phase 3: Global Audit Helper & Core Polish**
   - [ ] 3.1 Daftarkan helper function `audit()` di `core/helpers.php`.
