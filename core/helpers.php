@@ -606,6 +606,41 @@ if (!function_exists('workflow')) {
     }
 }
 
+if (!function_exists('cache')) {
+    /**
+     * Helper global untuk mengakses Cache Manager atau mengambil nilai cache
+     */
+    function cache(?string $key = null, mixed $default = null): mixed
+    {
+        /** @var \Core\Cache\CacheManager $cacheManager */
+        $cacheManager = app(\Core\Cache\CacheManager::class);
+        if ($key === null) {
+            return $cacheManager;
+        }
+        return $cacheManager->get($key, $default);
+    }
+}
+
+if (!function_exists('qr_code')) {
+    /**
+     * Helper global untuk menghasilkan string gambar vector SVG QR Code murni
+     */
+    function qr_code(string $text, int $size = 200, string $color = '#000000', string $bgColor = '#ffffff'): string
+    {
+        return \Core\Media\QrCode::svg($text, $size, $color, $bgColor);
+    }
+}
+
+if (!function_exists('barcode')) {
+    /**
+     * Helper global untuk menghasilkan string gambar vector SVG Barcode Code-128 murni
+     */
+    function barcode(string $text, int $width = 300, int $height = 80, bool $showText = true, string $color = '#000000', string $bgColor = '#ffffff'): string
+    {
+        return \Core\Media\Barcode::svg($text, $width, $height, $showText, $color, $bgColor);
+    }
+}
+
 
 
 

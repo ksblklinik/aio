@@ -329,6 +329,17 @@ class Application
                 $c->has(Gate::class) ? $c->get(Gate::class) : null
             );
         });
+
+        // High-Performance Tenant-Isolated Cache Engine
+        $c->singleton(\Core\Cache\CacheManager::class, function ($c) use ($base) {
+            $cachePath = $base . '/storage/framework/cache';
+            $fileDriver = new \Core\Cache\FileCacheDriver($cachePath);
+            $arrayDriver = new \Core\Cache\ArrayCacheDriver();
+            $manager = new \Core\Cache\CacheManager($fileDriver, $c->get(TenantContext::class), 'file');
+            $manager->setDriver('array', $arrayDriver);
+            $manager->setDriver('file', $fileDriver);
+            return $manager;
+        });
     }
 
     public function registerModuleProviders(): void
