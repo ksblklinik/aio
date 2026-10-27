@@ -252,6 +252,11 @@ class Application
                 $c->get(\Core\Mail\Mailer::class)
             );
         });
+
+        // Throttle Requests Middleware
+        $c->singleton(\Core\Middleware\ThrottleRequests::class, function () use ($base) {
+            return new \Core\Middleware\ThrottleRequests($base . '/storage/framework/ratelimit');
+        });
     }
 
     public function registerModuleProviders(): void

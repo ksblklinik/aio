@@ -129,11 +129,11 @@ Jika dipanggil tanpa parameter `audit()`, mengembalikan instance `Core\Audit\Aud
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Backend Rate Limiter Middleware (`Core\Middleware\ThrottleRequests`)**
-  - [ ] 1.1 Buat unit test `tests/Unit/RateLimiterTest.php`.
-  - [ ] 1.2 Implementasikan kelas `Core\Middleware\ThrottleRequests` dengan driver cache/in-memory/file storage.
-  - [ ] 1.3 Integrasikan parsing prefix `throttle:max,decay` ke dalam `Core\Router.php`.
-  - [ ] 1.4 Verifikasi test `RateLimiterTest.php` lulus 100%.
+- [x] **Phase 1: Backend Rate Limiter Middleware (`Core\Middleware\ThrottleRequests`)**
+  - [x] 1.1 Buat unit test `tests/Unit/RateLimiterTest.php`.
+  - [x] 1.2 Implementasikan kelas `Core\Middleware\ThrottleRequests` dengan driver cache/in-memory/file storage.
+  - [x] 1.3 Integrasikan parsing prefix `throttle:max,decay` ke dalam `Core\Router.php`.
+  - [x] 1.4 Verifikasi test `RateLimiterTest.php` lulus 100%.
 
 - [ ] **Phase 2: Database Soft Deletes di `Core\Database\TenantScope`**
   - [ ] 2.1 Buat unit test `tests/Unit/SoftDeletesTenantScopeTest.php`.

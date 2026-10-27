@@ -51,6 +51,11 @@ class Response
         return $this->body;
     }
 
+    public function getContent(): string
+    {
+        return $this->body;
+    }
+
     public function setBody(string $body): self
     {
         $this->body = $body;

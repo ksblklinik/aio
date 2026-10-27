@@ -165,6 +165,14 @@ class Router
                 return $closure($request, $next);
             }
 
+            if (str_starts_with($middleware, 'throttle:')) {
+                $params = explode(',', substr($middleware, 9));
+                $maxAttempts = isset($params[0]) && is_numeric($params[0]) ? (int) $params[0] : 60;
+                $decayMinutes = isset($params[1]) && is_numeric($params[1]) ? (int) $params[1] : 1;
+                $closure = \Core\Middleware\ThrottleRequests::with($maxAttempts, $decayMinutes, $this->container);
+                return $closure($request, $next);
+            }
+
             if ($this->container) {
                 $instance = $this->container->get($middleware);
                 if (is_callable([$instance, 'handle'])) {
