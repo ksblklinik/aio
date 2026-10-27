@@ -1,0 +1,27 @@
+{
+  "id": "billing",
+  "name": "Billing & Invoicing",
+  "description": "Universal Invoicing, Tagihan Penjualan/Pembelian, Kasir POS Cepat, dan Kuitansi Pelunasan terisolasi multi-tenant.",
+  "version": "1.0.0",
+  "author": "Antigravity Platform Team",
+  "category": "resources",
+  "icon": "Receipt",
+  "route": "/billing",
+  "dependencies": ["auth", "workspaces"],
+  "is_core": false,
+  "is_active": true,
+  "table_name": "invoices",
+  "provider": "App\\Modules\\Billing\\BillingServiceProvider",
+  "permissions": [
+    {
+      "key": "billing.view",
+      "name": "Lihat Faktur & Tagihan",
+      "description": "Melihat daftar invoice, status pembayaran, dan kuitansi"
+    },
+    {
+      "key": "billing.manage",
+      "name": "Kelola Faktur & Pembayaran",
+      "description": "Membuat faktur baru, memproses kasir POS, dan mencatat pelunasan"
+    }
+  ]
+}

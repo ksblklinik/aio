@@ -4,10 +4,10 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 📌 Status Terakhir Sesi (Last Updated: 2026-10-27 15:51 WIB)
+## 📌 Status Terakhir Sesi (Last Updated: 2026-10-28 05:28 WIB)
 
-* **Conversation ID Terakhir**: `d87e3d0e-5cf2-48d5-a152-173bd04012f7`
-* **Active Git Branch**: `main` (Working tree clean, all SPEC-013 hingga SPEC-029 merged cleanly via `--no-ff`)
+* **Conversation ID Terakhir**: `4d7528e5-6993-4060-b918-14aabb4463fe`
+* **Active Git Branch**: `feat/030-universal-billing-and-invoicing` (siap dimerge ke `main`)
 * **Status Dokumen / Roadmap**:
   - SPEC-013 ([`specs/013-core-hardening-and-unified-kernel.md`](file:///c:/aplikasi/aio/specs/013-core-hardening-and-unified-kernel.md)): `Completed` (merged to `main`).
   - SPEC-014 ([`specs/014-module-extension-contract.md`](file:///c:/aplikasi/aio/specs/014-module-extension-contract.md)): `Completed` (merged to `main`).
@@ -26,46 +26,50 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **SPEC-027 ([`specs/027-universal-contact-registry.md`](file:///c:/aplikasi/aio/specs/027-universal-contact-registry.md))**: `Completed` (merged to `main`).
   - **SPEC-028 ([`specs/028-universal-finance-engine.md`](file:///c:/aplikasi/aio/specs/028-universal-finance-engine.md))**: `Completed` (merged to `main`).
   - **SPEC-029 ([`specs/029-universal-inventory-and-items.md`](file:///c:/aplikasi/aio/specs/029-universal-inventory-and-items.md))**: `Completed` (merged to `main`).
+  - **SPEC-030 ([`specs/030-universal-billing-and-invoicing.md`](file:///c:/aplikasi/aio/specs/030-universal-billing-and-invoicing.md))**: `Completed` (siap dimerge ke `main`).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
-* **Test Suite Status**: **351 tests (1964 assertions) PASS 100%**, `tsc --noEmit` clean, `verify.ps1` all passed.
-* **Database File**: `database.sqlite` di root repositori (23 migrasi applied).
+* **Test Suite Status**: **360 tests (2037 assertions) PASS 100%**, `tsc --noEmit` clean, `verify.ps1` all passed.
+* **Database File**: `database.sqlite` di root repositori (24 migrasi applied).
 
 ---
 
-## 📦 Capaian & Hasil Eksekusi SPEC-029 (Universal Items, Catalog & Inventory Engine - Level 2 Shared Foundation):
-1. **Modul Arsitektur Level 2 (`app/Modules/Inventory/`)**:
-   - Manifest terdaftar di kategori `resources` dengan rute `/inventory` dan service provider `InventoryServiceProvider`.
-   - Migrasi basis data terisolasi multi-tenant: `inventory_units`, `item_categories`, `items`, `inventory_movements`.
-2. **Master Katalog Agnostik (`items`)**:
-   - Mendukung tipe: `goods` (Barang Fisik bersaldo stok), `service` (Jasa/Layanan non-stok), `raw_material` (Bahan Baku), dan `bundle` (Paket).
-   - Penomoran kode item otomatis tahunan via `sequence('inventory', 'ITM', 5, 'yearly')` (e.g., `ITM/2026/00001`) atau input custom SKU/Barcode.
-   - Manajemen harga: Harga Beli (`cost_price`) dan Harga Jual (`selling_price`).
-3. **Satuan Ukuran Standar / Unit of Measure (`inventory_units`)**:
-   - Auto-seeder otomatis 9 satuan ukuran umum: `PCS`, `BOX`, `STRIP`, `BTL`, `KG`, `LTR`, `JAM`, `SESI`, `PAKET`.
-4. **Pelacakan Saldo & Mutasi Stok Fisik (`inventory_movements`)**:
-   - Jenis mutasi atomik: `in` (Barang Masuk), `out` (Barang Keluar dengan *insufficient stock guard*), `adjustment` (Penyesuaian stok positif/negatif), dan `opname` (Audit fisik riil).
-   - Setiap mutasi menghasilkan nomor urut via `sequence('inventory_movement', 'MOV')`, saldo sebelum, saldo sesudah, biaya per unit, dan catatan audit.
-5. **Item Bertipe Layanan (Service Agnosticism)**:
-   - Item jasa/layanan tidak dipaksa melacak saldo fisik dan fungsi ketersediaan `checkAvailability()` selalu bernilai `true`.
-6. **Peringatan Dini Stok Menipis (`listLowStockItems()`)**:
-   - Peringatan instan saat stok item fisik menyentuh atau berada di bawah ambang batas minimum (`min_stock_alert`).
-7. **Exported Shared Contract Interface (`InventoryRegistryInterface`)**:
-   - Global helper: `items(): InventoryRegistryInterface` dan `inventory(): InventoryRegistryInterface`.
-8. **Web Management & Programmatic REST API**:
-   - Web Controller (`InventoryController`) untuk katalog dan mutasi cepat.
-   - REST API (`ApiInventoryController`) untuk pencarian autocomplete, lookup barcode, dan verifikasi ketersediaan stok terprogram.
-9. **Verifikasi & Test**:
-   - 9 unit test komprehensif di [`tests/Unit/InventoryModuleTest.php`](file:///c:/aplikasi/aio/tests/Unit/InventoryModuleTest.php) lolos 100%.
-   - Global test suite meningkat menjadi **351 tests (1964 assertions)**.
+## 📦 Capaian & Hasil Eksekusi SPEC-030 (Universal Invoicing, Billing & Document Engine - Level 2 Shared Foundation):
+1. **Modul Arsitektur Level 2 (`app/Modules/Billing/`)**:
+   - Manifest terdaftar di kategori `resources` dengan rute `/billing` dan service provider `BillingServiceProvider`.
+   - Migrasi basis data terisolasi multi-tenant: `invoices`, `invoice_items`, `invoice_payments`.
+2. **Model Dokumen Transaksi Universal (`invoices` & `invoice_items`)**:
+   - Mendukung tipe dokumen: `invoice` (Faktur Penjualan / Piutang AR) dan `bill` (Tagihan Pembelian / Hutang AP).
+   - Penomoran otomatis berurutan tahunan via sequence: `INV/2026/00001` dan `BILL/2026/00001`.
+   - Perhitungan otomatis akurat: subtotal, diskon item/faktur, pajak, grand total, jumlah terbayar (*amount_paid*), dan sisa tagihan (*amount_due*).
+   - Status siklus hidup: `draft`, `issued`, `partially_paid`, `paid`, `cancelled`.
+3. **Pencatatan Pembayaran & Kuitansi (`invoice_payments`)**:
+   - Rekam pelunasan sebagian maupun lunas dengan nomor kuitansi otomatis via `sequence('payment_receipt', 'RCP')` (e.g., `RCP/2026/00001`).
+   - Integrasi otomatis ke `finance()`: saat pembayaran dicatat dan akun kas/bank dipilih, membukukan transaksi kas masuk/keluar ke akun keuangan terkait!
+4. **Dua Mode Operasional Transaksi**:
+   - **Mode Kasir Cepat (Quick POS Checkout)**: Satu langkah atomik via `quickCheckout()` yang membuat invoice, memotong stok fisik via `inventory()`, mencatat pelunasan & membukukan kas via `finance()`, dan menghitung nominal kembalian (*change*).
+   - **Mode Faktur Tempo (AR Invoicing)**: Draft $\rightarrow$ Issued (potong stok) $\rightarrow$ Cicilan Pembayaran $\rightarrow$ Paid.
+5. **Integrasi Antar-Modul Level 2**:
+   - **Inventory**: Validasi ketersediaan stok (`checkAvailability`), mutasi stok keluar (`recordStockMovement('out')`), serta pengembalian stok otomatis (`recordStockMovement('in')`) jika invoice dibatalkan. Item non-fisik (`service`) tidak terhambat batas stok fisik.
+   - **Finance**: Pembukuan otomatis transaksi kas masuk/keluar via `finance()->recordInflow()` dan `recordOutflow()`.
+   - **Contact**: Lookup otomatis profil pelanggan/vendor via `contacts()->find()`.
+6. **Exported Shared Contract Interface (`BillingRegistryInterface`)**:
+   - Global helper: `billing(): BillingRegistryInterface` dan `invoices(): BillingRegistryInterface`.
+7. **Web Management & Programmatic REST API**:
+   - Web Controller (`BillingController`) untuk daftar tagihan, form faktur, pembayaran, dan pencetakan struk kuitansi termal (`/billing/{id}/receipt`).
+   - REST API Controller (`ApiBillingController`) untuk integrasi checkout POS dan pembayaran programatik.
+   - Halaman antarmuka Inertia React (`resources/js/Pages/Billing/Index.tsx`) dengan metric cards dan status badges bertema semantic tokens.
+8. **Verifikasi & Test**:
+   - 9 unit test komprehensif di [`tests/Unit/BillingModuleTest.php`](file:///c:/aplikasi/aio/tests/Unit/BillingModuleTest.php) lolos 100%.
+   - Global test suite meningkat menjadi **360 tests (2037 assertions)**.
 
 ---
 
 ## 🚀 Rencana Langkah Berikutnya:
-1. **Pondasi Level 2 yang Telah Selesai (3 Pilar Inti Universal)**:
-   - `Contact` (SPEC-027): Manajemen orang, organisasi, multi-role.
-   - `Finance` (SPEC-028): Akun kas/bank, arus kas, approval pengeluaran, P&L.
-   - `Inventory` (SPEC-029): Katalog barang, jasa, satuan ukuran, mutasi stok.
-2. **Evaluasi Modul Level 2 Tambahan / Lanjut ke Level 3**:
-   - Opsi A: **Universal Document / Invoicing & Billing Registry** (Faktur Penjualan, Tagihan Jasa, Kuitansi Pembayaran yang menghubungkan Contact + Item + Finance).
-   - Opsi B: **Master Fasilitas / Ruangan / Lokasi (Facilities & Assets Registry)**.
-   - Opsi C: Langsung membangun modul vertikal Level 3 (e.g. Klinik / POS / Service Desk) yang mengonsumsi ketiga modul Level 2 di atas.
+1. **Pondasi Level 2 yang Telah Selesai (4 Pilar Lengkap Universal)**:
+   - `Contact` (SPEC-027): Relasi orang, pelanggan, vendor, multi-role.
+   - `Finance` (SPEC-028): Akun kas/bank, transaksi arus kas, approval, P&L.
+   - `Inventory` (SPEC-029): Katalog barang, jasa, satuan ukuran, mutasi stok fisik.
+   - `Billing` (SPEC-030): Faktur penjualan, tagihan pembelian, kasir cepat POS, pelunasan kuitansi.
+2. **Langkah Strategis Selanjutnya**:
+   - Opsi A: **Universal Facilities, Rooms & Locations Registry (SPEC-031)** (Ruangan, poliklinik, gudang, bed/meja operasional).
+   - Opsi B: **Memulai Modul Vertikal Level 3 (e.g. Modul Klinik / POS Retail / Service Desk)** yang mengonsumsi keempat pilar Level 2 di atas.
