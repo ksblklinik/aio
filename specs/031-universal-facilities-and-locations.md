@@ -200,9 +200,9 @@ interface FacilityRegistryInterface
 ## 6. Atomic Task Checklist
 
 - [ ] **Phase 1: Setup Modul, Arsitektur, & Database Migrations**
-  - [ ] 1.1 Buat manifest modul `app/Modules/Facility/module.json`.
-  - [ ] 1.2 Buat migration `database/migrations/2026_10_28_000025_create_facility_tables.sql` untuk tabel `facilities_locations`, `facilities_rooms`, dan `facilities_spaces`.
-  - [ ] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
+  - [x] 1.1 Buat manifest modul `app/Modules/Facility/module.json`.
+  - [x] 1.2 Buat migration `database/migrations/2026_10_28_000025_create_facility_tables.sql` untuk tabel `facilities_locations`, `facilities_rooms`, dan `facilities_spaces`.
+  - [x] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
 - [ ] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
   - [ ] 2.1 Buat interface `App\Modules\Facility\Contracts\FacilityRegistryInterface`.
   - [ ] 2.2 Buat Service Provider `App\Modules\Facility\FacilityServiceProvider` dan daftarkan ke modul.
