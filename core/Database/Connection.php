@@ -41,7 +41,7 @@ class Connection
         $driver = $config['driver'] ?? 'sqlite';
 
         if ($driver === 'sqlite') {
-            $database = $config['database'] ?? ':memory:';
+            $database = $config['database'] ?? $config['path'] ?? ':memory:';
             $dsn = "sqlite:{$database}";
             return new self($dsn);
         }
