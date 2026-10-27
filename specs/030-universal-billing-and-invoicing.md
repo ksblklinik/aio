@@ -189,11 +189,11 @@ interface BillingRegistryInterface
   - [x] 2.3 Daftarkan helper global `billing()` dan `invoices()` di `core/helpers.php`.
   - [x] 2.4 Tulis test suite `tests/Unit/BillingModuleTest.php` mencakup pembuatan draft, issue, potong stok, pembayaran, integrasi finance, dan quick checkout.
   - [x] 2.5 Implementasikan `App\Modules\Billing\Services\BillingService` hingga seluruh skenario unit test lolos 100%.
-- [ ] **Phase 3: Web UI, Routes, & Programmatic REST API**
-  - [ ] 3.1 Buat routes modul di `app/Modules/Billing/routes.php`.
-  - [ ] 3.2 Implementasikan Web Controller `BillingController` untuk tampilan daftar tagihan, form faktur/kasir, dan cetak kuitansi.
-  - [ ] 3.3 Implementasikan REST API Controller `ApiBillingController` untuk integrasi POS/checkout terprogram.
-  - [ ] 3.4 Buat view template atau halaman UI responsif dark/light mode untuk kasir dan invoice.
+- [x] **Phase 3: Web UI, Routes, & Programmatic REST API**
+  - [x] 3.1 Buat routes modul di `app/Modules/Billing/routes.php`.
+  - [x] 3.2 Implementasikan Web Controller `BillingController` untuk tampilan daftar tagihan, form faktur/kasir, dan cetak kuitansi.
+  - [x] 3.3 Implementasikan REST API Controller `ApiBillingController` untuk integrasi POS/checkout terprogram.
+  - [x] 3.4 Buat view template atau halaman UI responsif dark/light mode untuk kasir dan invoice.
 - [ ] **Phase 4: Final Verification, Review & Handoff**
   - [ ] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat` (memastikan tidak ada regresi).
   - [ ] 4.2 Jalankan `npm run typecheck` dan script `scripts/verify.ps1`.
