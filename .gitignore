@@ -40,6 +40,8 @@ yarn-debug.log*
 yarn-error.log*
 tmp/
 scratch/
+storage/framework/
+storage/app/
 
 # Generated agent caches
 .agents/REPO_MAP.md
