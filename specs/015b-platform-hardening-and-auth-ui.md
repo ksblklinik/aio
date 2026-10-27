@@ -146,12 +146,12 @@ Jika dipanggil tanpa parameter `audit()`, mengembalikan instance `Core\Audit\Aud
   - [x] 3.2 Buat unit test verifikasi helper `audit()` di test suite.
   - [x] 3.3 Verifikasi fungsi logging audit berjalan baik dengan atau tanpa context aktif.
 
-- [ ] **Phase 4: Auth Lifecycle Backend Controllers & Routes**
-  - [ ] 4.1 Buat `App\Modules\Auth\Controllers\ForgotPasswordController.php` (show + send).
-  - [ ] 4.2 Buat `App\Modules\Auth\Controllers\ResetPasswordController.php` (show + reset).
-  - [ ] 4.3 Buat `App\Modules\Workspaces\Controllers\InvitationController.php` (show + accept).
-  - [ ] 4.4 Daftarkan routes lifecycle di `routes/web.php` dengan proteksi middleware `throttle`.
-  - [ ] 4.5 Buat unit test `tests/Unit/AuthLifecycleUiTest.php` untuk menguji alur controller & respons Inertia/JSON.
+- [x] **Phase 4: Auth Lifecycle Backend Controllers & Routes**
+  - [x] 4.1 Buat `App\Modules\Auth\Controllers\ForgotPasswordController.php` (show + send).
+  - [x] 4.2 Buat `App\Modules\Auth\Controllers\ResetPasswordController.php` (show + reset).
+  - [x] 4.3 Buat `App\Modules\Workspaces\Controllers\InvitationController.php` (show + accept).
+  - [x] 4.4 Daftarkan routes lifecycle di `routes/web.php` dengan proteksi middleware `throttle`.
+  - [x] 4.5 Buat unit test `tests/Unit/AuthLifecycleUiTest.php` untuk menguji alur controller & respons Inertia/JSON.
 
 - [ ] **Phase 5: Auth Lifecycle React Pages & Semantic Tokens Alignment**
   - [ ] 5.1 Buat komponen `resources/js/Pages/Auth/ForgotPassword.tsx`.
