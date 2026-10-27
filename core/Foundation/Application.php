@@ -320,6 +320,15 @@ class Application
                 $c->get(TenantContext::class)
             );
         });
+
+        // Lightweight Declarative Workflow Engine & State Machine
+        $c->singleton(\Core\Workflow\WorkflowManager::class, function ($c) {
+            return new \Core\Workflow\WorkflowManager(
+                $c->get(Connection::class),
+                $c->get(TenantContext::class),
+                $c->has(Gate::class) ? $c->get(Gate::class) : null
+            );
+        });
     }
 
     public function registerModuleProviders(): void

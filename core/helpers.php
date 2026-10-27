@@ -591,6 +591,21 @@ if (!function_exists('ledger')) {
     }
 }
 
+if (!function_exists('workflow')) {
+    /**
+     * Helper global untuk mengakses layanan Workflow & State Machine
+     */
+    function workflow(?string $entityType = null): \Core\Workflow\WorkflowManager|\Core\Workflow\WorkflowDefinition
+    {
+        /** @var \Core\Workflow\WorkflowManager $manager */
+        $manager = app(\Core\Workflow\WorkflowManager::class);
+        if ($entityType !== null && $manager->hasDefinition($entityType)) {
+            return $manager->getDefinition($entityType);
+        }
+        return $manager;
+    }
+}
+
 
 
 
