@@ -4,64 +4,51 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 📌 Status Terakhir Sesi (Last Updated: 2026-10-27 10:45 WIB)
+## 📌 Status Terakhir Sesi (Last Updated: 2026-10-27 11:10 WIB)
 
 * **Conversation ID Terakhir**: `d87e3d0e-5cf2-48d5-a152-173bd04012f7`
-* **Active Git Branch**: `main` (Working tree clean, all SPEC-013, 014, 015, dan 015B merged cleanly via `--no-ff`)
+* **Active Git Branch**: `main` (Working tree clean, all SPEC-013, 014, 015, 015B, dan 017 merged cleanly via `--no-ff`)
 * **Status Dokumen / Roadmap**:
   - SPEC-013 ([`specs/013-core-hardening-and-unified-kernel.md`](file:///c:/aplikasi/aio/specs/013-core-hardening-and-unified-kernel.md)): `Completed` (merged to `main`).
   - SPEC-014 ([`specs/014-module-extension-contract.md`](file:///c:/aplikasi/aio/specs/014-module-extension-contract.md)): `Completed` (merged to `main`).
   - SPEC-015 ([`specs/015-universal-platform-services.md`](file:///c:/aplikasi/aio/specs/015-universal-platform-services.md)): `Completed` (merged to `main`).
-  - **SPEC-015B ([`specs/015b-platform-hardening-and-auth-ui.md`](file:///c:/aplikasi/aio/specs/015b-platform-hardening-and-auth-ui.md))**: `Completed` (merged to `main`).
-  - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Ready to Execute` (Template Packaging, Sanitasi & Release Checklist).
-* **Test Suite Status**: **247 tests (1324 assertions) PASS 100%**, `tsc --noEmit` clean, `verify.ps1` all passed.
-* **Database File**: `database.sqlite` di root repositori.
+  - SPEC-015B ([`specs/015b-platform-hardening-and-auth-ui.md`](file:///c:/aplikasi/aio/specs/015b-platform-hardening-and-auth-ui.md)): `Completed` (merged to `main`).
+  - **SPEC-017 ([`specs/017-core-enterprise-ai-and-interop.md`](file:///c:/aplikasi/aio/specs/017-core-enterprise-ai-and-interop.md))**: `Completed` (merged to `main`).
+  - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
+* **Test Suite Status**: **254 tests (1369 assertions) PASS 100%**, `tsc --noEmit` clean, `verify.ps1` all passed.
+* **Database File**: `database.sqlite` di root repositori (15 migrasi applied).
 
 ---
 
-## 🛡️ Capaian & Hasil Eksekusi SPEC-015B & Audit Mitigasi Core:
-1. **Rate Limiting Middleware**:
-   - `Core\Middleware\ThrottleRequests` berbasis file/cache storage mandiri (zero external dependency).
-   - Parsing otomatis format route `throttle:maxAttempts,decayMinutes` (e.g. `throttle:10,1`, `throttle:5,1`) di `Core\Router`.
-   - Header standar `X-RateLimit-Limit`, `X-RateLimit-Remaining`, dan `Retry-After` dengan response 429 Too Many Requests.
-2. **Database Soft Deletes di `TenantScope`**:
-   - Method `softDelete()`, `restore()`, dan `forceDelete()`.
-   - Modifiers `withoutTrashed()` (default), `withTrashed()`, dan `onlyTrashed()`.
-   - Inspeksi PRAGMA dinamis untuk memeriksa keberadaan kolom `deleted_at` secara transparan.
-3. **Konfigurasi Modular & Sinkronisasi Platform Service**:
-   - Menambahkan file konfigurasi standar: [`config/mail.php`](file:///c:/aplikasi/aio/config/mail.php), [`config/queue.php`](file:///c:/aplikasi/aio/config/queue.php), [`config/storage.php`](file:///c:/aplikasi/aio/config/storage.php), [`config/logging.php`](file:///c:/aplikasi/aio/config/logging.php).
-   - Menyelaraskan driver `Mailer` dinamis (`log` dan `smtp`) di [`core/Foundation/Application.php`](file:///c:/aplikasi/aio/core/Foundation/Application.php).
-   - Menyelaraskan root disk `StorageManager` dinamis di [`core/Foundation/Application.php`](file:///c:/aplikasi/aio/core/Foundation/Application.php).
-   - Sinkronisasi variabel `.env` dan `.env.example` (termasuk parameter SMTP, Queue, Storage, Mail, Log).
-4. **Ekosistem Global Helper Lengkap**:
-   - `queue()`: mempermudah antrean background jobs.
-   - `notify()`: mempermudah in-app notifications.
-   - `audit()`: mempermudah logging jejak audit.
-   - `db()`: mempermudah koneksi PDO dan query builder scoped tenant.
-   - `storage()`: mempermudah operasi berkas multi-tenant.
-   - Path helpers: `base_path()`, `app_path()`, `storage_path()`, `public_path()`, `config_path()`, `resource_path()`.
-5. **Auth Lifecycle UI & Routes**:
-   - Controllers: `ForgotPasswordController`, `ResetPasswordController`, `InvitationController`.
-   - React Pages: `Auth/ForgotPassword.tsx`, `Auth/ResetPassword.tsx`, dan `Workspaces/AcceptInvitation.tsx`.
-   - Tautan "Lupa kata sandi?" di `Auth/Login.tsx`.
-   - Kepatuhan 100% semantic design tokens & dark/light mode compatibility.
+## 🛡️ Capaian & Hasil Eksekusi SPEC-017 (Core Enterprise Data, AI Gateway & Interoperability):
+1. **Multi-Database Management (`Core\Database\DatabaseManager`)**:
+   - Mendukung multi-connection (SQLite, PostgreSQL, MySQL) yang dapat dipanggil fleksibel via `db(?string $table = null, ?string $connection = null)`.
+   - Dynamic connection resolver membaca `config('database.connections')`.
+2. **TenantScope Search & Chunking Utilities**:
+   - `$scope->search(['col1', 'col2'], $keyword)`: multi-column search terisolasi tenant dengan sanitasi wildcard aman.
+   - `$scope->chunk(int $count, callable $callback)`: memory-safe batch processing untuk jutaan baris data tanpa kehabisan RAM.
+3. **High-Performance Interoperability (SSE & CSV Stream)**:
+   - `Response::sse(callable $callback)`: Server-Sent Events engine native tanpa websocket, mendukung streaming log background worker dan live LLM tokens.
+   - `CsvStream::download()` dan `CsvStream::parse()`: streaming export/import CSV memory-safe dengan BOM UTF-8 untuk Excel.
+   - Global helpers: `csv_download()` dan `csv_parse()`.
+4. **Vector Store & Semantic Embeddings Engine (`Core\Vector\`)**:
+   - `SqliteVectorDriver`: penyimpanan vector embeddings di tabel `vector_embeddings` (BLOB format) dengan kalkulasi Cosine Similarity murni PHP (zero external C-extension dependency, 100% offline-first).
+   - Global helper: `vector_store(?string $driver = null)`.
+5. **Graph & Hierarchy Traversal Engine (`Core\Graph\GraphHelper`)**:
+   - Penelusuran pohon dan graf relasional: `getDescendants()`, `getAncestors()`, `buildTree()` untuk nested view, dan `detectCycle()` untuk mencegah infinite recursive loop pada struktur BOM/organisasi.
+6. **Universal AI Gateway & LLM Orchestrator (`Core\Ai\`)**:
+   - `AiManager`: Abstraksi unified AI gateway dengan metode `chat()`, `stream()`, `embed()`, dan `extractJson()`.
+   - Drivers: `MockAiDriver` (deterministik untuk unit test), `OpenAiDriver` & `GeminiDriver` (REST API native tanpa external vendor SDK).
+   - Global helper: `ai(?string $driver = null)`.
 
 ---
 
-## 🚀 Rencana Eksekusi Sesi Berikutnya: SPEC-016 (Template Packaging & Release)
+## 🚀 Rencana Langkah Berikutnya:
+Core Platform kini telah memiliki seluruh fondasi lengkap untuk:
+- Relasional Enterprise & Multi-Koneksi
+- Vector Store untuk AI / RAG / Knowledge Base
+- Graph Traversal untuk Struktur Organisasi / BOM
+- Streaming Real-Time (SSE) & Ekspor/Impor CSV
+- AI Gateway (OpenAI, Gemini, Mock)
 
-Target utama adalah menyegel fondasi repositori aio menjadi open-source template SaaS multi-tenant yang siap di-fork dan dipakai langsung oleh developer.
-- Buat branch: `feat/016-template-packaging-and-release`
-- Buka dan review checklist [`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md):
-  1. **Dynamic Branding Configuration**: Ambil nama aplikasi dan logo dari file konfigurasi `config('app.name')` dan `config('app.logo')` pada landing page dan navbar dashboard.
-  2. **Interactive CLI Installer Wizard**: Perintah `php aio app:install` untuk inisialisasi `.env`, generate `APP_KEY`, migrasi tabel master, dan wizard pembuatan Superadmin pertama kali.
-  3. **Database Sanitization & Clean Seeder**: Sediakan command `php aio db:clean` atau seeder template yang bersih dari data dummy developer namun siap dipakai produksi.
-  4. **Dokumentasi Pengembang (`docs/MODULE_DEVELOPMENT.md`)**: Panduan langkah demi langkah membuat modul baru mandiri di aio.
-  5. **Release Checklist & Git Tag**: Buat tag `v1.0.0-core` setelah seluruh pengujian akhir lulus 100%.
-
----
-
-## 🎯 Instruksi Untuk Langkah Segera Saat Sesi Baru Dimulai (Immediate Next Step)
-1. Sambut pengguna dengan mengonfirmasi bahwa **Core Platform telah direview, dimitigasi, 100% sinkron, dan lulus 247 automated tests**.
-2. Buat branch baru `feat/016-template-packaging-and-release`.
-3. Mulai eksekusi Phase 1 dari SPEC-016: Dynamic Branding via Config & Landing Page cleanup.
+Sistem siap melanjutkan ke perancangan modul-modul bisnis baru (seperti CRM, Invoicing, Inventory, Knowledge Base AI, dsb.) atau eksekusi SPEC-016 saat diinginkan rilis template publik.
