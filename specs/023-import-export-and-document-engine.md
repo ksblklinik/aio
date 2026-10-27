@@ -1,6 +1,6 @@
 # SPEC-023: Universal Streamed Import-Export and Pure-PHP Printable Document Engine
 
-- **Status**: `In Progress`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity Platform Team
 - **Tanggal Dibuat**: 2026-10-27
 - **Target File / Modul**: `core/Export/`, `core/Document/`, `core/helpers.php`
@@ -94,20 +94,20 @@ Menempatkan kapabilitas Streaming Import/Export dan Printable Document Engine di
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Universal Import/Export Engine (`Core\Export\`)**
-  - [ ] 1.1 Buat `Core\Export\CsvExporter` dengan kemampuan stream file dan browser download.
-  - [ ] 1.2 Buat `Core\Export\ExcelExporter` dengan format SpreadsheetML XML murni PHP.
-  - [ ] 1.3 Buat `Core\Export\CsvImporter` dengan parsing pointer stream dan validasi baris.
-  - [ ] 1.4 Buat `Core\Export\ExporterManager` sebagai fasad terpadu.
-- [ ] **Phase 2: Pure-PHP Printable Document Engine (`Core\Document\`)**
-  - [ ] 2.1 Buat `Core\Document\DocumentBuilder` dengan fluent API untuk metadata, tabel item, total, watermark, dan catatan kaki.
-  - [ ] 2.2 Implementasikan template layout: `a4`, `thermal_58mm`, `thermal_80mm`, dan `receipt`.
-  - [ ] 2.3 Integrasikan penyematan QR code SVG (`qr_code()`) dan Barcode Code-128 (`barcode()`).
-- [ ] **Phase 3: Service Providers & Helpers**
-  - [ ] 3.1 Daftarkan layanan ke `core/Foundation/Application.php`.
-  - [ ] 3.2 Tambahkan helper functions `exporter()` dan `document()` ke `core/helpers.php`.
-- [ ] **Phase 4: Unit Testing & Self-Verification**
-  - [ ] 4.1 Buat unit test komprehensif di `tests/Unit/CoreImportExportAndDocumentTest.php`.
-  - [ ] 4.2 Jalankan `./scripts/verify.ps1`, pastikan seluruh test suite lolos 100%.
-  - [ ] 4.3 Buat git commit atomik dan merge branch fitur ke `main`.
-  - [ ] 4.4 Perbarui dokumentasi spec dan `SESSION_HANDOFF.md`.
+- [x] **Phase 1: Universal Import/Export Engine (`Core\Export\`)**
+  - [x] 1.1 Buat `Core\Export\CsvExporter` dengan kemampuan stream file dan browser download.
+  - [x] 1.2 Buat `Core\Export\ExcelExporter` dengan format SpreadsheetML XML murni PHP.
+  - [x] 1.3 Buat `Core\Export\CsvImporter` dengan parsing pointer stream dan validasi baris.
+  - [x] 1.4 Buat `Core\Export\ExporterManager` sebagai fasad terpadu.
+- [x] **Phase 2: Pure-PHP Printable Document Engine (`Core\Document\`)**
+  - [x] 2.1 Buat `Core\Document\DocumentBuilder` dengan fluent API untuk metadata, tabel item, total, watermark, dan catatan kaki.
+  - [x] 2.2 Implementasikan template layout: `a4`, `thermal_58mm`, `thermal_80mm`, dan `receipt`.
+  - [x] 2.3 Integrasikan penyematan QR code SVG (`qr_code()`) dan Barcode Code-128 (`barcode()`).
+- [x] **Phase 3: Service Providers & Helpers**
+  - [x] 3.1 Daftarkan layanan ke `core/Foundation/Application.php`.
+  - [x] 3.2 Tambahkan helper functions `exporter()` dan `document()` ke `core/helpers.php`.
+- [x] **Phase 4: Unit Testing & Self-Verification**
+  - [x] 4.1 Buat unit test komprehensif di `tests/Unit/CoreImportExportAndDocumentTest.php`.
+  - [x] 4.2 Jalankan `./scripts/verify.ps1`, pastikan seluruh test suite lolos 100%.
+  - [x] 4.3 Buat git commit atomik dan merge branch fitur ke `main`.
+  - [x] 4.4 Perbarui dokumentasi spec dan `SESSION_HANDOFF.md`.
