@@ -666,6 +666,42 @@ if (!function_exists('custom_fields')) {
     }
 }
 
+if (!function_exists('payment')) {
+    /**
+     * Helper global untuk Payment Gateway Manager atau eksekusi driver spesifik
+     */
+    function payment(?string $driver = null): \Core\Payment\PaymentManager|\Core\Payment\PaymentDriverInterface
+    {
+        /** @var \Core\Payment\PaymentManager $manager */
+        $manager = app(\Core\Payment\PaymentManager::class);
+        if ($driver !== null) {
+            return $manager->driver($driver);
+        }
+        return $manager;
+    }
+}
+
+if (!function_exists('quota')) {
+    /**
+     * Helper global untuk Feature Entitlement & Usage Quota Engine
+     */
+    function quota(?int $tenantId = null): \Core\Billing\QuotaManager
+    {
+        return app(\Core\Billing\QuotaManager::class);
+    }
+}
+
+if (!function_exists('ledger')) {
+    /**
+     * Helper global untuk Universal Atomic Financial Ledger Engine
+     */
+    function ledger(): \Core\Ledger\LedgerManager
+    {
+        return app(\Core\Ledger\LedgerManager::class);
+    }
+}
+
+
 
 
 

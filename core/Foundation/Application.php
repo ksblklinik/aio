@@ -358,6 +358,23 @@ class Application
                 $c->get(TenantContext::class)
             );
         });
+
+        // Unified Payment Gateway Driver Contract & Manager
+        $c->singleton(\Core\Payment\PaymentManager::class, function ($c) {
+            return new \Core\Payment\PaymentManager(
+                $c->get(Connection::class),
+                $c->get(\Core\Ledger\LedgerManager::class),
+                $c->get(TenantContext::class)
+            );
+        });
+
+        // Tenant Feature Entitlement & Usage Quota Engine
+        $c->singleton(\Core\Billing\QuotaManager::class, function ($c) {
+            return new \Core\Billing\QuotaManager(
+                $c->get(Connection::class),
+                $c->get(TenantContext::class)
+            );
+        });
     }
 
     public function registerModuleProviders(): void

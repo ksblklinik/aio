@@ -1,6 +1,6 @@
 # SPEC-022: Unified Payment Gateway Driver Contract & Quota Entitlements Engine
 
-- **Status**: `In Progress`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity Platform Team
 - **Tanggal Dibuat**: 2026-10-27
 - **Target File / Modul**: `core/Payment/`, `core/Billing/`, `core/helpers.php`, `database/migrations/`
@@ -138,19 +138,19 @@ Menempatkan kedua kapabilitas ini di Core mencegah *Infrastructure Leakage* (Rul
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Database Migration & Contracts**
-  - [ ] 1.1 Buat skema migrasi `2026_10_27_000019_create_payment_and_quota_tables.sql` untuk transaksi pembayaran, feature entitlements, dan tenant quotas.
-  - [ ] 1.2 Jalankan migrasi ke `database.sqlite`.
-  - [ ] 1.3 Buat interface `Core\Payment\PaymentDriverInterface`, DTO `PaymentRequest`, `PaymentResponse`, dan `WebhookResult`.
-- [ ] **Phase 2: Payment Gateway Engine**
-  - [ ] 2.1 Buat driver `MockPaymentDriver` untuk simulasi offline-first.
-  - [ ] 2.2 Buat driver `ManualTransferDriver` untuk alur bukti transfer / verifikasi manual.
-  - [ ] 2.3 Buat manager `Core\Payment\PaymentManager` dengan registrasi driver, resolusi multi-tenant, dan rekonsiliasi ledger otomatis.
-- [ ] **Phase 3: Quota & Entitlement Engine**
-  - [ ] 3.1 Buat service `Core\Billing\QuotaManager` dengan feature gating boolean dan numeric usage metering dengan auto-reset siklus.
-  - [ ] 3.2 Tambahkan helper functions `payment()` dan `quota()` ke `core/helpers.php`.
-- [ ] **Phase 4: Unit Testing & Self-Verification**
-  - [ ] 4.1 Buat unit test komprehensif di `tests/Unit/CorePaymentAndQuotaTest.php`.
-  - [ ] 4.2 Jalankan `./scripts/verify.ps1`, pastikan seluruh test suite lolos 100%.
-  - [ ] 4.3 Buat git commit atomik dan merge branch fitur ke `main`.
-  - [ ] 4.4 Perbarui dokumentasi spec dan `SESSION_HANDOFF.md`.
+- [x] **Phase 1: Database Migration & Contracts**
+  - [x] 1.1 Buat skema migrasi `2026_10_27_000019_create_payment_and_quota_tables.sql` untuk transaksi pembayaran, feature entitlements, dan tenant quotas.
+  - [x] 1.2 Jalankan migrasi ke `database.sqlite`.
+  - [x] 1.3 Buat interface `Core\Payment\PaymentDriverInterface`, DTO `PaymentRequest`, `PaymentResponse`, dan `WebhookResult`.
+- [x] **Phase 2: Payment Gateway Engine**
+  - [x] 2.1 Buat driver `MockPaymentDriver` untuk simulasi offline-first.
+  - [x] 2.2 Buat driver `ManualTransferDriver` untuk alur bukti transfer / verifikasi manual.
+  - [x] 2.3 Buat manager `Core\Payment\PaymentManager` dengan registrasi driver, resolusi multi-tenant, dan rekonsiliasi ledger otomatis.
+- [x] **Phase 3: Quota & Entitlement Engine**
+  - [x] 3.1 Buat service `Core\Billing\QuotaManager` dengan feature gating boolean dan numeric usage metering dengan auto-reset siklus.
+  - [x] 3.2 Tambahkan helper functions `payment()` dan `quota()` ke `core/helpers.php`.
+- [x] **Phase 4: Unit Testing & Self-Verification**
+  - [x] 4.1 Buat unit test komprehensif di `tests/Unit/CorePaymentAndQuotaTest.php`.
+  - [x] 4.2 Jalankan `./scripts/verify.ps1`, pastikan seluruh test suite lolos 100%.
+  - [x] 4.3 Buat git commit atomik dan merge branch fitur ke `main`.
+  - [x] 4.4 Perbarui dokumentasi spec dan `SESSION_HANDOFF.md`.
