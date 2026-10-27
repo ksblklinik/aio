@@ -765,14 +765,22 @@ if (!function_exists('totp')) {
     }
 }
 
+if (!function_exists('integrity')) {
+    /**
+     * Helper global untuk Device Integrity & Anti-Fraud Toolkit
+     */
+    function integrity(): \Core\Security\IntegrityGuard
+    {
+        return app(\Core\Security\IntegrityGuard::class);
+    }
+}
 
-
-
-
-
-
-
-
-
-
-
+if (!function_exists('is_disposable_email')) {
+    /**
+     * Helper global untuk mendeteksi email sementara (disposable / burner email)
+     */
+    function is_disposable_email(string $email): bool
+    {
+        return integrity()->isDisposableEmail($email);
+    }
+}

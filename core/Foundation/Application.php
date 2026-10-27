@@ -393,6 +393,12 @@ class Application
             return new \Core\Security\Totp();
         });
 
+        // Device Integrity & Anti-Fraud Guard
+        $c->singleton(\Core\Security\IntegrityGuard::class, function () {
+            $key = (string) (config('app.key') ?: env('APP_KEY', 'aio-universal-secret-key-32chars!!'));
+            return new \Core\Security\IntegrityGuard($key);
+        });
+
         // Security Middlewares
         $c->singleton(\Core\Middleware\SecurityHeaders::class, fn() => new \Core\Middleware\SecurityHeaders());
         $c->singleton(\Core\Middleware\SanitizeInput::class, fn() => new \Core\Middleware\SanitizeInput());

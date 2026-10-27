@@ -37,6 +37,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 023 | [023-import-export-and-document-engine.md](file:///c:/aplikasi/aio/specs/023-import-export-and-document-engine.md) | Universal Streamed Import-Export and Pure-PHP Printable Document Engine | `Completed` | 2026-10-27 |
 | 024 | [024-device-integration-toolkit.md](file:///c:/aplikasi/aio/specs/024-device-integration-toolkit.md) | Core Device Integration Toolkit & Hardware Interoperability | `Completed` | 2026-10-27 |
 | 025 | [025-advanced-security-hardening.md](file:///c:/aplikasi/aio/specs/025-advanced-security-hardening.md) | Advanced Platform Security Hardening | `Completed` | 2026-10-27 |
+| 026 | [026-device-integrity-and-anti-fraud.md](file:///c:/aplikasi/aio/specs/026-device-integrity-and-anti-fraud.md) | Core Device Integrity & Anti-Fraud Toolkit | `Completed` | 2026-10-27 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 
