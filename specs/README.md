@@ -30,6 +30,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 016 | [016-template-packaging-and-release.md](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md) | Template Packaging, Documentation & Release Checklist | `Deferred` | 2026-10-26 |
 | 017 | [017-core-enterprise-ai-and-interop.md](file:///c:/aplikasi/aio/specs/017-core-enterprise-ai-and-interop.md) | Core Enterprise Data, AI Gateway, and Interoperability Engine | `Completed` | 2026-10-27 |
 | 018 | [018-geo-ledger-and-idempotency.md](file:///c:/aplikasi/aio/specs/018-geo-ledger-and-idempotency.md) | Geolocation Engine, Atomic Financial Ledger, and Idempotency Guard | `Completed` | 2026-10-27 |
+| 019 | [019-lightweight-workflow-engine.md](file:///c:/aplikasi/aio/specs/019-lightweight-workflow-engine.md) | Lightweight Workflow Engine and Transition Guard | `Completed` | 2026-10-27 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 
