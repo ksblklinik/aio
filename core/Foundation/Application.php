@@ -304,6 +304,22 @@ class Application
             $manager->setDriver('mock', $mockDriver);
             return $manager;
         });
+
+        // Universal Atomic Financial Ledger Engine
+        $c->singleton(\Core\Ledger\LedgerManager::class, function ($c) {
+            return new \Core\Ledger\LedgerManager(
+                $c->get(Connection::class),
+                $c->get(TenantContext::class)
+            );
+        });
+
+        // Idempotency Guard Middleware
+        $c->singleton(\Core\Middleware\IdempotentRequest::class, function ($c) use ($base) {
+            return new \Core\Middleware\IdempotentRequest(
+                $base . '/storage/framework/idempotency',
+                $c->get(TenantContext::class)
+            );
+        });
     }
 
     public function registerModuleProviders(): void

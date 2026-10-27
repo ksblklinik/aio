@@ -1,6 +1,6 @@
 # SPEC-018: Geolocation Engine, Atomic Financial Ledger, and Idempotency Guard
 
-- **Status**: `In Progress`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity & Lead Architect
 - **Tanggal Dibuat**: 2026-10-27
 - **Target File / Modul**: `core/Geo`, `core/Ledger`, `core/Middleware`, `core/helpers.php`
@@ -114,21 +114,22 @@ DROP TABLE IF EXISTS ledgers;
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Geolocation Math Engine**
-  - [ ] 1.1 Buat class `Core\Geo\Geo` dengan rumus Haversine (`distance`, `inRadius`, `bearing`).
-  - [ ] 1.2 Buat helper global `geo_distance()` dan `geo_in_radius()` di `core/helpers.php`.
+- [x] **Phase 1: Geolocation Math Engine**
+  - [x] 1.1 Buat class `Core\Geo\Geo` dengan rumus Haversine (`distance`, `inRadius`, `bearing`).
+  - [x] 1.2 Buat helper global `geo_distance()` dan `geo_in_radius()` di `core/helpers.php`.
 
-- [ ] **Phase 2: Atomic Financial Ledger Engine**
-  - [ ] 2.1 Buat migrasi `database/migrations/2026_10_27_000016_create_ledger_tables.sql`.
-  - [ ] 2.2 Buat class `Core\Ledger\LedgerManager` dengan operasi atomik transaksional.
-  - [ ] 2.3 Buat helper global `ledger()` di `core/helpers.php`.
-  - [ ] 2.4 Daftarkan `LedgerManager` di `core/Foundation/Application.php`.
+- [x] **Phase 2: Atomic Financial Ledger Engine**
+  - [x] 2.1 Buat migrasi `database/migrations/2026_10_27_000016_create_ledger_tables.sql`.
+  - [x] 2.2 Buat class `Core\Ledger\LedgerManager` dengan operasi atomik transaksional.
+  - [x] 2.3 Buat helper global `ledger()` di `core/helpers.php`.
+  - [x] 2.4 Daftarkan `LedgerManager` di `core/Foundation/Application.php`.
 
-- [ ] **Phase 3: Idempotency Guard Middleware**
-  - [ ] 3.1 Buat middleware `Core\Middleware\IdempotentRequest` berbasis storage file cache TTL.
-  - [ ] 3.2 Registrasikan alias middleware `idempotent` di `Core\Router` dan `Application.php`.
+- [x] **Phase 3: Idempotency Guard Middleware**
+  - [x] 3.1 Buat middleware `Core\Middleware\IdempotentRequest` berbasis storage file cache TTL.
+  - [x] 3.2 Registrasikan alias middleware `idempotent` di `Core\Router` dan `Application.php`.
 
-- [ ] **Phase 4: Comprehensive TDD & Verification**
-  - [ ] 4.1 Buat test suite di `tests/Unit/CoreGeoLedgerAndIdempotencyTest.php`.
-  - [ ] 4.2 Jalankan PHPUnit test suite (target: 100% PASS).
-  - [ ] 4.3 Jalankan `./scripts/verify.ps1`, update checklist, dan merge ke `main`.
+- [x] **Phase 4: Comprehensive TDD & Verification**
+  - [x] 4.1 Buat test suite di `tests/Unit/CoreGeoLedgerAndIdempotencyTest.php`.
+  - [x] 4.2 Jalankan PHPUnit test suite (target: 100% PASS).
+  - [x] 4.3 Jalankan `./scripts/verify.ps1`, update checklist, dan merge ke `main`.
+

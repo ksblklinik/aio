@@ -173,6 +173,17 @@ class Router
                 return $closure($request, $next);
             }
 
+            if ($middleware === 'idempotent' || str_starts_with($middleware, 'idempotent:')) {
+                $ttl = 86400;
+                if (str_starts_with($middleware, 'idempotent:')) {
+                    $ttl = max(60, (int) substr($middleware, 11));
+                }
+                $instance = $this->container && $this->container->has(\Core\Middleware\IdempotentRequest::class)
+                    ? $this->container->get(\Core\Middleware\IdempotentRequest::class)
+                    : new \Core\Middleware\IdempotentRequest();
+                return $instance->handle($request, $next, $ttl);
+            }
+
             if ($this->container) {
                 $instance = $this->container->get($middleware);
                 if (is_callable([$instance, 'handle'])) {

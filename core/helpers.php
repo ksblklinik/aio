@@ -559,6 +559,40 @@ if (!function_exists('ai')) {
     }
 }
 
+if (!function_exists('geo_distance')) {
+    /**
+     * Helper global untuk menghitung jarak antara dua koordinat GPS (Haversine)
+     *
+     * @param string $unit 'km' | 'm' | 'miles'
+     */
+    function geo_distance(float $lat1, float $lng1, float $lat2, float $lng2, string $unit = 'km'): float
+    {
+        return \Core\Geo\Geo::distance($lat1, $lng1, $lat2, $lng2, $unit);
+    }
+}
+
+if (!function_exists('geo_in_radius')) {
+    /**
+     * Helper global untuk memeriksa apakah titik koordinat berada di dalam radius geofence
+     */
+    function geo_in_radius(float $checkLat, float $checkLng, float $centerLat, float $centerLng, float $radiusMeters): bool
+    {
+        return \Core\Geo\Geo::inRadius($checkLat, $checkLng, $centerLat, $centerLng, $radiusMeters);
+    }
+}
+
+if (!function_exists('ledger')) {
+    /**
+     * Helper global untuk mengakses layanan pembukuan saldo atomik (Ledger)
+     */
+    function ledger(): \Core\Ledger\LedgerManager
+    {
+        return app(\Core\Ledger\LedgerManager::class);
+    }
+}
+
+
+
 
 
 
