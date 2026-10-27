@@ -784,3 +784,13 @@ if (!function_exists('is_disposable_email')) {
         return integrity()->isDisposableEmail($email);
     }
 }
+
+if (!function_exists('contacts')) {
+    /**
+     * Helper global untuk Universal Contact & Role Registry
+     */
+    function contacts(): \App\Modules\Contact\Contracts\ContactRegistryInterface
+    {
+        return app(\App\Modules\Contact\Contracts\ContactRegistryInterface::class);
+    }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "contact",
+  "name": "Kontak & Relasi",
+  "version": "1.0.0",
+  "author": "aio Platform",
+  "description": "Universal Contact & Role Registry untuk entitas individu dan organisasi multi-tenant.",
+  "category": "people",
+  "icon": "Users",
+  "route": "/contacts",
+  "dependencies": ["auth", "workspaces"],
+  "is_core": false,
+  "is_active": true,
+  "table_name": "contacts",
+  "provider": "App\\Modules\\Contact\\ContactServiceProvider"
+}

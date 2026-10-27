@@ -159,6 +159,14 @@ class Request
         return $this->bodyParams[$key] ?? $this->queryParams[$key] ?? $default;
     }
 
+    public function json(?string $key = null, mixed $default = null): mixed
+    {
+        if ($key === null) {
+            return $this->bodyParams;
+        }
+        return $this->bodyParams[$key] ?? $default;
+    }
+
     public function has(string $key): bool
     {
         return array_key_exists($key, $this->bodyParams) || array_key_exists($key, $this->queryParams);

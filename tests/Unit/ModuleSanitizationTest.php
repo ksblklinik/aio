@@ -22,7 +22,7 @@ class ModuleSanitizationTest extends TestCase
         $folders = scandir($this->modulesPath) ?: [];
         $moduleFolders = array_filter($folders, fn($f) => !in_array($f, ['.', '..'], true) && is_dir($this->modulesPath . '/' . $f));
 
-        $this->assertCount(8, $moduleFolders, 'Harus ada tepat 8 folder modul');
+        $this->assertCount(9, $moduleFolders, 'Harus ada tepat 9 folder modul');
 
         $requiredKeys = ['id', 'name', 'version', 'author', 'category', 'icon', 'route', 'is_core', 'is_active'];
 
@@ -49,10 +49,10 @@ class ModuleSanitizationTest extends TestCase
         $moduleManager = new ModuleManager($pdo, $this->modulesPath);
 
         $modules = $moduleManager->listModules();
-        $this->assertCount(8, $modules, 'ModuleManager harus memuat dan menyinkronkan ke-8 modul');
+        $this->assertCount(9, $modules, 'ModuleManager harus memuat dan menyinkronkan ke-9 modul');
 
         $moduleIds = array_column($modules, 'id');
-        $expectedIds = ['projects', 'modules', 'auth', 'workspaces', 'activity', 'notifications', 'settings', 'api'];
+        $expectedIds = ['projects', 'modules', 'auth', 'workspaces', 'activity', 'notifications', 'settings', 'api', 'contact'];
 
         foreach ($expectedIds as $expectedId) {
             $this->assertContains($expectedId, $moduleIds, "Modul ID '{$expectedId}' harus terdaftar di ModuleManager");

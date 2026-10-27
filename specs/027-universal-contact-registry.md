@@ -1,6 +1,6 @@
 # SPEC-027: Universal Contact & Role Registry
 
-- **Status**: `In Progress`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity Platform Team
 - **Tanggal Dibuat**: 2026-10-27
 - **Target Modul**: `app/Modules/Contact/`
@@ -145,21 +145,21 @@ interface ContactRegistryInterface
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Module Scaffolding & Database Migration**
-  - [ ] 1.1 Buat manifest modul `app/Modules/Contact/module.json` dan daftarkan provider `ContactServiceProvider`.
-  - [ ] 1.2 Buat file migrasi SQL: `2026_10_27_000021_create_contacts_tables.sql` (`contacts`, `contact_roles`, `contact_addresses`, `contact_relations`).
-  - [ ] 1.3 Jalankan migrasi via `php aio migrate`.
-- [ ] **Phase 2: Domain Models & Contract Definition**
-  - [ ] 2.1 Buat interface kontrak `App\Modules\Contact\Contracts\ContactRegistryInterface`.
-  - [ ] 2.2 Buat model `Contact`, `ContactRole`, `ContactAddress`, dan `ContactRelation` dengan tenant scoping & PII mutator encryption.
-- [ ] **Phase 3: Service Layer & Implementation**
-  - [ ] 3.1 Implementasikan `App\Modules\Contact\Services\ContactService` yang mengimplementasikan `ContactRegistryInterface`.
-  - [ ] 3.2 Daftarkan singleton service di container aplikasi dan sediakan global helper `contacts(): ContactRegistryInterface`.
-- [ ] **Phase 4: Web UI & REST API Controllers**
-  - [ ] 4.1 Buat `ContactController` dan view antarmuka manajemen kontak (`index.php`, form drawer/modal).
-  - [ ] 4.2 Buat endpoint REST API `/api/contacts` untuk autocomplete & pencarian data instan oleh modul lain.
-- [ ] **Phase 5: Unit Testing & Self-Verification**
-  - [ ] 5.1 Buat unit test komprehensif di `tests/Unit/ContactModuleTest.php`.
-  - [ ] 5.2 Jalankan `./scripts/verify.ps1`, pastikan seluruh test lolos 100%.
-  - [ ] 5.3 Lakukan atomic commit dan merge branch fitur ke `main`.
-  - [ ] 5.4 Perbarui dokumentasi spec dan `SESSION_HANDOFF.md`.
+- [x] **Phase 1: Module Scaffolding & Database Migration**
+  - [x] 1.1 Buat manifest modul `app/Modules/Contact/module.json` dan daftarkan provider `ContactServiceProvider`.
+  - [x] 1.2 Buat file migrasi SQL: `2026_10_27_000021_create_contacts_tables.sql` (`contacts`, `contact_roles`, `contact_addresses`, `contact_relations`).
+  - [x] 1.3 Jalankan migrasi via `php aio migrate`.
+- [x] **Phase 2: Domain Models & Contract Definition**
+  - [x] 2.1 Buat interface kontrak `App\Modules\Contact\Contracts\ContactRegistryInterface`.
+  - [x] 2.2 Buat model `Contact`, `ContactRole`, `ContactAddress`, dan `ContactRelation` dengan tenant scoping & PII mutator encryption.
+- [x] **Phase 3: Service Layer & Implementation**
+  - [x] 3.1 Implementasikan `App\Modules\Contact\Services\ContactService` yang mengimplementasikan `ContactRegistryInterface`.
+  - [x] 3.2 Daftarkan singleton service di container aplikasi dan sediakan global helper `contacts(): ContactRegistryInterface`.
+- [x] **Phase 4: Web UI & REST API Controllers**
+  - [x] 4.1 Buat `ContactController` dan view antarmuka manajemen kontak (`index.php`, form drawer/modal).
+  - [x] 4.2 Buat endpoint REST API `/api/contacts` untuk autocomplete & pencarian data instan oleh modul lain.
+- [x] **Phase 5: Unit Testing & Self-Verification**
+  - [x] 5.1 Buat unit test komprehensif di `tests/Unit/ContactModuleTest.php`.
+  - [x] 5.2 Jalankan `./scripts/verify.ps1`, pastikan seluruh test lolos 100%.
+  - [x] 5.3 Lakukan atomic commit dan merge branch fitur ke `main`.
+  - [x] 5.4 Perbarui dokumentasi spec dan `SESSION_HANDOFF.md`.
