@@ -731,6 +731,41 @@ if (!function_exists('escpos')) {
     }
 }
 
+if (!function_exists('encrypt')) {
+    /**
+     * Helper global untuk enkripsi data terotentikasi AES-256-GCM
+     */
+    function encrypt(mixed $value, bool $serialize = true): string
+    {
+        /** @var \Core\Security\Encrypter $encrypter */
+        $encrypter = app(\Core\Security\Encrypter::class);
+        return $encrypter->encrypt($value, $serialize);
+    }
+}
+
+if (!function_exists('decrypt')) {
+    /**
+     * Helper global untuk dekripsi payload terotentikasi AES-256-GCM
+     */
+    function decrypt(string $payload): mixed
+    {
+        /** @var \Core\Security\Encrypter $encrypter */
+        $encrypter = app(\Core\Security\Encrypter::class);
+        return $encrypter->decrypt($payload);
+    }
+}
+
+if (!function_exists('totp')) {
+    /**
+     * Helper global untuk Native Two-Factor Authentication (TOTP RFC 6238)
+     */
+    function totp(): \Core\Security\Totp
+    {
+        return app(\Core\Security\Totp::class);
+    }
+}
+
+
 
 
 

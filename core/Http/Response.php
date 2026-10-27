@@ -153,6 +153,11 @@ class Response
         return $this;
     }
 
+    public function header(string $name, string $value): self
+    {
+        return $this->setHeader($name, $value);
+    }
+
     public function getStreamCallback(): ?callable
     {
         return $this->streamCallback;

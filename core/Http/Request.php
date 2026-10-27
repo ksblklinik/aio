@@ -231,4 +231,21 @@ class Request
     {
         return $this->attributes[$key] ?? $default;
     }
+
+    public function isSecure(): bool
+    {
+        return (!empty($this->serverParams['HTTPS']) && strtolower((string) $this->serverParams['HTTPS']) !== 'off')
+            || (isset($this->serverParams['SERVER_PORT']) && (int) $this->serverParams['SERVER_PORT'] === 443)
+            || ($this->header('x-forwarded-proto') === 'https');
+    }
+
+    public function setQueryParams(array $params): void
+    {
+        $this->queryParams = $params;
+    }
+
+    public function setBodyParams(array $params): void
+    {
+        $this->bodyParams = $params;
+    }
 }
