@@ -349,4 +349,80 @@ if (!function_exists('audit')) {
     }
 }
 
+if (!function_exists('base_path')) {
+    /**
+     * Helper global untuk mendapatkan path absolut root aplikasi
+     */
+    function base_path(string $path = ''): string
+    {
+        $base = dirname(__DIR__);
+        return $path !== '' ? $base . '/' . ltrim($path, '/\\') : $base;
+    }
+}
+
+if (!function_exists('app_path')) {
+    /**
+     * Helper global untuk mendapatkan path folder app
+     */
+    function app_path(string $path = ''): string
+    {
+        return base_path('app' . ($path !== '' ? '/' . ltrim($path, '/\\') : ''));
+    }
+}
+
+if (!function_exists('storage_path')) {
+    /**
+     * Helper global untuk mendapatkan path folder storage
+     */
+    function storage_path(string $path = ''): string
+    {
+        return base_path('storage' . ($path !== '' ? '/' . ltrim($path, '/\\') : ''));
+    }
+}
+
+if (!function_exists('public_path')) {
+    /**
+     * Helper global untuk mendapatkan path folder public
+     */
+    function public_path(string $path = ''): string
+    {
+        return base_path('public' . ($path !== '' ? '/' . ltrim($path, '/\\') : ''));
+    }
+}
+
+if (!function_exists('config_path')) {
+    /**
+     * Helper global untuk mendapatkan path folder config
+     */
+    function config_path(string $path = ''): string
+    {
+        return base_path('config' . ($path !== '' ? '/' . ltrim($path, '/\\') : ''));
+    }
+}
+
+if (!function_exists('resource_path')) {
+    /**
+     * Helper global untuk mendapatkan path folder resources
+     */
+    function resource_path(string $path = ''): string
+    {
+        return base_path('resources' . ($path !== '' ? '/' . ltrim($path, '/\\') : ''));
+    }
+}
+
+if (!function_exists('db')) {
+    /**
+     * Helper global untuk mengakses koneksi database atau scoped query builder
+     */
+    function db(?string $table = null): \Core\Database\Connection|\Core\Database\TenantScope
+    {
+        if ($table !== null) {
+            /** @var \Core\Database\TenantScope $scope */
+            $scope = app(\Core\Database\TenantScope::class);
+            return $scope;
+        }
+        return app(\Core\Database\Connection::class);
+    }
+}
+
 

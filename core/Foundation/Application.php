@@ -449,6 +449,14 @@ class Application
 
             return $pipeline($request);
         } catch (ValidationException $e) {
+            if ($request->wantsJson() && !$request->isInertia()) {
+                return Response::json([
+                    'error' => 'Validation Error',
+                    'message' => $e->firstError(),
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+
             $session->flash('errors', $e->errors());
             $session->flash('error', $e->firstError());
             $referer = $request->header('referer') ?: '/';

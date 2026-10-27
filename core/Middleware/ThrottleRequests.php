@@ -18,8 +18,9 @@ class ThrottleRequests
         if ($storageDir !== null) {
             $this->storageDir = rtrim($storageDir, '/\\');
         } else {
-            $baseStorage = dirname(__DIR__, 2) . '/storage/framework/ratelimit';
-            $this->storageDir = is_dir(dirname(__DIR__, 2) . '/storage') ? $baseStorage : (sys_get_temp_dir() . '/aio_ratelimit');
+            $this->storageDir = function_exists('storage_path') 
+                ? storage_path('framework/ratelimit') 
+                : (sys_get_temp_dir() . '/aio_ratelimit');
         }
 
         if (!is_dir($this->storageDir)) {
