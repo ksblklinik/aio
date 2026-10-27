@@ -794,3 +794,14 @@ if (!function_exists('contacts')) {
         return app(\App\Modules\Contact\Contracts\ContactRegistryInterface::class);
     }
 }
+
+if (!function_exists('finance')) {
+    /**
+     * Helper global untuk Universal Finance & Cash Flow Engine
+     */
+    function finance(): \App\Modules\Finance\Contracts\FinanceRegistryInterface
+    {
+        return app(\App\Modules\Finance\Contracts\FinanceRegistryInterface::class);
+    }
+}
+

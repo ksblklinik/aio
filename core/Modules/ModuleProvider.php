@@ -78,9 +78,8 @@ abstract class ModuleProvider implements ModuleProviderInterface
         if ($this->app->getContainer()->has(ConsoleKernel::class)) {
             $kernel = $this->app->getContainer()->get(ConsoleKernel::class);
             $kernel->registerCommand($command);
-        } else {
-            self::$deferredCommands[] = $command;
         }
+        self::$deferredCommands[] = $command;
     }
 
     public static function flushDeferredCommands(ConsoleKernel $kernel): void

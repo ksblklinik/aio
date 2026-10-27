@@ -1,0 +1,15 @@
+{
+  "id": "finance",
+  "name": "Keuangan & Kas",
+  "version": "1.0.0",
+  "author": "aio Platform",
+  "description": "Universal Finance, Cash Flow, dan Double-Entry Bookkeeping untuk pengelolaan kas multi-tenant.",
+  "category": "resources",
+  "icon": "Wallet",
+  "route": "/finance",
+  "dependencies": ["auth", "workspaces"],
+  "is_core": false,
+  "is_active": true,
+  "table_name": "financial_accounts",
+  "provider": "App\\Modules\\Finance\\FinanceServiceProvider"
+}
