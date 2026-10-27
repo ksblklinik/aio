@@ -39,6 +39,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 025 | [025-advanced-security-hardening.md](file:///c:/aplikasi/aio/specs/025-advanced-security-hardening.md) | Advanced Platform Security Hardening | `Completed` | 2026-10-27 |
 | 026 | [026-device-integrity-and-anti-fraud.md](file:///c:/aplikasi/aio/specs/026-device-integrity-and-anti-fraud.md) | Core Device Integrity & Anti-Fraud Toolkit | `Completed` | 2026-10-27 |
 | 027 | [027-universal-contact-registry.md](file:///c:/aplikasi/aio/specs/027-universal-contact-registry.md) | Universal Contact & Role Registry | `Completed` | 2026-10-27 |
+| 028 | [028-universal-finance-engine.md](file:///c:/aplikasi/aio/specs/028-universal-finance-engine.md) | Universal Finance & Cash Flow Engine | `Completed` | 2026-10-27 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 
