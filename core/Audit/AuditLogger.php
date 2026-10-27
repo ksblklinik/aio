@@ -73,6 +73,25 @@ class AuditLogger
 
         $jsonProperties = !empty($properties) ? json_encode($properties, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : null;
 
+        $createdAt = date('Y-m-d H:i:s');
+        $secretKey = (string) ($_ENV['APP_KEY'] ?? 'aio-audit-chain-key');
+
+        // Dapatkan current_hash dari baris terakhir untuk membentuk rantai kriptografis
+        $lastRow = $this->db->selectOne("SELECT current_hash FROM audit_logs ORDER BY id DESC LIMIT 1");
+        $prevHash = (string) ($lastRow['current_hash'] ?? '0000000000000000000000000000000000000000000000000000000000000000');
+
+        $hashPayload = implode('|', [
+            $prevHash,
+            $tenantId ?? 'null',
+            $userId ?? 'null',
+            $action,
+            $entityType ?? 'null',
+            $entityId ?? 'null',
+            $jsonProperties ?? '',
+            $createdAt,
+        ]);
+        $currentHash = hash_hmac('sha256', $hashPayload, $secretKey);
+
         $insertId = $this->db->insert('audit_logs', [
             'tenant_id' => $tenantId,
             'user_id' => $userId,
@@ -84,10 +103,84 @@ class AuditLogger
             'properties' => $jsonProperties,
             'ip_address' => $ipAddress,
             'user_agent' => $userAgent,
-            'created_at' => date('Y-m-d H:i:s'),
+            'prev_hash' => $prevHash,
+            'current_hash' => $currentHash,
+            'created_at' => $createdAt,
         ]);
 
         return (int) $insertId;
+    }
+
+    /**
+     * Verifikasi integritas rantai audit log (Tamper-Evident Verification).
+     * Mendeteksi jika ada baris log yang diubah langsung atau dihapus di basis data.
+     *
+     * @return array{valid: bool, broken_at_id: int|null, reason: string|null, verified_count: int}
+     */
+    public function verifyChain(): array
+    {
+        $rows = $this->db->selectAll("SELECT * FROM audit_logs WHERE current_hash IS NOT NULL ORDER BY id ASC");
+        if (empty($rows)) {
+            return [
+                'valid' => true,
+                'broken_at_id' => null,
+                'reason' => null,
+                'verified_count' => 0,
+            ];
+        }
+
+        $secretKey = (string) ($_ENV['APP_KEY'] ?? 'aio-audit-chain-key');
+        $expectedPrevHash = (string) $rows[0]['prev_hash'];
+        $verifiedCount = 0;
+
+        foreach ($rows as $row) {
+            $rowId = (int) $row['id'];
+            $storedPrev = (string) ($row['prev_hash'] ?? '');
+            $storedCurrent = (string) ($row['current_hash'] ?? '');
+
+            // 1. Verifikasi kontinuitas rantai dari hash sebelumnya
+            if ($storedPrev !== $expectedPrevHash) {
+                return [
+                    'valid' => false,
+                    'broken_at_id' => $rowId,
+                    'reason' => 'Previous hash pointer broken (missing or deleted log record)',
+                    'verified_count' => $verifiedCount,
+                ];
+            }
+
+            // 2. Verifikasi keaslian isi data baris ini
+            $jsonProps = $row['properties'];
+            $recalculatedPayload = implode('|', [
+                $storedPrev,
+                $row['tenant_id'] ?? 'null',
+                $row['user_id'] ?? 'null',
+                $row['action'],
+                $row['entity_type'] ?? 'null',
+                $row['entity_id'] ?? 'null',
+                $jsonProps ?? '',
+                $row['created_at'],
+            ]);
+            $expectedCurrentHash = hash_hmac('sha256', $recalculatedPayload, $secretKey);
+
+            if (!hash_equals($storedCurrent, $expectedCurrentHash)) {
+                return [
+                    'valid' => false,
+                    'broken_at_id' => $rowId,
+                    'reason' => 'Log content has been modified directly in database',
+                    'verified_count' => $verifiedCount,
+                ];
+            }
+
+            $expectedPrevHash = $storedCurrent;
+            $verifiedCount++;
+        }
+
+        return [
+            'valid' => true,
+            'broken_at_id' => null,
+            'reason' => null,
+            'verified_count' => $verifiedCount,
+        ];
     }
 
     /**

@@ -1,6 +1,6 @@
 # SPEC-026: Core Device Integrity & Anti-Fraud Toolkit
 
-- **Status**: `In Progress`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity Platform Team
 - **Tanggal Dibuat**: 2026-10-27
 - **Target File / Modul**: `core/Security/IntegrityGuard.php`, `core/Audit/AuditLogger.php`, `core/helpers.php`
@@ -80,16 +80,16 @@ Jika baris Log #2 diubah/dihapus manual via DBMS, rantai verifikasi Log #3 akan 
 
 ## 5. Atomic Task Checklist
 
-- [ ] **Phase 1: Database Migration untuk Audit Log Hash-Chaining**
-  - [ ] 1.1 Buat migrasi penambahan kolom `prev_hash` dan `current_hash` pada tabel `audit_logs`.
-- [ ] **Phase 2: Core Device Integrity & Anti-Fraud Engine (`core/Security/IntegrityGuard.php`)**
-  - [ ] 2.1 Buat class `Core\Security\IntegrityGuard` dengan fungsi Location Anti-Spoofing, Impossible Travel, Device Fingerprint, Time Drift, dan Disposable Email Filter.
-  - [ ] 2.2 Daftarkan singleton di `Application.php` dan tambahkan helper di `core/helpers.php`.
-- [ ] **Phase 3: Hash-Chained Audit Logging (`core/Audit/AuditLogger.php`)**
-  - [ ] 3.1 Integrasikan perhitungan rantai hash HMAC-SHA256 pada saat pencatatan audit log baru.
-  - [ ] 3.2 Buat method `verifyChain(?int $tenantId = null): array` untuk audit integritas database.
-- [ ] **Phase 4: Unit Testing & Self-Verification**
-  - [ ] 4.1 Buat unit test komprehensif di `tests/Unit/CoreDeviceIntegrityTest.php`.
-  - [ ] 4.2 Jalankan `./scripts/verify.ps1`, pastikan seluruh test lolos 100%.
-  - [ ] 4.3 Lakukan atomic commit dan merge branch fitur ke `main`.
-  - [ ] 4.4 Perbarui dokumentasi spec dan `SESSION_HANDOFF.md`.
+- [x] **Phase 1: Database Migration untuk Audit Log Hash-Chaining**
+  - [x] 1.1 Buat migrasi penambahan kolom `prev_hash` dan `current_hash` pada tabel `audit_logs`.
+- [x] **Phase 2: Core Device Integrity & Anti-Fraud Engine (`core/Security/IntegrityGuard.php`)**
+  - [x] 2.1 Buat class `Core\Security\IntegrityGuard` dengan fungsi Location Anti-Spoofing, Impossible Travel, Device Fingerprint, Time Drift, dan Disposable Email Filter.
+  - [x] 2.2 Daftarkan singleton di `Application.php` dan tambahkan helper di `core/helpers.php`.
+- [x] **Phase 3: Hash-Chained Audit Logging (`core/Audit/AuditLogger.php`)**
+  - [x] 3.1 Integrasikan perhitungan rantai hash HMAC-SHA256 pada saat pencatatan audit log baru.
+  - [x] 3.2 Buat method `verifyChain(?int $tenantId = null): array` untuk audit integritas database.
+- [x] **Phase 4: Unit Testing & Self-Verification**
+  - [x] 4.1 Buat unit test komprehensif di `tests/Unit/CoreDeviceIntegrityTest.php`.
+  - [x] 4.2 Jalankan `./scripts/verify.ps1`, pastikan seluruh test lolos 100%.
+  - [x] 4.3 Lakukan atomic commit dan merge branch fitur ke `main`.
+  - [x] 4.4 Perbarui dokumentasi spec dan `SESSION_HANDOFF.md`.
