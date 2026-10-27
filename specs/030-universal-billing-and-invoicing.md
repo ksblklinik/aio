@@ -179,10 +179,10 @@ interface BillingRegistryInterface
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Setup Modul, Arsitektur, & Database Migrations**
-  - [ ] 1.1 Buat manifest modul `app/Modules/Billing/module.json`.
-  - [ ] 1.2 Buat migration `app/Modules/Billing/Database/Migrations/create_billing_tables.php` untuk tabel `invoices`, `invoice_items`, dan `invoice_payments`.
-  - [ ] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
+- [x] **Phase 1: Setup Modul, Arsitektur, & Database Migrations**
+  - [x] 1.1 Buat manifest modul `app/Modules/Billing/module.json`.
+  - [x] 1.2 Buat migration `app/Modules/Billing/Database/Migrations/create_billing_tables.php` untuk tabel `invoices`, `invoice_items`, dan `invoice_payments`.
+  - [x] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
 - [ ] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
   - [ ] 2.1 Buat interface `App\Modules\Billing\Contracts\BillingRegistryInterface`.
   - [ ] 2.2 Buat Service Provider `App\Modules\Billing\BillingServiceProvider` dan daftarkan ke modul.
