@@ -805,3 +805,24 @@ if (!function_exists('finance')) {
     }
 }
 
+if (!function_exists('items')) {
+    /**
+     * Helper global untuk Universal Items, Catalog & Inventory Engine
+     */
+    function items(): \App\Modules\Inventory\Contracts\InventoryRegistryInterface
+    {
+        return app(\App\Modules\Inventory\Contracts\InventoryRegistryInterface::class);
+    }
+}
+
+if (!function_exists('inventory')) {
+    /**
+     * Alias helper global untuk Universal Items, Catalog & Inventory Engine
+     */
+    function inventory(): \App\Modules\Inventory\Contracts\InventoryRegistryInterface
+    {
+        return app(\App\Modules\Inventory\Contracts\InventoryRegistryInterface::class);
+    }
+}
+
+
