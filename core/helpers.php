@@ -825,4 +825,25 @@ if (!function_exists('inventory')) {
     }
 }
 
+if (!function_exists('billing')) {
+    /**
+     * Helper global untuk Universal Invoicing, Billing & Document Engine
+     */
+    function billing(): \App\Modules\Billing\Contracts\BillingRegistryInterface
+    {
+        return app(\App\Modules\Billing\Contracts\BillingRegistryInterface::class);
+    }
+}
+
+if (!function_exists('invoices')) {
+    /**
+     * Alias helper global untuk Universal Invoicing, Billing & Document Engine
+     */
+    function invoices(): \App\Modules\Billing\Contracts\BillingRegistryInterface
+    {
+        return app(\App\Modules\Billing\Contracts\BillingRegistryInterface::class);
+    }
+}
+
+
 

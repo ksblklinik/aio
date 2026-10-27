@@ -183,12 +183,12 @@ interface BillingRegistryInterface
   - [x] 1.1 Buat manifest modul `app/Modules/Billing/module.json`.
   - [x] 1.2 Buat migration `app/Modules/Billing/Database/Migrations/create_billing_tables.php` untuk tabel `invoices`, `invoice_items`, dan `invoice_payments`.
   - [x] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
-- [ ] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
-  - [ ] 2.1 Buat interface `App\Modules\Billing\Contracts\BillingRegistryInterface`.
-  - [ ] 2.2 Buat Service Provider `App\Modules\Billing\BillingServiceProvider` dan daftarkan ke modul.
-  - [ ] 2.3 Daftarkan helper global `billing()` dan `invoices()` di `core/helpers.php`.
-  - [ ] 2.4 Tulis test suite `tests/Unit/BillingModuleTest.php` mencakup pembuatan draft, issue, potong stok, pembayaran, integrasi finance, dan quick checkout.
-  - [ ] 2.5 Implementasikan `App\Modules\Billing\Services\BillingService` hingga seluruh skenario unit test lolos 100%.
+- [x] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
+  - [x] 2.1 Buat interface `App\Modules\Billing\Contracts\BillingRegistryInterface`.
+  - [x] 2.2 Buat Service Provider `App\Modules\Billing\BillingServiceProvider` dan daftarkan ke modul.
+  - [x] 2.3 Daftarkan helper global `billing()` dan `invoices()` di `core/helpers.php`.
+  - [x] 2.4 Tulis test suite `tests/Unit/BillingModuleTest.php` mencakup pembuatan draft, issue, potong stok, pembayaran, integrasi finance, dan quick checkout.
+  - [x] 2.5 Implementasikan `App\Modules\Billing\Services\BillingService` hingga seluruh skenario unit test lolos 100%.
 - [ ] **Phase 3: Web UI, Routes, & Programmatic REST API**
   - [ ] 3.1 Buat routes modul di `app/Modules/Billing/routes.php`.
   - [ ] 3.2 Implementasikan Web Controller `BillingController` untuk tampilan daftar tagihan, form faktur/kasir, dan cetak kuitansi.

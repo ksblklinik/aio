@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS invoice_payments (
     invoice_id INTEGER NOT NULL,
     payment_number TEXT NOT NULL,
     account_id INTEGER NULL,
-    cash_flow_id INTEGER NULL,
+    transaction_id INTEGER NULL,
     payment_method TEXT NOT NULL DEFAULT 'cash', -- 'cash', 'bank_transfer', 'qris', 'card', 'other'
     amount REAL NOT NULL,
     payment_date TEXT NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS invoice_payments (
     FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
     FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE,
     FOREIGN KEY (account_id) REFERENCES financial_accounts(id) ON DELETE SET NULL,
-    FOREIGN KEY (cash_flow_id) REFERENCES cash_flows(id) ON DELETE SET NULL
+    FOREIGN KEY (transaction_id) REFERENCES financial_transactions(id) ON DELETE SET NULL
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_inv_payments_tenant_num ON invoice_payments(tenant_id, payment_number);
