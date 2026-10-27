@@ -7,13 +7,21 @@ namespace Core\Http;
 class Response
 {
     /**
+     * @var (callable(): void)|null
+     */
+    private $streamCallback = null;
+
+    /**
      * @param array<string, string> $headers
+     * @param (callable(): void)|null $streamCallback
      */
     public function __construct(
         private string $body = '',
         private int $statusCode = 200,
-        private array $headers = []
+        private array $headers = [],
+        ?callable $streamCallback = null
     ) {
+        $this->streamCallback = $streamCallback;
     }
 
     public static function json(mixed $data, int $statusCode = 200, array $headers = []): self
@@ -33,6 +41,65 @@ class Response
     {
         $headers['Location'] = $url;
         return new self('', $statusCode, $headers);
+    }
+
+    /**
+     * Buat streaming response menggunakan callback generator / loop
+     *
+     * @param callable(): void $callback
+     * @param array<string, string> $headers
+     */
+    public static function stream(callable $callback, int $statusCode = 200, array $headers = []): self
+    {
+        return new self('', $statusCode, $headers, $callback);
+    }
+
+    /**
+     * Buat Server-Sent Events (SSE) streaming response untuk real-time update
+     *
+     * @param callable(callable(string|array, ?string, ?string): void): void $callback
+     * @param array<string, string> $headers
+     */
+    public static function sse(callable $callback, array $headers = []): self
+    {
+        $defaultHeaders = [
+            'Content-Type' => 'text/event-stream; charset=UTF-8',
+            'Cache-Control' => 'no-cache, no-transform',
+            'Connection' => 'keep-alive',
+            'X-Accel-Buffering' => 'no',
+        ];
+
+        $allHeaders = array_replace($defaultHeaders, $headers);
+
+        $sseRunner = function () use ($callback) {
+            $sender = function (string|array $data, ?string $event = null, ?string $id = null): void {
+                if ($id !== null) {
+                    echo "id: {$id}\n";
+                }
+                if ($event !== null) {
+                    echo "event: {$event}\n";
+                }
+
+                $payload = is_array($data) ? json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : $data;
+                // Multiple lines data support
+                $lines = explode("\n", (string) $payload);
+                foreach ($lines as $line) {
+                    echo "data: {$line}\n";
+                }
+                echo "\n";
+
+                if (php_sapi_name() !== 'cli') {
+                    if (function_exists('ob_flush') && ob_get_level() > 0) {
+                        @ob_flush();
+                    }
+                    flush();
+                }
+            };
+
+            $callback($sender);
+        };
+
+        return new self('', 200, $allHeaders, $sseRunner);
     }
 
     public function getStatusCode(): int
@@ -86,6 +153,11 @@ class Response
         return $this;
     }
 
+    public function getStreamCallback(): ?callable
+    {
+        return $this->streamCallback;
+    }
+
     /**
      * Kirim response ke output buffer browser / client
      */
@@ -97,6 +169,13 @@ class Response
                 header("{$name}: {$value}");
             }
         }
+
+        if ($this->streamCallback !== null) {
+            ($this->streamCallback)();
+            return;
+        }
+
         echo $this->body;
     }
 }
+

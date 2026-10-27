@@ -66,6 +66,11 @@ abstract class ModuleProvider implements ModuleProviderInterface
     }
 
     /**
+     * @var array<string|\Core\Console\Command>
+     */
+    protected static array $deferredCommands = [];
+
+    /**
      * Daftarkan CLI command ke console kernel
      */
     protected function command(string|\Core\Console\Command $command): void
@@ -73,7 +78,17 @@ abstract class ModuleProvider implements ModuleProviderInterface
         if ($this->app->getContainer()->has(ConsoleKernel::class)) {
             $kernel = $this->app->getContainer()->get(ConsoleKernel::class);
             $kernel->registerCommand($command);
+        } else {
+            self::$deferredCommands[] = $command;
         }
+    }
+
+    public static function flushDeferredCommands(ConsoleKernel $kernel): void
+    {
+        foreach (self::$deferredCommands as $cmd) {
+            $kernel->registerCommand($cmd);
+        }
+        self::$deferredCommands = [];
     }
 
     /**

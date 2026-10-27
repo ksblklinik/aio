@@ -110,10 +110,22 @@ class Application
         $c->singleton(self::class, fn() => $this);
         $c->singleton(Config::class, fn() => Config::getInstance());
 
-        // Database Connection (PRAGMA WAL & FK diinisialisasi otomatis di Connection)
-        $c->singleton(Connection::class, function () use ($base) {
-            $path = config('database.path', $base . '/database.sqlite');
-            return new Connection("sqlite:{$path}");
+        // Database Manager & Multi-Connection Resolver
+        $c->singleton(\Core\Database\DatabaseManager::class, function () use ($base) {
+            $default = (string) config('database.default', 'sqlite');
+            $connections = (array) config('database.connections', []);
+            if (!isset($connections['sqlite'])) {
+                $connections['sqlite'] = [
+                    'driver' => 'sqlite',
+                    'database' => config('database.path', $base . '/database.sqlite'),
+                ];
+            }
+            return new \Core\Database\DatabaseManager($default, $connections);
+        });
+
+        // Default Database Connection (PRAGMA WAL & FK diinisialisasi otomatis di Connection)
+        $c->singleton(Connection::class, function ($c) {
+            return $c->get(\Core\Database\DatabaseManager::class)->connection();
         });
 
         // Logger
@@ -268,6 +280,29 @@ class Application
         // Throttle Requests Middleware
         $c->singleton(\Core\Middleware\ThrottleRequests::class, function () use ($base) {
             return new \Core\Middleware\ThrottleRequests($base . '/storage/framework/ratelimit');
+        });
+
+        // Vector Store & Semantic Embeddings Engine
+        $c->singleton(\Core\Vector\SqliteVectorDriver::class, function ($c) {
+            return new \Core\Vector\SqliteVectorDriver(
+                $c->get(Connection::class),
+                $c->get(TenantContext::class)
+            );
+        });
+
+        $c->singleton(\Core\Vector\VectorManager::class, function ($c) {
+            $sqliteDriver = $c->get(\Core\Vector\SqliteVectorDriver::class);
+            return new \Core\Vector\VectorManager($sqliteDriver, 'sqlite');
+        });
+
+        // Unified AI Gateway & LLM Orchestrator
+        $c->singleton(\Core\Ai\AiManager::class, function () {
+            $default = (string) config('ai.default', env('AI_DRIVER', 'mock'));
+            $providers = (array) config('ai.providers', []);
+            $mockDriver = new \Core\Ai\MockAiDriver();
+            $manager = new \Core\Ai\AiManager($mockDriver, $default, $providers);
+            $manager->setDriver('mock', $mockDriver);
+            return $manager;
         });
     }
 
@@ -570,6 +605,8 @@ HTML;
 
         // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
         $this->bootModuleProviders();
+
+        \Core\Modules\ModuleProvider::flushDeferredCommands($kernel);
 
         return $kernel;
     }

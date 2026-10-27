@@ -414,14 +414,21 @@ if (!function_exists('db')) {
     /**
      * Helper global untuk mengakses koneksi database atau scoped query builder
      */
-    function db(?string $table = null): \Core\Database\Connection|\Core\Database\TenantScope
+    function db(?string $table = null, ?string $connection = null): \Core\Database\Connection|\Core\Database\TenantScope
     {
+        $conn = $connection !== null 
+            ? app(\Core\Database\DatabaseManager::class)->connection($connection)
+            : app(\Core\Database\Connection::class);
+
         if ($table !== null) {
             /** @var \Core\Database\TenantScope $scope */
             $scope = app(\Core\Database\TenantScope::class);
+            if ($connection !== null) {
+                return new \Core\Database\TenantScope(\Core\Database\TenantContext::getInstance(), $conn);
+            }
             return $scope;
         }
-        return app(\Core\Database\Connection::class);
+        return $conn;
     }
 }
 
@@ -499,6 +506,61 @@ if (!function_exists('notify')) {
         );
     }
 }
+
+if (!function_exists('csv_download')) {
+    /**
+     * Helper global untuk download data CSV secara streaming
+     *
+     * @param string $filename Nama berkas (e.g. 'laporan-invoice.csv')
+     * @param array<string> $headers Judul kolom header
+     * @param iterable<array<int|string, mixed>> $rows Generator atau koleksi baris data
+     */
+    function csv_download(string $filename, array $headers, iterable $rows): \Core\Http\Response
+    {
+        return \Core\Http\CsvStream::download($filename, $headers, $rows);
+    }
+}
+
+if (!function_exists('csv_parse')) {
+    /**
+     * Helper global untuk membaca file CSV secara streaming (memory-safe)
+     *
+     * @param string|resource $source Path file atau resource
+     * @param bool $hasHeader Apakah baris pertama adalah judul kolom
+     * @return \Generator<int, array<string|int, string>>
+     */
+    function csv_parse(mixed $source, bool $hasHeader = true): \Generator
+    {
+        return \Core\Http\CsvStream::parse($source, $hasHeader);
+    }
+}
+
+if (!function_exists('vector_store')) {
+    /**
+     * Helper global untuk mengakses layanan Vector Store atau driver tertentu
+     */
+    function vector_store(?string $driver = null): \Core\Vector\VectorStoreInterface
+    {
+        /** @var \Core\Vector\VectorManager $manager */
+        $manager = app(\Core\Vector\VectorManager::class);
+        return $driver !== null ? $manager->driver($driver) : $manager->driver();
+    }
+}
+
+if (!function_exists('ai')) {
+    /**
+     * Helper global untuk mengakses AI Gateway atau driver AI tertentu
+     */
+    function ai(?string $driver = null): \Core\Ai\AiClientInterface
+    {
+        /** @var \Core\Ai\AiManager $manager */
+        $manager = app(\Core\Ai\AiManager::class);
+        return $driver !== null ? $manager->driver($driver) : $manager;
+    }
+}
+
+
+
 
 
 

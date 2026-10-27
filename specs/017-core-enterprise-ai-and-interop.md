@@ -1,6 +1,6 @@
 # SPEC-017: Core Enterprise Data, AI Gateway, and Interoperability Engine
 
-- **Status**: `In Progress`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity & Lead Architect
 - **Tanggal Dibuat**: 2026-10-27
 - **Target File / Modul**: `core/Database`, `core/Http`, `core/Vector`, `core/Graph`, `core/Ai`, `core/helpers.php`
@@ -94,32 +94,32 @@ DROP TABLE IF EXISTS vector_embeddings;
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: DatabaseManager & TenantScope Query Utilities**
-  - [ ] 1.1 Buat `Core\Database\DatabaseManager` untuk mengelola multi-koneksi database dari `config('database')`.
-  - [ ] 1.2 Perbarui `TenantScope` dengan method `search(array $columns, string $term)` dan `chunk(int $count, callable $callback)`.
-  - [ ] 1.3 Perbarui helper `db(?string $table = null, ?string $connection = null)`.
+- [x] **Phase 1: DatabaseManager & TenantScope Query Utilities**
+  - [x] 1.1 Buat `Core\Database\DatabaseManager` untuk mengelola multi-koneksi database dari `config('database')`.
+  - [x] 1.2 Perbarui `TenantScope` dengan method `search(array $columns, string $term)` dan `chunk(int $count, callable $callback)`.
+  - [x] 1.3 Perbarui helper `db(?string $table = null, ?string $connection = null)`.
 
-- [ ] **Phase 2: High-Performance Interoperability (SSE & CSV Stream)**
-  - [ ] 2.1 Tambahkan method `Response::stream()` dan `Response::sse()` pada `Core\Http\Response`.
-  - [ ] 2.2 Buat `Core\Http\CsvStream` dengan method `download()` dan `parse()`.
-  - [ ] 2.3 Tambahkan helper global `csv_download()` dan `csv_parse()` di `core/helpers.php`.
+- [x] **Phase 2: High-Performance Interoperability (SSE & CSV Stream)**
+  - [x] 2.1 Tambahkan method `Response::stream()` dan `Response::sse()` pada `Core\Http\Response`.
+  - [x] 2.2 Buat `Core\Http\CsvStream` dengan method `download()` dan `parse()`.
+  - [x] 2.3 Tambahkan helper global `csv_download()` dan `csv_parse()` di `core/helpers.php`.
 
-- [ ] **Phase 3: Vector Store Engine & Semantic Search**
-  - [ ] 3.1 Buat migrasi `2026_10_27_000015_create_vector_embeddings_table.sql`.
-  - [ ] 3.2 Buat `Core\Vector\VectorStoreInterface` dan implementasi `Core\Vector\SqliteVectorDriver` dengan fungsi kalkulasi Cosine Similarity.
-  - [ ] 3.3 Buat `Core\Vector\VectorManager` dan helper global `vector_store(?string $driver = null)`.
+- [x] **Phase 3: Vector Store Engine & Semantic Search**
+  - [x] 3.1 Buat migrasi `2026_10_27_000015_create_vector_embeddings_table.sql`.
+  - [x] 3.2 Buat `Core\Vector\VectorStoreInterface` dan implementasi `Core\Vector\SqliteVectorDriver` dengan fungsi kalkulasi Cosine Similarity.
+  - [x] 3.3 Buat `Core\Vector\VectorManager` dan helper global `vector_store(?string $driver = null)`.
 
-- [ ] **Phase 4: Graph & Tree Traversal Engine**
-  - [ ] 4.1 Buat `Core\Graph\GraphHelper` untuk adjacency list traversal, ancestors/descendants retrieval, tree nesting, dan cycle detection.
+- [x] **Phase 4: Graph & Tree Traversal Engine**
+  - [x] 4.1 Buat `Core\Graph\GraphHelper` untuk adjacency list traversal, ancestors/descendants retrieval, tree nesting, dan cycle detection.
 
-- [ ] **Phase 5: Universal AI Gateway & LLM Orchestration**
-  - [ ] 5.1 Buat `config/ai.php` dan update `.env.example` / `.env`.
-  - [ ] 5.2 Buat interface `Core\Ai\AiClientInterface`.
-  - [ ] 5.3 Buat `MockAiDriver`, `OpenAiDriver`, dan `GeminiDriver` (native cURL/stream tanpa external SDK).
-  - [ ] 5.4 Buat `Core\Ai\AiManager` dan helper global `ai(?string $driver = null)`.
-  - [ ] 5.5 Daftarkan singleton AI dan Vector di `core/Foundation/Application.php`.
+- [x] **Phase 5: Universal AI Gateway & LLM Orchestration**
+  - [x] 5.1 Buat `config/ai.php` dan update `.env.example` / `.env`.
+  - [x] 5.2 Buat interface `Core\Ai\AiClientInterface`.
+  - [x] 5.3 Buat `MockAiDriver`, `OpenAiDriver`, dan `GeminiDriver` (native cURL/stream tanpa external SDK).
+  - [x] 5.4 Buat `Core\Ai\AiManager` dan helper global `ai(?string $driver = null)`.
+  - [x] 5.5 Daftarkan singleton AI dan Vector di `core/Foundation/Application.php`.
 
-- [ ] **Phase 6: Comprehensive TDD, Self-Verification & Integration**
-  - [ ] 6.1 Buat test suite lengkap di `tests/Unit/CoreEnterpriseAiAndInteropTest.php`.
-  - [ ] 6.2 Jalankan seluruh PHPUnit suite (target: 100% PASS).
-  - [ ] 6.3 Jalankan `./scripts/verify.ps1`, update status spec, dan sinkronkan `SESSION_HANDOFF.md`.
+- [x] **Phase 6: Comprehensive TDD, Self-Verification & Integration**
+  - [x] 6.1 Buat test suite lengkap di `tests/Unit/CoreEnterpriseAiAndInteropTest.php`.
+  - [x] 6.2 Jalankan seluruh PHPUnit suite (target: 100% PASS).
+  - [x] 6.3 Jalankan `./scripts/verify.ps1`, update status spec, dan sinkronkan `SESSION_HANDOFF.md`.

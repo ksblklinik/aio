@@ -107,8 +107,14 @@ class TenantScope
         return $tenantId;
     }
 
-    public function selectAll(string $table, string $additionalWhere = '', array $params = [], string $orderBy = ''): array
-    {
+    public function selectAll(
+        string $table,
+        string $additionalWhere = '',
+        array $params = [],
+        string $orderBy = '',
+        ?int $limit = null,
+        ?int $offset = null
+    ): array {
         $tenantId = $this->getRequiredTenantId($table);
         $additionalWhere = $this->applySoftDeleteFilter($table, $additionalWhere);
 
@@ -122,6 +128,13 @@ class TenantScope
 
         if ($orderBy !== '') {
             $sql .= " ORDER BY {$orderBy}";
+        }
+
+        if ($limit !== null) {
+            $sql .= " LIMIT {$limit}";
+            if ($offset !== null) {
+                $sql .= " OFFSET {$offset}";
+            }
         }
 
         return $this->connection->selectAll($sql, $allParams);
@@ -284,4 +297,100 @@ class TenantScope
 
         return $paginator->toArray();
     }
+
+    /**
+     * Bentuk klausul WHERE dan parameter untuk pencarian teks multi-kolom
+     *
+     * @param array<string> $columns
+     * @return array{where: string, params: array<string>}
+     */
+    public function buildSearchClause(array $columns, string $term): array
+    {
+        $cleanTerm = trim($term);
+        if ($cleanTerm === '' || empty($columns)) {
+            return ['where' => '', 'params' => []];
+        }
+
+        $clauses = [];
+        $params = [];
+        $wildcard = '%' . str_replace(['%', '_'], ['\\%', '\\_'], $cleanTerm) . '%';
+
+        foreach ($columns as $column) {
+            $clauses[] = "{$column} LIKE ?";
+            $params[] = $wildcard;
+        }
+
+        return [
+            'where' => '(' . implode(' OR ', $clauses) . ')',
+            'params' => $params,
+        ];
+    }
+
+    /**
+     * Pencarian multi-kolom teks aman terisolasi tenant
+     *
+     * @param array<string> $columns
+     * @return array<int, array<string, mixed>>
+     */
+    public function search(
+        string $table,
+        array $columns,
+        string $term,
+        string $additionalWhere = '',
+        array $params = [],
+        string $orderBy = '',
+        int $limit = 50
+    ): array {
+        $searchData = $this->buildSearchClause($columns, $term);
+        $finalWhere = $additionalWhere;
+
+        if ($searchData['where'] !== '') {
+            $finalWhere = $finalWhere !== '' ? "({$finalWhere}) AND {$searchData['where']}" : $searchData['where'];
+            $params = array_merge($params, $searchData['params']);
+        }
+
+        return $this->selectAll($table, $finalWhere, $params, $orderBy, $limit);
+    }
+
+    /**
+     * Memproses data berukuran besar dalam batch/chunk memory-safe
+     *
+     * @param callable(array<int, array<string, mixed>>, int): (bool|void) $callback
+     */
+    public function chunk(
+        string $table,
+        int $count,
+        callable $callback,
+        string $additionalWhere = '',
+        array $params = [],
+        string $orderBy = 'id ASC'
+    ): bool {
+        $page = 1;
+
+        do {
+            $results = $this->selectAll(
+                $table,
+                $additionalWhere,
+                $params,
+                $orderBy,
+                $count,
+                ($page - 1) * $count
+            );
+
+            $countResults = count($results);
+            if ($countResults === 0) {
+                break;
+            }
+
+            if ($callback($results, $page) === false) {
+                return false;
+            }
+
+            unset($results);
+            $page++;
+        } while ($countResults === $count);
+
+        return true;
+    }
 }
+
