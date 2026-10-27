@@ -134,4 +134,24 @@ class AuditLoggerTest extends TestCase
         $tenant2Logs = $logger->getForTenant($t2);
         $this->assertCount(1, $tenant2Logs);
     }
+
+    public function test_global_audit_helper(): void
+    {
+        $container = \Core\Container::getInstance();
+        $logger = new AuditLogger($this->db, $this->tenantContext, $this->authService);
+        $container->instance(AuditLogger::class, $logger);
+
+        // audit() without params returns AuditLogger instance
+        $this->assertInstanceOf(AuditLogger::class, audit());
+
+        // audit() with params logs and returns ID
+        $tId = (int) $this->db->insert('tenants', ['name' => 'Helper Co', 'slug' => 'helper', 'plan' => 'starter']);
+        $logId = audit('system.helper_test', 'Testing global audit helper', tenantId: $tId);
+
+        $this->assertGreaterThan(0, $logId);
+        $logs = audit()->getForTenant($tId);
+        $this->assertCount(1, $logs);
+        $this->assertSame('system.helper_test', $logs[0]['action']);
+        $this->assertSame('Testing global audit helper', $logs[0]['description']);
+    }
 }

@@ -306,4 +306,47 @@ if (!function_exists('mailer')) {
     }
 }
 
+if (!function_exists('audit')) {
+    /**
+     * Helper global untuk logging audit aktivitas atau mengakses instance AuditLogger
+     *
+     * @param string|null $action Contoh: 'project.created', 'auth.login'
+     * @param string|null $description Ringkasan manusiawi aktivitas
+     * @param string|null $entityType Jenis entitas (project, module, user, tenant, task)
+     * @param string|null $entityId ID entitas yang dipengaruhi
+     * @param array<string, mixed> $properties Detail tambahan / payload
+     * @param int|null $tenantId Override tenant id
+     * @param int|null $userId Override user id
+     * @param string|null $userName Override nama user
+     * @return \Core\Audit\AuditLogger|int
+     */
+    function audit(
+        ?string $action = null,
+        ?string $description = null,
+        ?string $entityType = null,
+        ?string $entityId = null,
+        array $properties = [],
+        ?int $tenantId = null,
+        ?int $userId = null,
+        ?string $userName = null
+    ): \Core\Audit\AuditLogger|int {
+        $logger = app(\Core\Audit\AuditLogger::class);
+
+        if ($action === null) {
+            return $logger;
+        }
+
+        return $logger->log(
+            action: $action,
+            description: $description ?? $action,
+            entityType: $entityType,
+            entityId: $entityId,
+            properties: $properties,
+            tenantId: $tenantId,
+            userId: $userId,
+            userName: $userName
+        );
+    }
+}
+
 

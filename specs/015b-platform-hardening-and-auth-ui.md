@@ -141,10 +141,10 @@ Jika dipanggil tanpa parameter `audit()`, mengembalikan instance `Core\Audit\Aud
   - [x] 2.3 Verifikasi kompatibilitas terhadap query `selectAll`, `selectOne`, `count`, dan `paginate`.
   - [x] 2.4 Verifikasi test `SoftDeletesTenantScopeTest.php` lulus 100%.
 
-- [ ] **Phase 3: Global Audit Helper & Core Polish**
-  - [ ] 3.1 Daftarkan helper function `audit()` di `core/helpers.php`.
-  - [ ] 3.2 Buat unit test verifikasi helper `audit()` di test suite.
-  - [ ] 3.3 Verifikasi fungsi logging audit berjalan baik dengan atau tanpa context aktif.
+- [x] **Phase 3: Global Audit Helper & Core Polish**
+  - [x] 3.1 Daftarkan helper function `audit()` di `core/helpers.php`.
+  - [x] 3.2 Buat unit test verifikasi helper `audit()` di test suite.
+  - [x] 3.3 Verifikasi fungsi logging audit berjalan baik dengan atau tanpa context aktif.
 
 - [ ] **Phase 4: Auth Lifecycle Backend Controllers & Routes**
   - [ ] 4.1 Buat `App\Modules\Auth\Controllers\ForgotPasswordController.php` (show + send).
