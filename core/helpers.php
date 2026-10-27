@@ -701,6 +701,27 @@ if (!function_exists('ledger')) {
     }
 }
 
+if (!function_exists('exporter')) {
+    /**
+     * Helper global untuk Universal Streamed Import & Export Manager
+     */
+    function exporter(): \Core\Export\ExporterManager
+    {
+        return app(\Core\Export\ExporterManager::class);
+    }
+}
+
+if (!function_exists('document')) {
+    /**
+     * Helper global untuk Pure-PHP Printable Document Builder (A4, thermal, receipt)
+     */
+    function document(string $layout = 'a4'): \Core\Document\DocumentBuilder
+    {
+        return \Core\Document\DocumentBuilder::create($layout);
+    }
+}
+
+
 
 
 

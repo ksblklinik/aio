@@ -375,6 +375,12 @@ class Application
                 $c->get(TenantContext::class)
             );
         });
+
+        // Universal Streamed Import & Export Manager
+        $c->singleton(\Core\Export\ExporterManager::class, function ($c) {
+            $pdo = $c->has(Connection::class) ? $c->get(Connection::class)->getPdo() : null;
+            return new \Core\Export\ExporterManager($pdo);
+        });
     }
 
     public function registerModuleProviders(): void
