@@ -1,0 +1,25 @@
+{
+  "id": "inventory",
+  "name": "Inventory & Items",
+  "description": "Universal master katalog barang, jasa, bahan baku, satuan ukuran, dan mutasi stok fisik terisolasi multi-tenant.",
+  "version": "1.0.0",
+  "author": "Antigravity Platform Team",
+  "category": "resources",
+  "icon": "Package",
+  "route": "/inventory",
+  "is_core": false,
+  "is_active": true,
+  "provider": "App\\Modules\\Inventory\\InventoryServiceProvider",
+  "permissions": [
+    {
+      "key": "inventory.view",
+      "name": "Lihat Katalog & Stok",
+      "description": "Melihat daftar item, katalog harga, dan saldo stok fisik"
+    },
+    {
+      "key": "inventory.manage",
+      "name": "Kelola Item & Mutasi",
+      "description": "Menambah/mengubah data item dan melakukan penyesuaian/mutasi stok"
+    }
+  ]
+}
