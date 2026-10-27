@@ -34,6 +34,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 020 | [020-cache-and-media-qr-barcode.md](file:///c:/aplikasi/aio/specs/020-cache-and-media-qr-barcode.md) | High-Performance Tenant Cache and Pure-PHP Media QR/Barcode Engine | `Completed` | 2026-10-27 |
 | 021 | [021-multichannel-and-custom-fields.md](file:///c:/aplikasi/aio/specs/021-multichannel-and-custom-fields.md) | Multi-Channel Notification Broadcaster and Dynamic Custom Field Registry | `Completed` | 2026-10-27 |
 | 022 | [022-payment-and-quota-entitlements.md](file:///c:/aplikasi/aio/specs/022-payment-and-quota-entitlements.md) | Unified Payment Gateway Driver Contract & Quota Entitlements Engine | `Completed` | 2026-10-27 |
+| 023 | [023-import-export-and-document-engine.md](file:///c:/aplikasi/aio/specs/023-import-export-and-document-engine.md) | Universal Streamed Import-Export and Pure-PHP Printable Document Engine | `In Progress` | 2026-10-27 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 
