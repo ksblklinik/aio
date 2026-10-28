@@ -203,12 +203,12 @@ interface FacilityRegistryInterface
   - [x] 1.1 Buat manifest modul `app/Modules/Facility/module.json`.
   - [x] 1.2 Buat migration `database/migrations/2026_10_28_000025_create_facility_tables.sql` untuk tabel `facilities_locations`, `facilities_rooms`, dan `facilities_spaces`.
   - [x] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
-- [ ] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
-  - [ ] 2.1 Buat interface `App\Modules\Facility\Contracts\FacilityRegistryInterface`.
-  - [ ] 2.2 Buat Service Provider `App\Modules\Facility\FacilityServiceProvider` dan daftarkan ke modul.
-  - [ ] 2.3 Daftarkan helper global `facilities()` di `core/helpers.php`.
-  - [ ] 2.4 Tulis test suite `tests/Unit/FacilityModuleTest.php` mencakup pembuatan gedung, ruangan, slot/bed, occupancy, dan isolasi tenant.
-  - [ ] 2.5 Implementasikan `App\Modules\Facility\Services\FacilityService` hingga seluruh skenario unit test lolos 100%.
+- [x] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
+  - [x] 2.1 Buat interface `App\Modules\Facility\Contracts\FacilityRegistryInterface`.
+  - [x] 2.2 Buat Service Provider `App\Modules\Facility\FacilityServiceProvider` dan daftarkan ke modul.
+  - [x] 2.3 Daftarkan helper global `facilities()` di `core/helpers.php`.
+  - [x] 2.4 Tulis test suite `tests/Unit/FacilityModuleTest.php` mencakup pembuatan gedung, ruangan, slot/bed, occupancy, dan isolasi tenant.
+  - [x] 2.5 Implementasikan `App\Modules\Facility\Services\FacilityService` hingga seluruh skenario unit test lolos 100%.
 - [ ] **Phase 3: Web UI, Routes, & Programmatic REST API**
   - [ ] 3.1 Buat routes modul di `app/Modules/Facility/routes.php`.
   - [ ] 3.2 Implementasikan Web Controller `FacilityController` untuk manajemen lokasi, ruangan, dan unit bed/meja.
