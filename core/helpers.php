@@ -969,6 +969,16 @@ if (!function_exists('backup')) {
     }
 }
 
+if (!function_exists('reconcile')) {
+    /**
+     * Helper global untuk Universal Cross-Module Integrity Auditor & Automated Data Reconciler.
+     */
+    function reconcile(): \Core\Reconciliation\ReconciliationManagerInterface
+    {
+        return app(\Core\Reconciliation\ReconciliationManagerInterface::class);
+    }
+}
+
 
 
 
