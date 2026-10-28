@@ -4,10 +4,10 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 📌 Status Terakhir Sesi (Last Updated: 2026-10-28 08:25 WIB)
+## 📌 Status Terakhir Sesi (Last Updated: 2026-10-28 08:45 WIB)
 
 * **Conversation ID Terakhir**: `4d7528e5-6993-4060-b918-14aabb4463fe`
-* **Active Git Branch**: `main` (Merged cleanly via `--no-ff`, working tree clean)
+* **Active Git Branch**: `feat/032-universal-scheduling-and-queue` (Siap merge ke `main`)
 * **Status Dokumen / Roadmap**:
   - SPEC-013 ([`specs/013-core-hardening-and-unified-kernel.md`](file:///c:/aplikasi/aio/specs/013-core-hardening-and-unified-kernel.md)): `Completed` (merged to `main`).
   - SPEC-014 ([`specs/014-module-extension-contract.md`](file:///c:/aplikasi/aio/specs/014-module-extension-contract.md)): `Completed` (merged to `main`).
@@ -26,13 +26,13 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **SPEC-027 ([`specs/027-universal-contact-registry.md`](file:///c:/aplikasi/aio/specs/027-universal-contact-registry.md))**: `Completed` (merged to `main`).
   - **SPEC-028 ([`specs/028-universal-finance-engine.md`](file:///c:/aplikasi/aio/specs/028-universal-finance-engine.md))**: `Completed` (merged to `main`).
   - **SPEC-029 ([`specs/029-universal-inventory-and-items.md`](file:///c:/aplikasi/aio/specs/029-universal-inventory-and-items.md))**: `Completed` (merged to `main`).
-  - **SPEC-029B ([`specs/029b-inventory-multi-warehouse-and-batch.md`](file:///c:/aplikasi/aio/specs/029b-inventory-multi-warehouse-and-batch.md))**: `Completed` (Inventory Multi-Warehouse, Stock Transfer, Batch & Expiry FEFO).
+  - **SPEC-029B ([`specs/029b-inventory-multi-warehouse-and-batch.md`](file:///c:/aplikasi/aio/specs/029b-inventory-multi-warehouse-and-batch.md))**: `Completed` (merged to `main`).
   - **SPEC-030 ([`specs/030-universal-billing-and-invoicing.md`](file:///c:/aplikasi/aio/specs/030-universal-billing-and-invoicing.md))**: `Completed` (merged to `main`).
-  - **SPEC-031 ([`specs/031-universal-facilities-and-locations.md`](file:///c:/aplikasi/aio/specs/031-universal-facilities-and-locations.md))**: `Completed` (Universal Facilities, Spaces & Locations Registry - Level 2 Shared Foundation).
-  - **SPEC-032 ([`specs/032-universal-scheduling-and-queue.md`](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md))**: `Draft` (Universal Scheduling, Appointments & Human Queue Engine).
+  - **SPEC-031 ([`specs/031-universal-facilities-and-locations.md`](file:///c:/aplikasi/aio/specs/031-universal-facilities-and-locations.md))**: `Completed` (merged to `main`).
+  - **SPEC-032 ([`specs/032-universal-scheduling-and-queue.md`](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md))**: `Completed` (Universal Scheduling, Appointments & Human Queue Engine).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
-* **Test Suite Status**: **386 tests (2194 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
-* **Database File**: `database.sqlite` di root repositori (26 migrasi applied).
+* **Test Suite Status**: **396 tests (2275 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
+* **Database File**: `database.sqlite` di root repositori (27 migrasi applied).
 
 ---
 
@@ -82,7 +82,43 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
+## 📦 Capaian & Hasil Eksekusi SPEC-032 (Universal Scheduling, Appointments & Human Queue Engine):
+1. **Database Schema & Migrations**:
+   - Migrasi `2026_10_28_000027_create_schedule_and_queue_tables.sql` membuat tabel `resource_schedules`, `appointments`, dan `queue_tickets` dengan foreign key ke `facilities_rooms` dan `facilities_spaces`.
+2. **Core Scheduling & Human Queue Engine (`ScheduleRegistryInterface`)**:
+   - `createSchedule()`, `listSchedules()`, `isSlotAvailable()`: Pengaturan jadwal alokasi shift dan slot kapasitas sumber daya (personil, dokter, staf, ruangan, peralatan).
+   - `bookAppointment()`, `getAppointment()`, `listAppointments()`, `updateAppointmentStatus()`: Booking janji temu multi-saluran terisolasi per tenant dengan kode booking otomatis `APT/YYYYMMDD/XXXXX`.
+   - `issueTicket()`: Pengambilan tiket antrean pendaftaran/layanan dengan nomor tiket harian terformat per prefix (`A-001`, `B-001`, dst.) yang reset harian.
+   - `callNextTicket()`, `recallTicket()`, `serveTicket()`, `completeTicket()`, `cancelTicket()`, `skipTicket()`: State machine siklus hidup tiket antrean (`waiting` $\rightarrow$ `calling` $\rightarrow$ `serving` $\rightarrow$ `completed`/`skipped`/`cancelled`).
+   - `getDisplayState()`: Data waktu nyata untuk konsumsi layar TV display ruang tunggu (tiket sedang dipanggil di setiap loket/ruangan, antrean berikutnya, dan statistik harian).
+3. **Web UI & Waiting Room TV Display**:
+   - Rute Web di `routes.php` dan `ScheduleController`.
+   - REST API di `ApiScheduleController` untuk mesin kiosk pendaftaran mandiri (APM) dan integrasi eksternal.
+   - Halaman Pemanggil Antrean & Janji Temu di `resources/js/Pages/Schedule/Index.tsx` dengan Semantic UI Tokens.
+   - Layar TV Display Ruang Tunggu di `resources/js/Pages/Schedule/Display.tsx` dilengkapi Web Speech API Text-to-Speech (TTS) otomatis memanggil "Nomor Antrean ... Silakan menuju ke ...", toggle layar penuh (*full screen*), dan real-time polling interval.
+4. **Verifikasi & Test**:
+   - Test suite baru [`tests/Unit/ScheduleModuleTest.php`](file:///c:/aplikasi/aio/tests/Unit/ScheduleModuleTest.php) (10 tests, 62 assertions) lolos 100%.
+   - Global test suite meningkat menjadi **396 tests (2275 assertions)** PASS 100%.
+
+---
+
 ## 🚀 Rencana Langkah Berikutnya:
-1. **Eksekusi SPEC-032: Universal Scheduling, Appointments & Human Queue Engine**:
-   - Menghubungkan ruangan & counter/meja dari SPEC-031 (`facilities_rooms`, `facilities_spaces`).
-   - Mendukung antrean pendaftaran mandiri (Kiosk), display panggilan ruang tunggu (Waiting Room TV Display), appointment booking multi-petugas/dokter, dan multi-sektor.
+1. **Fondasi Universal Level 2 Telah Lengkap**:
+   - Seluruh 7 pilar fondasi Level 2 telah selesai dan teruji secara menyeluruh:
+     1. Contact Registry (SPEC-027)
+     2. Finance & Ledger (SPEC-028)
+     3. Inventory & Items (SPEC-029)
+     4. Inventory Multi-Warehouse & FEFO (SPEC-029B)
+     5. Universal Billing & Invoicing (SPEC-030)
+     6. Facilities, Spaces & Locations (SPEC-031)
+     7. Scheduling, Appointments & Human Queue (SPEC-032)
+2. **Kesiapan Domain Bisnis Vertikal (Pilihan User)**:
+   - **Opsi A: Modul Klinik FKTP / SIM-Klinik**:
+     - Rekam Medis Elektronik (RME / EMR), Odontogram Gigi, Kebidanan/KIA, Laboratorium Sederhana, Resep & Farmasi, Kasir/Pembayaran.
+     - Bridging Ekosistem: SatuSehat Kemenkes (FHIR R4), Antrean Online BPJS (Antrol), PCare BPJS.
+     - Anjungan Pendaftaran Mandiri (Kiosk APM) & PWA Pasien.
+   - **Opsi B: Modul Lembaga Zakat & Infaq / NGO**:
+     - Manajemen Mustahik/Muzakki, Program Penyaluran, Penghitungan Nisab Zakat.
+   - **Opsi C: Finalisasi Packaging Core / SPEC-016**:
+     - Sanitasi template, installer script, dan docker image release.
+

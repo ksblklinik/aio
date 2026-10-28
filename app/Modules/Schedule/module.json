@@ -1,0 +1,37 @@
+{
+  "id": "schedule",
+  "name": "Scheduling & Queue Engine",
+  "description": "Universal scheduling, appointment booking, and live human queue calling engine with TV display support.",
+  "version": "1.0.0",
+  "author": "Antigravity Platform Team",
+  "category": "operations",
+  "icon": "CalendarClock",
+  "route": "/schedule",
+  "dependencies": ["auth", "workspaces", "contacts", "facility"],
+  "is_core": false,
+  "is_active": true,
+  "table_name": "queue_tickets",
+  "provider": "App\\Modules\\Schedule\\ScheduleServiceProvider",
+  "permissions": [
+    {
+      "key": "schedule.view",
+      "name": "Lihat Jadwal & Antrean",
+      "description": "Melihat jadwal ketersediaan, reservasi appointment, dan status antrean aktif"
+    },
+    {
+      "key": "schedule.manage",
+      "name": "Kelola Jadwal & Appointment",
+      "description": "Membuat dan mengubah jadwal kerja petugas, kuota, dan reservasi janji temu"
+    },
+    {
+      "key": "queue.call",
+      "name": "Panggil Antrean",
+      "description": "Memanggil antrean berikutnya, recall audio, mulai layan, transfer, dan selesai"
+    },
+    {
+      "key": "queue.kiosk",
+      "name": "Akses Kios Tiket Mandiri",
+      "description": "Mencetak tiket antrean langsung melalui anjungan pendaftaran mandiri (APM)"
+    }
+  ]
+}

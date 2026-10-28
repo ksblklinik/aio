@@ -855,6 +855,36 @@ if (!function_exists('facilities')) {
     }
 }
 
+if (!function_exists('schedule')) {
+    /**
+     * Helper global untuk Universal Scheduling, Appointments & Human Queue Engine
+     */
+    function schedule(): \App\Modules\Schedule\Contracts\ScheduleRegistryInterface
+    {
+        return app(\App\Modules\Schedule\Contracts\ScheduleRegistryInterface::class);
+    }
+}
+
+if (!function_exists('appointments')) {
+    /**
+     * Alias helper global untuk Universal Appointment Booking Engine
+     */
+    function appointments(): \App\Modules\Schedule\Contracts\ScheduleRegistryInterface
+    {
+        return app(\App\Modules\Schedule\Contracts\ScheduleRegistryInterface::class);
+    }
+}
+
+if (!function_exists('humanQueue')) {
+    /**
+     * Alias helper global untuk Universal Human Queue Engine
+     */
+    function humanQueue(): \App\Modules\Schedule\Contracts\ScheduleRegistryInterface
+    {
+        return app(\App\Modules\Schedule\Contracts\ScheduleRegistryInterface::class);
+    }
+}
+
 
 
 
