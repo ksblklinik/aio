@@ -890,108 +890,123 @@ class InventoryService implements InventoryRegistryInterface
         }
 
         $tenantId = $this->getTenantId();
-        $item = $this->getItem($itemId);
-        if (!$item) {
-            throw new RuntimeException("Item dengan ID {$itemId} tidak ditemukan.");
-        }
 
-        if ($item['type'] === 'service' || !(bool) $item['track_inventory']) {
-            return [];
-        }
+        $deductCallback = function () use ($itemId, $quantity, $roomId, $notes, $referenceType, $referenceId, $userId, $tenantId): array {
+            return $this->db->transaction(function () use ($itemId, $quantity, $roomId, $notes, $referenceType, $referenceId, $userId, $tenantId) {
+                $item = $this->getItem($itemId);
+                if (!$item) {
+                    throw new RuntimeException("Item dengan ID {$itemId} tidak ditemukan.");
+                }
 
-        // Validate availability
-        if ($roomId !== null) {
-            $locStock = $this->getLocationStock($itemId, $roomId);
-            if ($locStock < $quantity) {
-                throw new RuntimeException("Stok di ruangan ini tidak mencukupi untuk pemotongan FEFO. Sisa: {$locStock}, diminta: {$quantity}.");
+                if ($item['type'] === 'service' || !(bool) $item['track_inventory']) {
+                    return [];
+                }
+
+                // Validate availability
+                if ($roomId !== null) {
+                    $locStock = $this->getLocationStock($itemId, $roomId);
+                    if ($locStock < $quantity) {
+                        throw new RuntimeException("Stok di ruangan ini tidak mencukupi untuk pemotongan FEFO. Sisa: {$locStock}, diminta: {$quantity}.");
+                    }
+                } else {
+                    $totalStock = (float) $item['current_stock'];
+                    if ($totalStock < $quantity) {
+                        throw new RuntimeException("Total stok tidak mencukupi untuk pemotongan FEFO. Sisa: {$totalStock}, diminta: {$quantity}.");
+                    }
+                }
+
+                // Query available batches ordered by FEFO (earliest expiry date first)
+                if ($roomId !== null) {
+                    $batches = $this->db->selectAll(
+                        "SELECT b.id, b.batch_number, b.expiry_date, sl.quantity AS available_quantity
+                         FROM inventory_stock_locations sl
+                         JOIN item_batches b ON b.id = sl.batch_id
+                         WHERE sl.item_id = ? AND sl.room_id = ? AND sl.tenant_id = ?
+                           AND sl.quantity > 0 AND b.status = 'active'
+                         ORDER BY b.expiry_date ASC, b.id ASC",
+                        [$itemId, $roomId, $tenantId]
+                    );
+                } else {
+                    $batches = $this->db->selectAll(
+                        "SELECT b.id, b.batch_number, b.expiry_date, b.current_quantity AS available_quantity
+                         FROM item_batches b
+                         WHERE b.item_id = ? AND b.tenant_id = ?
+                           AND b.current_quantity > 0 AND b.status = 'active'
+                         ORDER BY b.expiry_date ASC, b.id ASC",
+                        [$itemId, $tenantId]
+                    );
+                }
+
+                $remaining = $quantity;
+                $allocations = [];
+
+                foreach ($batches as $b) {
+                    if ($remaining <= 0.0) {
+                        break;
+                    }
+
+                    $avail = (float) $b['available_quantity'];
+                    $deductQty = min($remaining, $avail);
+
+                    $this->recordStockMovement(
+                        $itemId,
+                        $deductQty,
+                        'out',
+                        $notes,
+                        $referenceType,
+                        $referenceId,
+                        null,
+                        $userId,
+                        $roomId,
+                        (int) $b['id']
+                    );
+
+                    $allocations[] = [
+                        'batch_id' => (int) $b['id'],
+                        'batch_number' => $b['batch_number'],
+                        'expiry_date' => $b['expiry_date'],
+                        'quantity' => $deductQty,
+                    ];
+
+                    $remaining = round($remaining - $deductQty, 4);
+                }
+
+                // If there is still remaining unbatched stock to deduct
+                if ($remaining > 0.0) {
+                    $this->recordStockMovement(
+                        $itemId,
+                        $remaining,
+                        'out',
+                        $notes,
+                        $referenceType,
+                        $referenceId,
+                        null,
+                        $userId,
+                        $roomId,
+                        null
+                    );
+
+                    $allocations[] = [
+                        'batch_id' => null,
+                        'batch_number' => null,
+                        'expiry_date' => null,
+                        'quantity' => $remaining,
+                    ];
+                }
+
+                return $allocations;
+            });
+        };
+
+        if (function_exists('lock')) {
+            try {
+                return (array) lock()->run("inventory:stock:{$tenantId}:{$itemId}", $deductCallback, ttlSeconds: 5, waitTimeoutMs: 3000);
+            } catch (\Throwable) {
+                // Fallback to direct execution
             }
-        } else {
-            $totalStock = (float) $item['current_stock'];
-            if ($totalStock < $quantity) {
-                throw new RuntimeException("Total stok tidak mencukupi untuk pemotongan FEFO. Sisa: {$totalStock}, diminta: {$quantity}.");
-            }
         }
 
-        // Query available batches ordered by FEFO (earliest expiry date first)
-        if ($roomId !== null) {
-            $batches = $this->db->selectAll(
-                "SELECT b.id, b.batch_number, b.expiry_date, sl.quantity AS available_quantity
-                 FROM inventory_stock_locations sl
-                 JOIN item_batches b ON b.id = sl.batch_id
-                 WHERE sl.item_id = ? AND sl.room_id = ? AND sl.tenant_id = ?
-                   AND sl.quantity > 0 AND b.status = 'active'
-                 ORDER BY b.expiry_date ASC, b.id ASC",
-                [$itemId, $roomId, $tenantId]
-            );
-        } else {
-            $batches = $this->db->selectAll(
-                "SELECT b.id, b.batch_number, b.expiry_date, b.current_quantity AS available_quantity
-                 FROM item_batches b
-                 WHERE b.item_id = ? AND b.tenant_id = ?
-                   AND b.current_quantity > 0 AND b.status = 'active'
-                 ORDER BY b.expiry_date ASC, b.id ASC",
-                [$itemId, $tenantId]
-            );
-        }
-
-        $remaining = $quantity;
-        $allocations = [];
-
-        foreach ($batches as $b) {
-            if ($remaining <= 0.0) {
-                break;
-            }
-
-            $avail = (float) $b['available_quantity'];
-            $deductQty = min($remaining, $avail);
-
-            $this->recordStockMovement(
-                $itemId,
-                $deductQty,
-                'out',
-                $notes,
-                $referenceType,
-                $referenceId,
-                null,
-                $userId,
-                $roomId,
-                (int) $b['id']
-            );
-
-            $allocations[] = [
-                'batch_id' => (int) $b['id'],
-                'batch_number' => $b['batch_number'],
-                'expiry_date' => $b['expiry_date'],
-                'quantity' => $deductQty,
-            ];
-
-            $remaining = round($remaining - $deductQty, 4);
-        }
-
-        // If there is still remaining unbatched stock to deduct
-        if ($remaining > 0.0) {
-            $this->recordStockMovement(
-                $itemId,
-                $remaining,
-                'out',
-                $notes,
-                $referenceType,
-                $referenceId,
-                null,
-                $userId,
-                $roomId,
-                null
-            );
-
-            $allocations[] = [
-                'batch_id' => null,
-                'batch_number' => null,
-                'expiry_date' => null,
-                'quantity' => $remaining,
-            ];
-        }
-
-        return $allocations;
+        return $deductCallback();
     }
 
     public function transferStock(

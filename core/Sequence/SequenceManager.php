@@ -55,7 +55,7 @@ class SequenceManager
         $currentYear = (int) date('Y');
         $currentMonth = (int) date('n');
 
-        return $this->db->transaction(function () use (
+        $generateCallback = fn() => $this->db->transaction(function () use (
             $tId,
             $name,
             $prefix,
@@ -148,6 +148,16 @@ class SequenceManager
                 $currentMonth
             );
         });
+
+        if (function_exists('lock')) {
+            try {
+                return (string) lock()->run("sequence:{$tId}:{$name}", $generateCallback, ttlSeconds: 5, waitTimeoutMs: 3000);
+            } catch (\Throwable) {
+                // fallback
+            }
+        }
+
+        return (string) $generateCallback();
     }
 
     /**

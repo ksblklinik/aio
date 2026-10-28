@@ -49,6 +49,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 034 | [034-universal-semantic-coding-and-terminology.md](file:///c:/aplikasi/aio/specs/034-universal-semantic-coding-and-terminology.md) | Universal Semantic Coding & Terminology Registry | `Completed` | 2026-10-28 |
 | 035 | [035-universal-document-cryptographic-seal-and-verification.md](file:///c:/aplikasi/aio/specs/035-universal-document-cryptographic-seal-and-verification.md) | Universal Document Cryptographic Seal & Verification Portal | `Completed` | 2026-10-28 |
 | 036 | [036-universal-server-sent-events-push-bus.md](file:///c:/aplikasi/aio/specs/036-universal-server-sent-events-push-bus.md) | Universal Server-Sent Events (SSE) Push Bus & Real-Time Broadcast | `Completed` | 2026-10-28 |
+| 037 | [037-universal-atomic-mutex-and-concurrency-lock.md](file:///c:/aplikasi/aio/specs/037-universal-atomic-mutex-and-concurrency-lock.md) | Universal Atomic Mutex & Distributed Concurrency Lock Engine | `Completed` | 2026-10-28 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 

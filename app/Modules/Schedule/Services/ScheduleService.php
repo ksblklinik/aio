@@ -411,49 +411,61 @@ class ScheduleService implements ScheduleRegistryInterface
         $date = !empty($data['ticket_date']) ? (string) $data['ticket_date'] : date('Y-m-d');
         $prefix = strtoupper((string) ($data['prefix'] ?? 'A'));
 
-        // Sequence nomor urut harian per prefix per tenant
-        $rowSeq = $this->db->selectOne(
-            "SELECT COALESCE(MAX(sequence_number), 0) + 1 AS next_seq
-             FROM queue_tickets
-             WHERE tenant_id = ? AND ticket_date = ? AND prefix = ?",
-            [$tenantId, $date, $prefix]
-        );
-        $nextSeq = (int) ($rowSeq['next_seq'] ?? 1);
-        $ticketNumber = sprintf('%s-%03d', $prefix, $nextSeq);
+        $issueCallback = function () use ($data, $tenantId, $date, $prefix): array {
+            // Sequence nomor urut harian per prefix per tenant
+            $rowSeq = $this->db->selectOne(
+                "SELECT COALESCE(MAX(sequence_number), 0) + 1 AS next_seq
+                 FROM queue_tickets
+                 WHERE tenant_id = ? AND ticket_date = ? AND prefix = ?",
+                [$tenantId, $date, $prefix]
+            );
+            $nextSeq = (int) ($rowSeq['next_seq'] ?? 1);
+            $ticketNumber = sprintf('%s-%03d', $prefix, $nextSeq);
 
-        $id = (int) $this->db->insert('queue_tickets', [
-            'tenant_id' => $tenantId,
-            'ticket_number' => $ticketNumber,
-            'prefix' => $prefix,
-            'sequence_number' => $nextSeq,
-            'ticket_date' => $date,
-            'service_name' => (string) ($data['service_name'] ?? 'Poli Umum'),
-            'room_id' => !empty($data['room_id']) ? (int) $data['room_id'] : null,
-            'space_id' => !empty($data['space_id']) ? (int) $data['space_id'] : null,
-            'client_contact_id' => !empty($data['client_contact_id']) ? (int) $data['client_contact_id'] : null,
-            'client_name' => (string) ($data['client_name'] ?? 'Pengunjung Umum'),
-            'appointment_id' => !empty($data['appointment_id']) ? (int) $data['appointment_id'] : null,
-            'status' => 'waiting',
-            'call_count' => 0,
-            'notes' => !empty($data['notes']) ? (string) $data['notes'] : null,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+            $id = (int) $this->db->insert('queue_tickets', [
+                'tenant_id' => $tenantId,
+                'ticket_number' => $ticketNumber,
+                'prefix' => $prefix,
+                'sequence_number' => $nextSeq,
+                'ticket_date' => $date,
+                'service_name' => (string) ($data['service_name'] ?? 'Poli Umum'),
+                'room_id' => !empty($data['room_id']) ? (int) $data['room_id'] : null,
+                'space_id' => !empty($data['space_id']) ? (int) $data['space_id'] : null,
+                'client_contact_id' => !empty($data['client_contact_id']) ? (int) $data['client_contact_id'] : null,
+                'client_name' => (string) ($data['client_name'] ?? 'Pengunjung Umum'),
+                'appointment_id' => !empty($data['appointment_id']) ? (int) $data['appointment_id'] : null,
+                'status' => 'waiting',
+                'call_count' => 0,
+                'notes' => !empty($data['notes']) ? (string) $data['notes'] : null,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
 
-        $ticket = $this->getQueueTicket($id) ?? [];
-        try {
-            if (function_exists('sse') && !empty($ticket)) {
-                sse('queue', 'ticket_issued', [
-                    'ticket_id' => $id,
-                    'ticket_number' => $ticketNumber,
-                    'prefix' => $prefix,
-                    'service_name' => (string) ($data['service_name'] ?? 'Poli Umum'),
-                    'status' => 'waiting',
-                ], (string) $tenantId);
+            $ticket = $this->getQueueTicket($id) ?? [];
+            try {
+                if (function_exists('sse') && !empty($ticket)) {
+                    sse('queue', 'ticket_issued', [
+                        'ticket_id' => $id,
+                        'ticket_number' => $ticketNumber,
+                        'prefix' => $prefix,
+                        'service_name' => (string) ($data['service_name'] ?? 'Poli Umum'),
+                        'status' => 'waiting',
+                    ], (string) $tenantId);
+                }
+            } catch (\Throwable) {}
+
+            return $ticket;
+        };
+
+        if (function_exists('lock')) {
+            try {
+                return (array) lock()->run("queue:issue:{$tenantId}:{$prefix}:{$date}", $issueCallback, ttlSeconds: 5, waitTimeoutMs: 3000);
+            } catch (\Throwable) {
+                // Fallback to direct execution
             }
-        } catch (\Throwable) {}
+        }
 
-        return $ticket;
+        return $issueCallback();
     }
 
     public function getQueueTicket(int $id): ?array
@@ -502,65 +514,77 @@ class ScheduleService implements ScheduleRegistryInterface
         $date = date('Y-m-d');
         $prefix = strtoupper($prefix);
 
-        // Ambil tiket waiting dengan sequence terkecil hari ini
-        $nextTicket = $this->db->selectOne(
-            "SELECT id FROM queue_tickets
-             WHERE tenant_id = ? AND ticket_date = ? AND prefix = ? AND status = 'waiting'
-             ORDER BY sequence_number ASC LIMIT 1",
-            [$tenantId, $date, $prefix]
-        );
+        $callCallback = function () use ($tenantId, $date, $prefix, $roomId, $spaceId, $userId): ?array {
+            // Ambil tiket waiting dengan sequence terkecil hari ini
+            $nextTicket = $this->db->selectOne(
+                "SELECT id FROM queue_tickets
+                 WHERE tenant_id = ? AND ticket_date = ? AND prefix = ? AND status = 'waiting'
+                 ORDER BY sequence_number ASC LIMIT 1",
+                [$tenantId, $date, $prefix]
+            );
 
-        if (!$nextTicket) {
-            return null;
-        }
+            if (!$nextTicket) {
+                return null;
+            }
 
-        $ticketId = (int) $nextTicket['id'];
-        $now = date('Y-m-d H:i:s');
+            $ticketId = (int) $nextTicket['id'];
+            $now = date('Y-m-d H:i:s');
 
-        $updates = [
-            'status' => 'called',
-            'called_at' => $now,
-            'call_count' => 1,
-            'updated_at' => $now,
-        ];
-        if ($roomId !== null) {
-            $updates['room_id'] = $roomId;
-        }
-        if ($spaceId !== null) {
-            $updates['space_id'] = $spaceId;
-        }
-        if ($userId !== null) {
-            $updates['called_by'] = $userId;
-        }
+            $updates = [
+                'status' => 'called',
+                'called_at' => $now,
+                'call_count' => 1,
+                'updated_at' => $now,
+            ];
+            if ($roomId !== null) {
+                $updates['room_id'] = $roomId;
+            }
+            if ($spaceId !== null) {
+                $updates['space_id'] = $spaceId;
+            }
+            if ($userId !== null) {
+                $updates['called_by'] = $userId;
+            }
 
-        $this->db->update('queue_tickets', $updates, 'id = ? AND tenant_id = ?', [$ticketId, $tenantId]);
+            $this->db->update('queue_tickets', $updates, 'id = ? AND tenant_id = ?', [$ticketId, $tenantId]);
 
-        $ticket = $this->getQueueTicket($ticketId);
-        if ($ticket) {
+            $ticket = $this->getQueueTicket($ticketId);
+            if ($ticket) {
+                try {
+                    if (function_exists('sse')) {
+                        $tts = sprintf(
+                            'Nomor antrean %s, silakan menuju ke %s',
+                            implode(' ', str_split($ticket['ticket_number'])),
+                            $ticket['room_name'] ?? ($ticket['service_name'] ?? 'ruang pelayanan')
+                        );
+                        sse('queue', 'ticket_called', [
+                            'ticket_id' => $ticket['id'],
+                            'ticket_number' => $ticket['ticket_number'],
+                            'prefix' => $ticket['prefix'],
+                            'service_name' => $ticket['service_name'],
+                            'room_name' => $ticket['room_name'] ?? null,
+                            'space_name' => $ticket['space_name'] ?? null,
+                            'status' => 'called',
+                            'called_at' => $ticket['called_at'] ?? $now,
+                            'call_count' => $ticket['call_count'],
+                            'tts_announcement' => $tts,
+                        ], (string) $tenantId);
+                    }
+                } catch (\Throwable) {}
+            }
+
+            return $ticket;
+        };
+
+        if (function_exists('lock')) {
             try {
-                if (function_exists('sse')) {
-                    $tts = sprintf(
-                        'Nomor antrean %s, silakan menuju ke %s',
-                        implode(' ', str_split($ticket['ticket_number'])),
-                        $ticket['room_name'] ?? ($ticket['service_name'] ?? 'ruang pelayanan')
-                    );
-                    sse('queue', 'ticket_called', [
-                        'ticket_id' => $ticket['id'],
-                        'ticket_number' => $ticket['ticket_number'],
-                        'prefix' => $ticket['prefix'],
-                        'service_name' => $ticket['service_name'],
-                        'room_name' => $ticket['room_name'] ?? null,
-                        'space_name' => $ticket['space_name'] ?? null,
-                        'status' => 'called',
-                        'called_at' => $ticket['called_at'] ?? $now,
-                        'call_count' => $ticket['call_count'],
-                        'tts_announcement' => $tts,
-                    ], (string) $tenantId);
-                }
-            } catch (\Throwable) {}
+                return lock()->run("queue:call:{$tenantId}:{$prefix}:{$date}", $callCallback, ttlSeconds: 5, waitTimeoutMs: 3000);
+            } catch (\Throwable) {
+                // Fallback to direct execution
+            }
         }
 
-        return $ticket;
+        return $callCallback();
     }
 
     public function recallTicket(int $ticketId): array
