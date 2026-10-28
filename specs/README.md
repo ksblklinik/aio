@@ -54,6 +54,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 039 | [039-universal-cross-module-integrity-auditor-and-reconciler.md](file:///c:/aplikasi/aio/specs/039-universal-cross-module-integrity-auditor-and-reconciler.md) | Universal Cross-Module Integrity Auditor & Automated Data Reconciler | `Completed` | 2026-10-28 |
 | 040 | [040-platform-resilience-watchdog-circuit-breaker-dlq.md](file:///c:/aplikasi/aio/specs/040-platform-resilience-watchdog-circuit-breaker-dlq.md) | Platform Resilience Watchdog, Circuit Breaker & Dead-Letter Queue Hardening | `Completed` | 2026-10-28 |
 | 041 | [041-universal-transactional-outbox-and-reliable-event-bus.md](file:///c:/aplikasi/aio/specs/041-universal-transactional-outbox-and-reliable-event-bus.md) | Universal Transactional Outbox Pattern & Reliable Event Bus Engine | `Completed` | 2026-10-28 |
+| 042 | [042-universal-tenant-crypto-shredding-and-data-portability.md](file:///c:/aplikasi/aio/specs/042-universal-tenant-crypto-shredding-and-data-portability.md) | Universal Tenant Crypto-Shredding, Data Portability & GDPR/PDP Anonymization Engine | `Completed` | 2026-10-28 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 
