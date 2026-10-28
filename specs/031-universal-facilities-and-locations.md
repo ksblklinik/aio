@@ -209,11 +209,11 @@ interface FacilityRegistryInterface
   - [x] 2.3 Daftarkan helper global `facilities()` di `core/helpers.php`.
   - [x] 2.4 Tulis test suite `tests/Unit/FacilityModuleTest.php` mencakup pembuatan gedung, ruangan, slot/bed, occupancy, dan isolasi tenant.
   - [x] 2.5 Implementasikan `App\Modules\Facility\Services\FacilityService` hingga seluruh skenario unit test lolos 100%.
-- [ ] **Phase 3: Web UI, Routes, & Programmatic REST API**
-  - [ ] 3.1 Buat routes modul di `app/Modules/Facility/routes.php`.
-  - [ ] 3.2 Implementasikan Web Controller `FacilityController` untuk manajemen lokasi, ruangan, dan unit bed/meja.
-  - [ ] 3.3 Implementasikan REST API Controller `ApiFacilityController` untuk lookup lokasi/ruangan/space programatik.
-  - [ ] 3.4 Buat view template atau halaman UI responsif dark/light mode untuk fasilitas & ruangan.
+- [x] **Phase 3: Web UI, Routes, & Programmatic REST API**
+  - [x] 3.1 Buat routes modul di `app/Modules/Facility/routes.php`.
+  - [x] 3.2 Implementasikan Web Controller `FacilityController` untuk manajemen lokasi, ruangan, dan unit bed/meja.
+  - [x] 3.3 Implementasikan REST API Controller `ApiFacilityController` untuk lookup lokasi/ruangan/space programatik.
+  - [x] 3.4 Buat view template atau halaman UI responsif dark/light mode untuk fasilitas & ruangan.
 - [ ] **Phase 4: Final Verification, Review & Handoff**
   - [ ] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat` (memastikan tidak ada regresi).
   - [ ] 4.2 Jalankan `npm run typecheck` dan script `scripts/verify.ps1`.

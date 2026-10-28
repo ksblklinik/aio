@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use App\Modules\Auth\Services\AuthService;
 use App\Modules\Facility\Contracts\FacilityRegistryInterface;
+use App\Modules\Facility\Controllers\ApiFacilityController;
+use App\Modules\Facility\Controllers\FacilityController;
 use App\Modules\Facility\Services\FacilityService;
 use Core\Database\Connection;
 use Core\Database\Migrator;
 use Core\Database\TenantContext;
+use Core\Http\Request;
+use Core\Http\Session;
 use Core\Sequence\SequenceManager;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -444,5 +449,72 @@ class FacilityModuleTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->facility->createLocation(['name' => '']);
     }
+
+    public function test_api_facility_controller_crud_flow(): void
+    {
+        $this->tenantContext->setTenantId('1');
+        $api = new ApiFacilityController($this->facility);
+
+        // Create location
+        $reqLoc = new Request('POST', '/api/facility/locations', [], [], ['name' => 'API Hospital', 'type' => 'branch', 'city' => 'Surabaya']);
+        $resLoc = $api->storeLocation($reqLoc);
+        $this->assertEquals(201, $resLoc->getStatusCode());
+        $bodyLoc = json_decode($resLoc->getContent(), true);
+        $locId = $bodyLoc['data']['id'];
+
+        // Create room
+        $reqRoom = new Request('POST', '/api/facility/rooms', [], [], ['location_id' => $locId, 'name' => 'API Poli Umum', 'type' => 'service', 'capacity' => 3]);
+        $resRoom = $api->storeRoom($reqRoom);
+        $this->assertEquals(201, $resRoom->getStatusCode());
+        $bodyRoom = json_decode($resRoom->getContent(), true);
+        $roomId = $bodyRoom['data']['id'];
+
+        // Create space
+        $reqSpace = new Request('POST', '/api/facility/spaces', [], [], ['room_id' => $roomId, 'name' => 'API Desk 1', 'type' => 'desk', 'status' => 'available']);
+        $resSpace = $api->storeSpace($reqSpace);
+        $this->assertEquals(201, $resSpace->getStatusCode());
+        $bodySpace = json_decode($resSpace->getContent(), true);
+        $spaceId = $bodySpace['data']['id'];
+
+        // Update space status
+        $reqStatus = new Request('PUT', "/api/facility/spaces/{$spaceId}/status", [], [], ['status' => 'occupied']);
+        $resStatus = $api->updateSpaceStatus($spaceId, $reqStatus);
+        $this->assertEquals(200, $resStatus->getStatusCode());
+
+        // Check room occupancy
+        $resOcc = $api->roomOccupancy($roomId);
+        $this->assertEquals(200, $resOcc->getStatusCode());
+        $bodyOcc = json_decode($resOcc->getContent(), true);
+        $this->assertEquals(1, $bodyOcc['data']['occupied']);
+        $this->assertEquals(100.0, $bodyOcc['data']['occupancy_rate']);
+
+        // Check summary
+        $resSummary = $api->summary();
+        $this->assertEquals(200, $resSummary->getStatusCode());
+        $bodySummary = json_decode($resSummary->getContent(), true);
+        $this->assertGreaterThanOrEqual(1, $bodySummary['data']['total_locations']);
+    }
+
+    public function test_facility_web_controller_index_response(): void
+    {
+        $this->tenantContext->setTenantId('1');
+
+        $authMock = $this->createMock(AuthService::class);
+        $authMock->method('currentTenant')->willReturn(null);
+        $session = new Session();
+
+        $webController = new FacilityController($authMock, $this->facility, $session);
+        $req = new Request('GET', '/facility');
+        $res = $webController->index($req);
+
+        $this->assertEquals(200, $res->getStatusCode());
+        $body = json_decode($res->getContent(), true);
+        $this->assertEquals('success', $body['status']);
+        $this->assertArrayHasKey('locations', $body);
+        $this->assertArrayHasKey('rooms', $body);
+        $this->assertArrayHasKey('spaces', $body);
+        $this->assertArrayHasKey('summary', $body);
+    }
 }
+
 
