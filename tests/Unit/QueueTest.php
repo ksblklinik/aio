@@ -142,4 +142,17 @@ class QueueTest extends TestCase
         $this->assertSame('App\Jobs\FixableJob', $popped->getJobClass());
         $this->assertSame(1, $popped->getAttempts());
     }
+
+    public function test_pop_optimistic_claim_prevents_duplicate_reservation(): void
+    {
+        $this->queue->push('App\Jobs\ConcurrentJob', ['id' => 1]);
+
+        // Pop successfully once
+        $job1 = $this->queue->pop('default');
+        $this->assertNotNull($job1);
+
+        // A second pop immediately should find no available/unreserved job
+        $job2 = $this->queue->pop('default');
+        $this->assertNull($job2);
+    }
 }

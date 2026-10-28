@@ -90,10 +90,15 @@ class QueueManager
             $jobId = (int) $row['id'];
             $newAttempts = ((int) $row['attempts']) + 1;
 
-            $this->db->statement(
-                "UPDATE jobs SET reserved_at = ?, attempts = ? WHERE id = ?",
-                [$now, $newAttempts, $jobId]
+            $claimed = $this->db->affectingStatement(
+                "UPDATE jobs SET reserved_at = ?, attempts = ? 
+                 WHERE id = ? AND (reserved_at IS NULL OR reserved_at <= ?)",
+                [$now, $newAttempts, $jobId, $staleReservation]
             );
+
+            if ($claimed !== 1) {
+                return null;
+            }
 
             $payload = json_decode($row['payload'], true) ?: [];
             $jobClass = $payload['job'] ?? '';
