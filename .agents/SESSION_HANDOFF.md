@@ -37,10 +37,10 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **SPEC-037 ([`specs/037-universal-atomic-mutex-and-concurrency-lock.md`](file:///c:/aplikasi/aio/specs/037-universal-atomic-mutex-and-concurrency-lock.md))**: `Completed` (Universal Atomic Mutex & Distributed Concurrency Lock Engine).
   - **SPEC-038 ([`specs/038-universal-database-disaster-recovery-and-self-healing.md`](file:///c:/aplikasi/aio/specs/038-universal-database-disaster-recovery-and-self-healing.md))**: `Completed` (Universal Database Disaster Recovery, Online Hot-Backup & Self-Healing Engine).
   - **SPEC-039 ([`specs/039-universal-cross-module-integrity-auditor-and-reconciler.md`](file:///c:/aplikasi/aio/specs/039-universal-cross-module-integrity-auditor-and-reconciler.md))**: `Completed` (Universal Cross-Module Integrity Auditor & Automated Data Reconciler).
-  - **SPEC-040 ([`specs/040-platform-resilience-watchdog-circuit-breaker-dlq.md`](file:///c:/aplikasi/aio/specs/040-platform-resilience-watchdog-circuit-breaker-dlq.md))**: `Planned` (Platform Resilience Watchdog, Circuit Breaker & Dead-Letter Queue Hardening).
+  - **SPEC-040 ([`specs/040-platform-resilience-watchdog-circuit-breaker-dlq.md`](file:///c:/aplikasi/aio/specs/040-platform-resilience-watchdog-circuit-breaker-dlq.md))**: `Completed` (Platform Resilience Watchdog, Circuit Breaker & Dead-Letter Queue Hardening).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
-* **Test Suite Status**: **468 tests (2698 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
-* **Database File**: `database.sqlite` di root repositori (33 migrasi applied).
+* **Test Suite Status**: **485 tests (2773 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
+* **Database File**: `database.sqlite` di root repositori (34 migrasi applied).
 
 ---
 
