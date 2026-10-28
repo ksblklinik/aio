@@ -1,0 +1,27 @@
+{
+  "id": "terminology",
+  "name": "Terminology & Semantic Coding",
+  "description": "Universal coding systems dictionary, fast autocomplete lookup, and cross-reference mapping engine (ICD-10, ICD-9-CM, LOINC, KFA, HS-Code, KBLI).",
+  "version": "1.0.0",
+  "author": "Antigravity Platform Team",
+  "category": "knowledge",
+  "icon": "BookOpen",
+  "route": "/terminology",
+  "dependencies": ["auth", "workspaces"],
+  "is_core": false,
+  "is_active": true,
+  "table_name": "terminology_code_systems",
+  "provider": "App\\Modules\\Terminology\\TerminologyServiceProvider",
+  "permissions": [
+    {
+      "key": "terminology.view",
+      "name": "Lihat Terminologi & Kamus Kodifikasi",
+      "description": "Melihat sistem kodifikasi, daftar konsep, dan pemetaan kode standar"
+    },
+    {
+      "key": "terminology.manage",
+      "name": "Kelola Sistem Kodifikasi & Konsep",
+      "description": "Menambah, mengubah, mengimpor kamus kode, dan mengatur pemetaan lintas sistem"
+    }
+  ]
+}

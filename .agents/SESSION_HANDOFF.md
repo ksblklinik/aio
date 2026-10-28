@@ -31,9 +31,10 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **SPEC-031 ([`specs/031-universal-facilities-and-locations.md`](file:///c:/aplikasi/aio/specs/031-universal-facilities-and-locations.md))**: `Completed` (merged to `main`).
   - **SPEC-032 ([`specs/032-universal-scheduling-and-queue.md`](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md))**: `Completed` (merged to `main`).
   - **SPEC-033 ([`specs/033-universal-tariffs-and-split-fee.md`](file:///c:/aplikasi/aio/specs/033-universal-tariffs-and-split-fee.md))**: `Completed` (Universal Tariffs, Multi-Payer Price Books & Split Fee Engine).
+  - **SPEC-034 ([`specs/034-universal-semantic-coding-and-terminology.md`](file:///c:/aplikasi/aio/specs/034-universal-semantic-coding-and-terminology.md))**: `Completed` (Universal Semantic Coding & Terminology Registry).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
-* **Test Suite Status**: **406 tests (2358 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
-* **Database File**: `database.sqlite` di root repositori (28 migrasi applied).
+* **Test Suite Status**: **415 tests (2428 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
+* **Database File**: `database.sqlite` di root repositori (29 migrasi applied).
 
 ---
 
@@ -122,12 +123,31 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
+## 📦 Capaian & Hasil Eksekusi SPEC-034 (Universal Semantic Coding & Terminology Registry):
+1. **Database Schema & Migrations**:
+   - Migrasi `2026_10_28_000029_create_terminology_and_code_systems_tables.sql` membuat tabel:
+     - `terminology_code_systems`: Katalog otoritas kamus standar (ICD-10, ICD-9-CM, LOINC, KFA, HS-Code, KBLI, dsb.) dengan URI resmi dan status master platform vs custom tenant.
+     - `terminology_concepts`: Kamus konsep dan kode standar hierarkis dengan `parent_code`, deskripsi, metadata atribut, dan sinonim pencarian bahasa lokal.
+     - `terminology_mappings`: Aturan konversi kode lintas otoritas/standar (`equivalent`, `narrower`, `wider`, `related_to`).
+2. **Core Terminology Engine (`TerminologyRegistryInterface`)**:
+   - `createCodeSystem()`, `getCodeSystem()`, `getCodeSystemByCode()`, `listCodeSystems()`: Manajemen sistem kodifikasi global maupun privat per tenant.
+   - `createConcept()`, `getConcept()`, `getConceptByCode()`, `searchConcepts()`: Fast autocomplete & search engine dengan pengurutan relevansi (exact match, prefix match, display name, natural language synonyms dalam bahasa Indonesia/lokal).
+   - `createMapping()`, `listMappings()`, `resolveMapping()`: Resolusi pemetaan kode lintas sistem (misal: Kode Internal $\leftrightarrow$ BPJS $\leftrightarrow$ SatuSehat) dilengkapi resolusi konsep target otomatis.
+   - `bulkImportConcepts()`: Batch atomic importer untuk ribuan konsep sekaligus dalam satu transaksi database.
+3. **Web UI & REST API**:
+   - Rute Web di `routes.php` dan Web Controller `TerminologyController`.
+   - REST API di `ApiTerminologyController` (`GET /api/terminology/search`, `POST /api/terminology/resolve-mapping`, `POST /api/terminology/bulk-import`).
+   - Antarmuka pengguna responsif Inertia React di `resources/js/Pages/Terminology/Index.tsx` dengan Semantic UI Tokens, 3 Tab navigasi (Kamus Konsep & Pencarian Cepat, Katalog Sistem Kodifikasi, dan Pemetaan Lintas Sistem dengan Quick Mapping Tester interaktif).
+4. **Verifikasi & Test**:
+   - Test suite baru [`tests/Unit/TerminologyModuleTest.php`](file:///c:/aplikasi/aio/tests/Unit/TerminologyModuleTest.php) (9 tests, 51 assertions) lolos 100%.
+   - Global test suite meningkat menjadi **415 tests (2428 assertions)** PASS 100%.
+
+---
+
 ## 🚀 Rencana Langkah Berikutnya (Penguatan Core & Level 2):
-1. **SPEC-034: Universal Semantic Coding & Terminology Registry**:
-   - Standard dictionary engine untuk lookup ribuan kode standar internasional (ICD-10, ICD-9-CM, LOINC, KFA / BPJS DPHO, HS Code, KBLI) dengan fast search, sinonim, dan mapping lintas standar.
-2. **SPEC-035: Universal Document Cryptographic Seal & Verification Portal**:
+1. **SPEC-035: Universal Document Cryptographic Seal & Verification Portal**:
    - Digital signature / TTE, segel kriptografis SHA-256, QR code validasi publik (`/verify/doc/{hash}`) untuk kwitansi, invoice, surat sakit, resume medis, atau e-certificate.
-3. **Core Hardening: Universal Server-Sent Events (SSE) Push Bus**:
+2. **Core Hardening: Universal Server-Sent Events (SSE) Push Bus**:
    - Menggantikan polling interval pada TV Display antrean (SPEC-032) dengan real-time push sub-detik native browser.
 
 

@@ -904,3 +904,14 @@ if (!function_exists('priceBooks')) {
         return app(\App\Modules\Tariff\Contracts\TariffRegistryInterface::class);
     }
 }
+
+if (!function_exists('terminology')) {
+    /**
+     * Helper global untuk Universal Semantic Coding & Terminology Registry
+     */
+    function terminology(): \App\Modules\Terminology\Contracts\TerminologyRegistryInterface
+    {
+        return app(\App\Modules\Terminology\Contracts\TerminologyRegistryInterface::class);
+    }
+}
+

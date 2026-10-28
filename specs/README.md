@@ -46,7 +46,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 031 | [031-universal-facilities-and-locations.md](file:///c:/aplikasi/aio/specs/031-universal-facilities-and-locations.md) | Universal Facilities, Spaces & Locations Registry | `Completed` | 2026-10-28 |
 | 032 | [032-universal-scheduling-and-queue.md](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md) | Universal Scheduling, Appointments & Human Queue Engine | `Completed` | 2026-10-28 |
 | 033 | [033-universal-tariffs-and-split-fee.md](file:///c:/aplikasi/aio/specs/033-universal-tariffs-and-split-fee.md) | Universal Tariffs, Multi-Payer Price Books & Split Fee Engine | `Completed` | 2026-10-28 |
-| 034 | [034-universal-semantic-coding-and-terminology.md](file:///c:/aplikasi/aio/specs/034-universal-semantic-coding-and-terminology.md) | Universal Semantic Coding & Terminology Registry | `Draft` | 2026-10-28 |
+| 034 | [034-universal-semantic-coding-and-terminology.md](file:///c:/aplikasi/aio/specs/034-universal-semantic-coding-and-terminology.md) | Universal Semantic Coding & Terminology Registry | `Completed` | 2026-10-28 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 
