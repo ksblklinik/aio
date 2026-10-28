@@ -4,10 +4,10 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 📌 Status Terakhir Sesi (Last Updated: 2026-10-28 07:40 WIB)
+## 📌 Status Terakhir Sesi (Last Updated: 2026-10-28 08:25 WIB)
 
 * **Conversation ID Terakhir**: `4d7528e5-6993-4060-b918-14aabb4463fe`
-* **Active Git Branch**: `main` (Merged cleanly via `--no-ff`, working tree clean)
+* **Active Git Branch**: `feat/029b-inventory-multi-warehouse-and-batch` (Siap merge ke `main`)
 * **Status Dokumen / Roadmap**:
   - SPEC-013 ([`specs/013-core-hardening-and-unified-kernel.md`](file:///c:/aplikasi/aio/specs/013-core-hardening-and-unified-kernel.md)): `Completed` (merged to `main`).
   - SPEC-014 ([`specs/014-module-extension-contract.md`](file:///c:/aplikasi/aio/specs/014-module-extension-contract.md)): `Completed` (merged to `main`).
@@ -26,13 +26,13 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **SPEC-027 ([`specs/027-universal-contact-registry.md`](file:///c:/aplikasi/aio/specs/027-universal-contact-registry.md))**: `Completed` (merged to `main`).
   - **SPEC-028 ([`specs/028-universal-finance-engine.md`](file:///c:/aplikasi/aio/specs/028-universal-finance-engine.md))**: `Completed` (merged to `main`).
   - **SPEC-029 ([`specs/029-universal-inventory-and-items.md`](file:///c:/aplikasi/aio/specs/029-universal-inventory-and-items.md))**: `Completed` (merged to `main`).
+  - **SPEC-029B ([`specs/029b-inventory-multi-warehouse-and-batch.md`](file:///c:/aplikasi/aio/specs/029b-inventory-multi-warehouse-and-batch.md))**: `Completed` (Inventory Multi-Warehouse, Stock Transfer, Batch & Expiry FEFO).
   - **SPEC-030 ([`specs/030-universal-billing-and-invoicing.md`](file:///c:/aplikasi/aio/specs/030-universal-billing-and-invoicing.md))**: `Completed` (merged to `main`).
   - **SPEC-031 ([`specs/031-universal-facilities-and-locations.md`](file:///c:/aplikasi/aio/specs/031-universal-facilities-and-locations.md))**: `Completed` (Universal Facilities, Spaces & Locations Registry - Level 2 Shared Foundation).
-  - **SPEC-029B ([`specs/029b-inventory-multi-warehouse-and-batch.md`](file:///c:/aplikasi/aio/specs/029b-inventory-multi-warehouse-and-batch.md))**: `Draft` (Inventory Multi-Warehouse, Stock Transfer, Batch & Expiry FEFO).
   - **SPEC-032 ([`specs/032-universal-scheduling-and-queue.md`](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md))**: `Draft` (Universal Scheduling, Appointments & Human Queue Engine).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
-* **Test Suite Status**: **376 tests (2137 assertions) PASS 100%**, `tsc --noEmit` clean, `verify.ps1` all passed.
-* **Database File**: `database.sqlite` di root repositori (25 migrasi applied).
+* **Test Suite Status**: **386 tests (2194 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
+* **Database File**: `database.sqlite` di root repositori (26 migrasi applied).
 
 ---
 
@@ -56,17 +56,34 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
    - Halaman antarmuka Inertia React (`resources/js/Pages/Facility/Index.tsx`) responsif dark/light mode menggunakan semantic tokens baku.
 6. **Verifikasi & Test**:
    - 16 unit test komprehensif di [`tests/Unit/FacilityModuleTest.php`](file:///c:/aplikasi/aio/tests/Unit/FacilityModuleTest.php) lolos 100%.
-   - Global test suite meningkat menjadi **376 tests (2137 assertions)**.
+
+---
+
+## 📦 Capaian & Hasil Eksekusi SPEC-029B (Inventory Multi-Warehouse, Stock Transfer, Batch & Expiry FEFO):
+1. **Database Schema & Migrations**:
+   - Migrasi `2026_10_28_000026_add_multi_warehouse_and_batches.sql` membuat tabel `item_batches`, `inventory_stock_locations`, dan `inventory_transfers`.
+   - Modifikasi `inventory_movements` dengan kolom `room_id` dan `batch_id`.
+2. **Core FEFO Engine & Multi-Warehouse Contracts (`InventoryRegistryInterface`)**:
+   - `getStockByLocation(itemId, ?roomId)` & `getLocationStock(itemId, roomId)`: Stok item per lokasi gudang/ruangan penyimpanan.
+   - `createBatch()`, `getBatch()`, `listBatches()`, `updateBatchStatus()`: Manajemen batch & penelusuran identitas lot.
+   - `listNearExpiryItems(daysThreshold)`: Query otomatis batch obat/barang mendekati kedaluwarsa dengan kalkulasi hari `julianday`.
+   - `deductStockFefo()`: Algoritma alokasi First-Expired First-Out memotong batch kadaluarsa terdekat terlebih dahulu secara otomatis.
+   - `transferStock()`: Mutasi atomik pemindahan stok antar-gudang berurutan dengan sequence `TRF/YYYY/XXXXX`.
+3. **Integrasi Lintas Modul (`Billing` + `Inventory`)**:
+   - `BillingService::deductItemsStock()` dan `revertItemsStock()` mendukung `room_id` dan memotong stok via algoritma FEFO jika item memiliki batch aktif.
+   - Penambahan unit test integrasi di `BillingModuleTest` memverifikasi alokasi FEFO dan retur/pembatalan faktur mengembalikan stok ke batch yang tepat.
+4. **Web UI & REST API**:
+   - REST API endpoints di `ApiInventoryController`.
+   - Web routes di `routes.php` dan `InventoryController`.
+   - Antarmuka pengguna responsif Inertia React di `resources/js/Pages/Inventory/Index.tsx` dengan Semantic UI Tokens, tab Multi-Gudang, riwayat transfer, dan monitoring peringatan FEFO kedaluwarsa.
+5. **Verifikasi & Test**:
+   - Test suite baru [`tests/Unit/InventoryMultiWarehouseTest.php`](file:///c:/aplikasi/aio/tests/Unit/InventoryMultiWarehouseTest.php) (8 tests, 48 assertions) lolos 100%.
+   - Global test suite meningkat menjadi **386 tests (2194 assertions)** PASS 100%.
 
 ---
 
 ## 🚀 Rencana Langkah Berikutnya:
-1. **Pondasi Level 2 Universal (5 Pilar Selesai)**:
-   - `Contact` (SPEC-027): Relasi orang, pelanggan, vendor, multi-role.
-   - `Finance` (SPEC-028): Akun kas/bank, transaksi arus kas, approval, P&L.
-   - `Inventory` (SPEC-029): Katalog barang, jasa, satuan ukuran, mutasi stok fisik.
-   - `Billing` (SPEC-030): Faktur penjualan, tagihan pembelian, kasir cepat POS, pelunasan kuitansi.
-   - `Facility` (SPEC-031): Gedung, ruangan, gudang, bed/meja operasional, occupancy rate.
-2. **Prioritas Eksekusi Berikutnya**:
-   - **SPEC-029B: Inventory Multi-Warehouse, Stock Transfer, Batch & Expiry Tracking (FEFO)** (Mengonsumsi master storage dari SPEC-031).
-   - **SPEC-032: Universal Scheduling, Appointments & Human Queue Engine** (Mengonsumsi poli/ruang/meja dari SPEC-031).
+1. **Merge branch `feat/029b-inventory-multi-warehouse-and-batch` ke `main` via `--no-ff`**.
+2. **Eksekusi SPEC-032: Universal Scheduling, Appointments & Human Queue Engine**:
+   - Mengonsumsi data ruangan & counter/meja dari SPEC-031 (`facilities_rooms`, `facilities_spaces`).
+   - Mendukung antrean pendaftaran mandiri (Kiosk), panggilan antrean ruang tunggu (Display TV), appointment booking multi-petugas/dokter, dan multi-sektor.

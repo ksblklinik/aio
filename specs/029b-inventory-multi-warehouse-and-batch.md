@@ -1,6 +1,6 @@
 # SPEC-029B: Inventory Multi-Warehouse, Stock Transfer, Batch & Expiry Engine
 
-- **Status**: `Draft`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity Platform Team
 - **Tanggal Dibuat**: 2026-10-28
 - **Target Modul**: `app/Modules/Inventory/`
@@ -88,11 +88,11 @@ Solusinya adalah memperkuat modul `Inventory` melalui **SPEC-029B** dengan menam
   - [x] 2.1 Perbarui interface `App\Modules\Inventory\Contracts\InventoryRegistryInterface`.
   - [x] 2.2 Tulis test suite `tests/Unit/InventoryMultiWarehouseTest.php` mencakup batch tracking, FEFO deduction, transfer stok antar gudang, dan near-expiry alert.
   - [x] 2.3 Implementasikan logika multi-lokasi & FEFO di `InventoryService` hingga seluruh unit test lolos 100%.
-- [ ] **Phase 3: Integration & UI Views**
-  - [ ] 3.1 Perbarui Web Controller dan REST API Inventory untuk mendukung filter per gudang dan transfer form.
-  - [ ] 3.2 Verifikasi integrasi pemotongan stok otomatis di modul `Billing` agar mendukung pemotongan per-ruangan/gudang.
-- [ ] **Phase 4: Final Verification, Review & Handoff**
-  - [ ] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat` (memastikan tidak ada regresi).
-  - [ ] 4.2 Jalankan `npm run typecheck` dan script `scripts/verify.ps1`.
-  - [ ] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
-  - [ ] 4.4 Merge atomic commit ke branch `main`.
+- [x] **Phase 3: Integration & UI Views**
+  - [x] 3.1 Perbarui Web Controller dan REST API Inventory untuk mendukung filter per gudang dan transfer form.
+  - [x] 3.2 Verifikasi integrasi pemotongan stok otomatis di modul `Billing` agar mendukung pemotongan per-ruangan/gudang dan FEFO.
+- [x] **Phase 4: Final Verification, Review & Handoff**
+  - [x] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat` (memastikan tidak ada regresi).
+  - [x] 4.2 Jalankan `npm run typecheck` dan script `scripts/verify.ps1`.
+  - [x] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
+  - [x] 4.4 Merge atomic commit ke branch `main`.
