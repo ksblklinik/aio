@@ -182,6 +182,20 @@ class DocumentSealService implements DocumentSealRegistryInterface
             'revocation_reason' => $row['revocation_reason'],
         ];
 
+        try {
+            if (function_exists('sse')) {
+                sse('seal', 'seal_verified', [
+                    'verification_token' => $token,
+                    'document_number' => $row['document_number'],
+                    'document_type' => $row['document_type'],
+                    'status' => $resultStatus,
+                    'is_valid' => $isValid,
+                    'ip_address' => $requestMeta['ip'] ?? null,
+                    'verified_at' => date('c'),
+                ], (string)$row['tenant_id']);
+            }
+        } catch (\Throwable) {}
+
         return [
             'status' => $resultStatus,
             'is_valid' => $isValid,
@@ -346,7 +360,7 @@ class DocumentSealService implements DocumentSealRegistryInterface
 
     protected function getTenantSignatureSecret(int $tenantId): string
     {
-        $salt = defined('APP_KEY') ? APP_KEY : 'aio-signature-salt-secret-default-key-2026';
+        $salt = (function_exists('env') ? (string)env('APP_KEY', 'aio-signature-salt-secret-default-key-2026') : 'aio-signature-salt-secret-default-key-2026');
         return hash_hmac('sha256', (string)$tenantId, $salt);
     }
 

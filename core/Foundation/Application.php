@@ -402,6 +402,17 @@ class Application
         // Security Middlewares
         $c->singleton(\Core\Middleware\SecurityHeaders::class, fn() => new \Core\Middleware\SecurityHeaders());
         $c->singleton(\Core\Middleware\SanitizeInput::class, fn() => new \Core\Middleware\SanitizeInput());
+
+        // Universal Server-Sent Events (SSE) Push Bus
+        $c->singleton(\Core\Broadcasting\SseBroadcasterInterface::class, function ($c) {
+            return new \Core\Broadcasting\SseBroadcaster(
+                $c->get(Connection::class),
+                $c->get(TenantContext::class)
+            );
+        });
+        $c->singleton(\Core\Broadcasting\SseBroadcaster::class, function ($c) {
+            return $c->get(\Core\Broadcasting\SseBroadcasterInterface::class);
+        });
     }
 
     public function registerModuleProviders(): void
@@ -699,7 +710,8 @@ HTML;
             ->register(new QueueRetryCommand())
             ->register(new WebhookListCommand())
             ->register(new WebhookTestCommand())
-            ->register(new ScheduleRunCommand());
+            ->register(new ScheduleRunCommand())
+            ->register(new \Core\Console\Commands\SsePruneCommand());
 
         // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
         $this->bootModuleProviders();

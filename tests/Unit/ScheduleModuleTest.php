@@ -284,4 +284,27 @@ class ScheduleModuleTest extends TestCase
         $this->assertSame((int) $t2['id'], (int) $calledT2['id']);
         $this->assertSame('Klien T2', $calledT2['client_name']);
     }
+
+    public function testQueueOperationsPublishSseEvents(): void
+    {
+        $this->tenantContext->setTenantId('1');
+        $broadcaster = new \Core\Broadcasting\SseBroadcaster($this->db, $this->tenantContext);
+        \Core\Container::getInstance()->instance(\Core\Broadcasting\SseBroadcasterInterface::class, $broadcaster);
+
+        $t = $this->scheduleService->issueQueueTicket(['prefix' => 'A', 'client_name' => 'Pasien SSE']);
+        $this->scheduleService->callNextTicket('A', roomId: 101);
+
+        $events = $broadcaster->getEvents('queue');
+        $this->assertNotEmpty($events);
+
+        $eventNames = array_column($events, 'event');
+        $this->assertContains('ticket_issued', $eventNames);
+        $this->assertContains('ticket_called', $eventNames);
+
+        $calledEvents = array_filter($events, fn($e) => $e['event'] === 'ticket_called');
+        $calledEvent = reset($calledEvents);
+        $this->assertEquals('A-001', $calledEvent['payload']['ticket_number']);
+        $this->assertStringContainsString('Nomor antrean', $calledEvent['payload']['tts_announcement']);
+    }
 }
+

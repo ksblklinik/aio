@@ -925,4 +925,22 @@ if (!function_exists('documentSeal')) {
     }
 }
 
+if (!function_exists('sse')) {
+    /**
+     * Helper global untuk Universal Server-Sent Events (SSE) Push Bus.
+     * Jika dipanggil dengan argumen ($channel, $event, $payload), langsung mempublikasikan event.
+     * Jika dipanggil tanpa argumen, mengembalikan instans SseBroadcasterInterface.
+     */
+    function sse(?string $channel = null, ?string $event = null, array $payload = [], ?string $tenantId = null): mixed
+    {
+        /** @var \Core\Broadcasting\SseBroadcasterInterface $broadcaster */
+        $broadcaster = app(\Core\Broadcasting\SseBroadcasterInterface::class);
+        if ($channel !== null && $event !== null) {
+            return $broadcaster->publish($channel, $event, $payload, $tenantId);
+        }
+        return $broadcaster;
+    }
+}
+
+
 

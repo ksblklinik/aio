@@ -48,6 +48,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 033 | [033-universal-tariffs-and-split-fee.md](file:///c:/aplikasi/aio/specs/033-universal-tariffs-and-split-fee.md) | Universal Tariffs, Multi-Payer Price Books & Split Fee Engine | `Completed` | 2026-10-28 |
 | 034 | [034-universal-semantic-coding-and-terminology.md](file:///c:/aplikasi/aio/specs/034-universal-semantic-coding-and-terminology.md) | Universal Semantic Coding & Terminology Registry | `Completed` | 2026-10-28 |
 | 035 | [035-universal-document-cryptographic-seal-and-verification.md](file:///c:/aplikasi/aio/specs/035-universal-document-cryptographic-seal-and-verification.md) | Universal Document Cryptographic Seal & Verification Portal | `Completed` | 2026-10-28 |
+| 036 | [036-universal-server-sent-events-push-bus.md](file:///c:/aplikasi/aio/specs/036-universal-server-sent-events-push-bus.md) | Universal Server-Sent Events (SSE) Push Bus & Real-Time Broadcast | `Completed` | 2026-10-28 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 

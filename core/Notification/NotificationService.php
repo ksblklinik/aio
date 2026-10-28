@@ -50,6 +50,22 @@ class NotificationService
             'created_at' => date('Y-m-d H:i:s'),
         ]);
 
+        try {
+            if (function_exists('sse')) {
+                sse('notifications', 'notification_received', [
+                    'id' => (int) $id,
+                    'user_id' => $userId,
+                    'tenant_id' => $tenantId,
+                    'type' => $type,
+                    'title' => trim($title),
+                    'message' => trim($message),
+                    'action_url' => $actionUrl,
+                    'icon' => $icon,
+                    'created_at' => date('c'),
+                ], (string) $tenantId);
+            }
+        } catch (\Throwable) {}
+
         return (int) $id;
     }
 
