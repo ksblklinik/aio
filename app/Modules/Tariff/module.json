@@ -1,0 +1,32 @@
+{
+  "id": "tariff",
+  "name": "Tariff & Split Fee",
+  "description": "Universal multi-payer price books, tiered rate matrix, and revenue split fee calculation engine.",
+  "version": "1.0.0",
+  "author": "Antigravity Platform Team",
+  "category": "finance",
+  "icon": "ReceiptPercent",
+  "route": "/tariff",
+  "dependencies": ["auth", "workspaces", "contact", "inventory", "billing"],
+  "is_core": false,
+  "is_active": true,
+  "table_name": "tariff_price_books",
+  "provider": "App\\Modules\\Tariff\\TariffServiceProvider",
+  "permissions": [
+    {
+      "key": "tariff.view",
+      "name": "Lihat Buku Tarif & Bagi Hasil",
+      "description": "Melihat daftar buku tarif, matriks harga layanan, dan laporan alokasi fee"
+    },
+    {
+      "key": "tariff.manage",
+      "name": "Kelola Buku Tarif & Aturan Split",
+      "description": "Menambah/mengubah buku tarif, harga per kelas ruangan, dan aturan bagi hasil jasa"
+    },
+    {
+      "key": "tariff.settle",
+      "name": "Pencairan Bagi Hasil Mitra",
+      "description": "Melakukan settlement dan disbursement pembayaran honorarium dokter/mitra"
+    }
+  ]
+}

@@ -61,6 +61,11 @@ class Connection
         return $this->pdo;
     }
 
+    public function pdo(): PDO
+    {
+        return $this->pdo;
+    }
+
     public function close(): void
     {
         // @phpstan-ignore-next-line

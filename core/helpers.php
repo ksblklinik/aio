@@ -885,6 +885,22 @@ if (!function_exists('humanQueue')) {
     }
 }
 
+if (!function_exists('tariff')) {
+    /**
+     * Helper global untuk Universal Tariffs, Multi-Payer Price Books & Split Fee Engine
+     */
+    function tariff(): \App\Modules\Tariff\Contracts\TariffRegistryInterface
+    {
+        return app(\App\Modules\Tariff\Contracts\TariffRegistryInterface::class);
+    }
+}
 
-
-
+if (!function_exists('priceBooks')) {
+    /**
+     * Alias helper global untuk Universal Price Books & Tariffs Engine
+     */
+    function priceBooks(): \App\Modules\Tariff\Contracts\TariffRegistryInterface
+    {
+        return app(\App\Modules\Tariff\Contracts\TariffRegistryInterface::class);
+    }
+}
