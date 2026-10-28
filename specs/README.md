@@ -45,7 +45,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 030 | [030-universal-billing-and-invoicing.md](file:///c:/aplikasi/aio/specs/030-universal-billing-and-invoicing.md) | Universal Invoicing, Billing & Document Engine | `Completed` | 2026-10-28 |
 | 031 | [031-universal-facilities-and-locations.md](file:///c:/aplikasi/aio/specs/031-universal-facilities-and-locations.md) | Universal Facilities, Spaces & Locations Registry | `Completed` | 2026-10-28 |
 | 032 | [032-universal-scheduling-and-queue.md](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md) | Universal Scheduling, Appointments & Human Queue Engine | `Completed` | 2026-10-28 |
-| 033 | [033-universal-tariffs-and-split-fee.md](file:///c:/aplikasi/aio/specs/033-universal-tariffs-and-split-fee.md) | Universal Tariffs, Multi-Payer Price Books & Split Fee Engine | `Draft` | 2026-10-28 |
+| 033 | [033-universal-tariffs-and-split-fee.md](file:///c:/aplikasi/aio/specs/033-universal-tariffs-and-split-fee.md) | Universal Tariffs, Multi-Payer Price Books & Split Fee Engine | `Completed` | 2026-10-28 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 

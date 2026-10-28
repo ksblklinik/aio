@@ -30,9 +30,10 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **SPEC-030 ([`specs/030-universal-billing-and-invoicing.md`](file:///c:/aplikasi/aio/specs/030-universal-billing-and-invoicing.md))**: `Completed` (merged to `main`).
   - **SPEC-031 ([`specs/031-universal-facilities-and-locations.md`](file:///c:/aplikasi/aio/specs/031-universal-facilities-and-locations.md))**: `Completed` (merged to `main`).
   - **SPEC-032 ([`specs/032-universal-scheduling-and-queue.md`](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md))**: `Completed` (merged to `main`).
+  - **SPEC-033 ([`specs/033-universal-tariffs-and-split-fee.md`](file:///c:/aplikasi/aio/specs/033-universal-tariffs-and-split-fee.md))**: `Completed` (Universal Tariffs, Multi-Payer Price Books & Split Fee Engine).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
-* **Test Suite Status**: **396 tests (2275 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
-* **Database File**: `database.sqlite` di root repositori (27 migrasi applied).
+* **Test Suite Status**: **406 tests (2358 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
+* **Database File**: `database.sqlite` di root repositori (28 migrasi applied).
 
 ---
 
@@ -102,23 +103,31 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 🚀 Rencana Langkah Berikutnya:
-1. **Fondasi Universal Level 2 Telah Lengkap**:
-   - Seluruh 7 pilar fondasi Level 2 telah selesai dan teruji secara menyeluruh:
-     1. Contact Registry (SPEC-027)
-     2. Finance & Ledger (SPEC-028)
-     3. Inventory & Items (SPEC-029)
-     4. Inventory Multi-Warehouse & FEFO (SPEC-029B)
-     5. Universal Billing & Invoicing (SPEC-030)
-     6. Facilities, Spaces & Locations (SPEC-031)
-     7. Scheduling, Appointments & Human Queue (SPEC-032)
-2. **Kesiapan Domain Bisnis Vertikal (Pilihan User)**:
-   - **Opsi A: Modul Klinik FKTP / SIM-Klinik**:
-     - Rekam Medis Elektronik (RME / EMR), Odontogram Gigi, Kebidanan/KIA, Laboratorium Sederhana, Resep & Farmasi, Kasir/Pembayaran.
-     - Bridging Ekosistem: SatuSehat Kemenkes (FHIR R4), Antrean Online BPJS (Antrol), PCare BPJS.
-     - Anjungan Pendaftaran Mandiri (Kiosk APM) & PWA Pasien.
-   - **Opsi B: Modul Lembaga Zakat & Infaq / NGO**:
-     - Manajemen Mustahik/Muzakki, Program Penyaluran, Penghitungan Nisab Zakat.
-   - **Opsi C: Finalisasi Packaging Core / SPEC-016**:
-     - Sanitasi template, installer script, dan docker image release.
+## 📦 Capaian & Hasil Eksekusi SPEC-033 (Universal Tariffs, Multi-Payer Price Books & Split Fee Engine):
+1. **Database Schema & Migrations**:
+   - Migrasi `2026_10_28_000028_create_tariff_and_split_fee_tables.sql` membuat tabel `tariff_price_books`, `tariff_rates`, `tariff_split_rules`, dan `tariff_fee_allocations`.
+2. **Core Tariffs & Revenue Split Engine (`TariffRegistryInterface`)**:
+   - `createPriceBook()`, `listPriceBooks()`, `getDefaultPriceBook()`: Buku tarif multi-penjamin (Umum, BPJS, Asuransi Mandiri/Prudential, Grosir) dengan mekanisme toggle default terisolasi multi-tenant.
+   - `setRate()`, `getRate()`, `listRates()`, `resolvePrice()`: Resolusi tarif berjenjang per item layanan/obat, kelas ruangan (VIP vs standard), skema penjaminan (fixed, percentage, cap limit), dan kalkulasi co-payment pasien mandiri dengan graceful fallback ke harga katalog.
+   - `createSplitRule()`, `listSplitRules()`, `calculateSplits()`: Pemecahan komponen biaya (Jasa Medis Dokter, Jasa Sarana Klinik, Komisi Sales/Mekanik, Biaya Administrasi) dengan validasi batas akumulasi persentase maksimal 100%.
+   - `recordInvoiceSplits()`: Perekaman otomatis alokasi fee saat transaksi invoice diterbitkan.
+   - `getBeneficiarySummary()`, `settleBeneficiaryFees()`: Pelacakan akumulasi fee dokter/mitra (akrual vs terbayar) dan eksekusi pencairan/disbursement honorarium.
+3. **Web UI & REST API**:
+   - Rute Web di `routes.php` dan `TariffController`.
+   - REST API di `ApiTariffController` untuk integrasi kasir POS, anjungan kiosk, dan bridging eksternal.
+   - Antarmuka pengguna responsif Inertia React di `resources/js/Pages/Tariff/Index.tsx` dengan Semantic UI Tokens, 3 Tab navigasi (Matriks Buku Tarif, Aturan Split Fee, dan Pencairan/Settlement).
+4. **Verifikasi & Test**:
+   - Test suite baru [`tests/Unit/TariffModuleTest.php`](file:///c:/aplikasi/aio/tests/Unit/TariffModuleTest.php) (10 tests, 64 assertions) lolos 100%.
+   - Global test suite meningkat menjadi **406 tests (2358 assertions)** PASS 100%.
+
+---
+
+## 🚀 Rencana Langkah Berikutnya (Penguatan Core & Level 2):
+1. **SPEC-034: Universal Semantic Coding & Terminology Registry**:
+   - Standard dictionary engine untuk lookup ribuan kode standar internasional (ICD-10, ICD-9-CM, LOINC, KFA / BPJS DPHO, HS Code, KBLI) dengan fast search, sinonim, dan mapping lintas standar.
+2. **SPEC-035: Universal Document Cryptographic Seal & Verification Portal**:
+   - Digital signature / TTE, segel kriptografis SHA-256, QR code validasi publik (`/verify/doc/{hash}`) untuk kwitansi, invoice, surat sakit, resume medis, atau e-certificate.
+3. **Core Hardening: Universal Server-Sent Events (SSE) Push Bus**:
+   - Menggantikan polling interval pada TV Display antrean (SPEC-032) dengan real-time push sub-detik native browser.
+
 
