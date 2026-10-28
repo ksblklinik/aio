@@ -76,62 +76,67 @@ class PerformanceSentinel implements PerformanceSentinelInterface
     public function runBenchmark(int $iterations = 100): array
     {
         $iterations = max(10, min(5000, $iterations));
-        $benchmarkTable = '_benchmark_' . uniqid();
+        $benchmarkTable = '_temp_benchmark_' . bin2hex(random_bytes(4));
 
-        // 1. Setup table
-        $this->db->statement("CREATE TABLE {$benchmarkTable} (id INTEGER PRIMARY KEY AUTOINCREMENT, val TEXT, num REAL);");
+        try {
+            // 1. Setup temporary table (does not write to main persistent pages)
+            $this->db->statement("CREATE TEMPORARY TABLE {$benchmarkTable} (id INTEGER PRIMARY KEY AUTOINCREMENT, val TEXT, num REAL);");
 
-        // 2. Measure Write Throughput (batched transaction)
-        $writeStart = microtime(true);
-        $this->db->statement("BEGIN IMMEDIATE TRANSACTION;");
-        for ($i = 0; $i < $iterations; $i++) {
-            $this->db->statement(
-                "INSERT INTO {$benchmarkTable} (val, num) VALUES (?, ?)",
-                ['bench_' . $i, (float) ($i * 1.5)]
-            );
-        }
-        $this->db->statement("COMMIT;");
-        $writeDuration = microtime(true) - $writeStart;
-        $writeDurationMs = $writeDuration * 1000.0;
-        $writesPerSec = $writeDuration > 0 ? round($iterations / $writeDuration) : 0;
-
-        // 3. Measure Read Throughput
-        $readStart = microtime(true);
-        for ($i = 0; $i < $iterations; $i++) {
-            $this->db->selectOne("SELECT * FROM {$benchmarkTable} WHERE id = ?", [($i % $iterations) + 1]);
-        }
-        $readDuration = microtime(true) - $readStart;
-        $readDurationMs = $readDuration * 1000.0;
-        $readsPerSec = $readDuration > 0 ? round($iterations / $readDuration) : 0;
-
-        // 4. Measure Lock Acquisition Latency
-        $lockLatencies = [];
-        for ($i = 0; $i < 10; $i++) {
-            $lockStart = microtime(true);
+            // 2. Measure Write Throughput (batched transaction)
+            $writeStart = microtime(true);
             $this->db->statement("BEGIN IMMEDIATE TRANSACTION;");
-            $this->db->statement("UPDATE {$benchmarkTable} SET num = num + 1 WHERE id = 1");
+            for ($i = 0; $i < $iterations; $i++) {
+                $this->db->statement(
+                    "INSERT INTO {$benchmarkTable} (val, num) VALUES (?, ?)",
+                    ['bench_' . $i, (float) ($i * 1.5)]
+                );
+            }
             $this->db->statement("COMMIT;");
-            $lockLatencies[] = (microtime(true) - $lockStart) * 1000.0;
+            $writeDuration = microtime(true) - $writeStart;
+            $writeDurationMs = $writeDuration * 1000.0;
+            $writesPerSec = $writeDuration > 0 ? round($iterations / $writeDuration) : 0;
+
+            // 3. Measure Read Throughput
+            $readStart = microtime(true);
+            for ($i = 0; $i < $iterations; $i++) {
+                $this->db->selectOne("SELECT * FROM {$benchmarkTable} WHERE id = ?", [($i % $iterations) + 1]);
+            }
+            $readDuration = microtime(true) - $readStart;
+            $readDurationMs = $readDuration * 1000.0;
+            $readsPerSec = $readDuration > 0 ? round($iterations / $readDuration) : 0;
+
+            // 4. Measure Lock Acquisition Latency
+            $lockLatencies = [];
+            for ($i = 0; $i < 10; $i++) {
+                $lockStart = microtime(true);
+                $this->db->statement("BEGIN IMMEDIATE TRANSACTION;");
+                $this->db->statement("UPDATE {$benchmarkTable} SET num = num + 1 WHERE id = 1");
+                $this->db->statement("COMMIT;");
+                $lockLatencies[] = (microtime(true) - $lockStart) * 1000.0;
+            }
+            $avgLockLatencyMs = round(array_sum($lockLatencies) / count($lockLatencies), 3);
+
+            return [
+                'iterations' => $iterations,
+                'write' => [
+                    'total_time_ms' => round($writeDurationMs, 2),
+                    'operations_per_sec' => $writesPerSec,
+                    'avg_time_per_op_ms' => round($writeDurationMs / $iterations, 3),
+                ],
+                'read' => [
+                    'total_time_ms' => round($readDurationMs, 2),
+                    'operations_per_sec' => $readsPerSec,
+                    'avg_time_per_op_ms' => round($readDurationMs / $iterations, 3),
+                ],
+                'lock_latency_ms' => $avgLockLatencyMs,
+            ];
+        } finally {
+            try {
+                $this->db->statement("DROP TABLE IF EXISTS {$benchmarkTable};");
+            } catch (\Throwable) {
+                // Ignore cleanup error
+            }
         }
-        $avgLockLatencyMs = round(array_sum($lockLatencies) / count($lockLatencies), 3);
-
-        // 5. Cleanup
-        $this->db->statement("DROP TABLE IF EXISTS {$benchmarkTable};");
-
-        return [
-            'iterations' => $iterations,
-            'write' => [
-                'total_time_ms' => round($writeDurationMs, 2),
-                'operations_per_sec' => $writesPerSec,
-                'avg_time_per_op_ms' => round($writeDurationMs / $iterations, 3),
-            ],
-            'read' => [
-                'total_time_ms' => round($readDurationMs, 2),
-                'operations_per_sec' => $readsPerSec,
-                'avg_time_per_op_ms' => round($readDurationMs / $iterations, 3),
-            ],
-            'lock_latency_ms' => $avgLockLatencyMs,
-        ];
     }
 
     public function reset(): void

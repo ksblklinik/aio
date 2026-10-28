@@ -16,7 +16,7 @@ class TenantKeyManager
     public function __construct(Connection $db, ?string $masterKey = null)
     {
         $this->db = $db;
-        $this->masterKey = $masterKey ?? (string) (config('app.key') ?: env('APP_KEY', 'aio-universal-secret-key-32chars!!'));
+        $this->masterKey = $masterKey ?? \Core\Security\AppKey::get();
     }
 
     /**

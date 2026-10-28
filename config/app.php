@@ -10,7 +10,7 @@ return [
     */
     'name' => env('APP_NAME', 'aio SaaS'),
     'env' => env('APP_ENV', 'local'),
-    'debug' => (bool) env('APP_DEBUG', true),
+    'debug' => (bool) env('APP_DEBUG', false),
     'url' => env('APP_URL', 'http://localhost:8000'),
     'key' => env('APP_KEY', ''),
     'timezone' => env('APP_TIMEZONE', 'Asia/Jakarta'),

@@ -15,7 +15,7 @@ class CryptographicSealAuditor implements AuditorInterface
         private Connection $db,
         private ?string $appKey = null
     ) {
-        $this->appKey = $appKey ?? ($_ENV['APP_KEY'] ?? 'aio-signature-salt-secret-default-key-2026');
+        $this->appKey = $appKey ?? \Core\Security\AppKey::get();
     }
 
     public function getPillarKey(): string

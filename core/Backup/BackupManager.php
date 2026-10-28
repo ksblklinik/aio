@@ -25,7 +25,7 @@ class BackupManager implements BackupManagerInterface
     ) {
         $this->backupDirectory = $backupDirectory
             ?? (dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'backups');
-        $this->encryptionKey = $encryptionKey ?? ($_ENV['APP_KEY'] ?? null);
+        $this->encryptionKey = $encryptionKey ?? \Core\Security\AppKey::get();
 
         if (!is_dir($this->backupDirectory)) {
             mkdir($this->backupDirectory, 0755, true);
@@ -37,7 +37,7 @@ class BackupManager implements BackupManagerInterface
         $compress = (bool) ($options['compress'] ?? true);
         $encrypt = (bool) ($options['encrypt'] ?? false);
         $tag = !empty($options['tag']) ? preg_replace('/[^a-zA-Z0-9_-]/', '', (string) $options['tag']) : null;
-        $customKey = (string) ($options['key'] ?? $this->encryptionKey ?? 'default_secret_key');
+        $customKey = (string) ($options['key'] ?? $this->encryptionKey ?? \Core\Security\AppKey::get());
 
         $backupId = 'bkp_' . date('Ymd_His') . '_' . bin2hex(random_bytes(3));
         $baseName = 'backup_' . date('Y-m-d_His') . ($tag ? '_' . $tag : '') . '_' . substr($backupId, -6);

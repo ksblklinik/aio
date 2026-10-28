@@ -298,6 +298,7 @@ class PlatformWatchdog implements PlatformWatchdogInterface
             'memory_usage_mb' => round(memory_get_usage(true) / 1048576, 2),
             'memory_peak_mb' => round(memory_get_peak_usage(true) / 1048576, 2),
             'os' => PHP_OS,
+            'app_key_insecure' => \Core\Security\AppKey::isInsecure(),
         ];
     }
 }
