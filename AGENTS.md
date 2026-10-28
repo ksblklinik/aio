@@ -55,5 +55,4 @@ Setiap agen dan kontributor wajib mematuhi seluruh aturan berikut:
 6. [06-mcp-lifecycle-recommendation.md](file:///c:/aplikasi/aio/.agents/rules/06-mcp-lifecycle-recommendation.md) — Rekomendasi proaktif server MCP dan tata kelola plugin.
 7. [07-semantic-ui-tokens.md](file:///c:/aplikasi/aio/.agents/rules/07-semantic-ui-tokens.md) — Disiplin semantic tokens dan integritas tema dark/light mode.
 8. [08-zero-infrastructure-leakage.md](file:///c:/aplikasi/aio/.agents/rules/08-zero-infrastructure-leakage.md) — Pencegahan kebocoran infrastruktur dan larangan tambal lokal di modul bisnis.
-
-
+9. [09-ponytail-pragmatism.md](file:///c:/aplikasi/aio/.agents/rules/09-ponytail-pragmatism.md) — Pragmatisme Ponytail, 7-Step Decision Ladder, anti-bloatware, dan minimalis diffs.
