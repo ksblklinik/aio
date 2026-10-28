@@ -1010,6 +1010,16 @@ if (!function_exists('dlq')) {
     }
 }
 
+if (!function_exists('outbox')) {
+    /**
+     * Helper global untuk Universal Transactional Outbox Pattern & Reliable Event Bus.
+     */
+    function outbox(): \Core\Outbox\TransactionalOutboxManagerInterface
+    {
+        return app(\Core\Outbox\TransactionalOutboxManagerInterface::class);
+    }
+}
+
 
 
 

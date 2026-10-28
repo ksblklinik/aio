@@ -464,6 +464,19 @@ class Application
         $c->singleton(\Core\Resilience\PlatformWatchdog::class, function ($c) {
             return $c->get(\Core\Resilience\PlatformWatchdogInterface::class);
         });
+
+        // Universal Transactional Outbox Pattern & Reliable Event Bus
+        $c->singleton(\Core\Outbox\TransactionalOutboxManagerInterface::class, function ($c) {
+            $db = $c->get(Connection::class);
+            $eventDispatcher = $c->has(\Core\Events\EventDispatcher::class) ? $c->get(\Core\Events\EventDispatcher::class) : null;
+            $sse = $c->has(\Core\Broadcasting\SseBroadcasterInterface::class) ? $c->get(\Core\Broadcasting\SseBroadcasterInterface::class) : null;
+            $webhooks = $c->has(\Core\Webhook\WebhookDispatcher::class) ? $c->get(\Core\Webhook\WebhookDispatcher::class) : null;
+
+            return new \Core\Outbox\TransactionalOutboxManager($db, $eventDispatcher, $sse, $webhooks);
+        });
+        $c->singleton(\Core\Outbox\TransactionalOutboxManager::class, function ($c) {
+            return $c->get(\Core\Outbox\TransactionalOutboxManagerInterface::class);
+        });
     }
 
     public function registerModuleProviders(): void
@@ -777,7 +790,11 @@ HTML;
             ->register(new \Core\Console\Commands\CircuitResetCommand())
             ->register(new \Core\Console\Commands\QueueDlqListCommand())
             ->register(new \Core\Console\Commands\QueueDlqRetryCommand())
-            ->register(new \Core\Console\Commands\QueueDlqPurgeCommand());
+            ->register(new \Core\Console\Commands\QueueDlqPurgeCommand())
+            ->register(new \Core\Console\Commands\OutboxRelayCommand())
+            ->register(new \Core\Console\Commands\OutboxDrainCommand())
+            ->register(new \Core\Console\Commands\OutboxStatusCommand())
+            ->register(new \Core\Console\Commands\OutboxPruneCommand());
 
         // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
         $this->bootModuleProviders();

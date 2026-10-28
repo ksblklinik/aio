@@ -53,6 +53,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 038 | [038-universal-database-disaster-recovery-and-self-healing.md](file:///c:/aplikasi/aio/specs/038-universal-database-disaster-recovery-and-self-healing.md) | Universal Database Disaster Recovery, Online Hot-Backup & Self-Healing Engine | `Completed` | 2026-10-28 |
 | 039 | [039-universal-cross-module-integrity-auditor-and-reconciler.md](file:///c:/aplikasi/aio/specs/039-universal-cross-module-integrity-auditor-and-reconciler.md) | Universal Cross-Module Integrity Auditor & Automated Data Reconciler | `Completed` | 2026-10-28 |
 | 040 | [040-platform-resilience-watchdog-circuit-breaker-dlq.md](file:///c:/aplikasi/aio/specs/040-platform-resilience-watchdog-circuit-breaker-dlq.md) | Platform Resilience Watchdog, Circuit Breaker & Dead-Letter Queue Hardening | `Completed` | 2026-10-28 |
+| 041 | [041-universal-transactional-outbox-and-reliable-event-bus.md](file:///c:/aplikasi/aio/specs/041-universal-transactional-outbox-and-reliable-event-bus.md) | Universal Transactional Outbox Pattern & Reliable Event Bus Engine | `Completed` | 2026-10-28 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 

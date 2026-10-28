@@ -38,9 +38,10 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **SPEC-038 ([`specs/038-universal-database-disaster-recovery-and-self-healing.md`](file:///c:/aplikasi/aio/specs/038-universal-database-disaster-recovery-and-self-healing.md))**: `Completed` (Universal Database Disaster Recovery, Online Hot-Backup & Self-Healing Engine).
   - **SPEC-039 ([`specs/039-universal-cross-module-integrity-auditor-and-reconciler.md`](file:///c:/aplikasi/aio/specs/039-universal-cross-module-integrity-auditor-and-reconciler.md))**: `Completed` (Universal Cross-Module Integrity Auditor & Automated Data Reconciler).
   - **SPEC-040 ([`specs/040-platform-resilience-watchdog-circuit-breaker-dlq.md`](file:///c:/aplikasi/aio/specs/040-platform-resilience-watchdog-circuit-breaker-dlq.md))**: `Completed` (Platform Resilience Watchdog, Circuit Breaker & Dead-Letter Queue Hardening).
+  - **SPEC-041 ([`specs/041-universal-transactional-outbox-and-reliable-event-bus.md`](file:///c:/aplikasi/aio/specs/041-universal-transactional-outbox-and-reliable-event-bus.md))**: `Completed` (Universal Transactional Outbox Pattern & Reliable Event Bus Engine).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
-* **Test Suite Status**: **485 tests (2773 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
-* **Database File**: `database.sqlite` di root repositori (34 migrasi applied).
+* **Test Suite Status**: **492 tests (2829 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
+* **Database File**: `database.sqlite` di root repositori (35 migrasi applied).
 
 ---
 
