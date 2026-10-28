@@ -404,9 +404,29 @@ class BillingService implements BillingRegistryInterface
         $createdBy = !empty($paymentData['created_by']) ? (int) $paymentData['created_by'] : null;
 
         return $this->db->transaction(function () use (
-            $tenantId, $invoiceId, $invoice, $paymentNumber, $accountId,
+            $tenantId, $invoiceId, $paymentNumber, $accountId,
             $paymentMethod, $amount, $paymentDate, $referenceNote, $createdBy
         ) {
+            // Re-query the latest state of the invoice inside the transaction to prevent race conditions
+            $currentInvoice = $this->db->selectOne(
+                "SELECT * FROM invoices WHERE id = ? AND tenant_id = ?",
+                [$invoiceId, $tenantId]
+            );
+            if (!$currentInvoice) {
+                throw new RuntimeException("Invoice dengan ID {$invoiceId} tidak ditemukan.");
+            }
+            if ($currentInvoice['status'] === 'cancelled') {
+                throw new RuntimeException('Tidak dapat menerima pembayaran untuk invoice yang telah dibatalkan.');
+            }
+            if ($currentInvoice['payment_status'] === 'paid') {
+                throw new RuntimeException('Invoice ini sudah lunas.');
+            }
+
+            $currentDue = (float) $currentInvoice['amount_due'];
+            if ($amount > round($currentDue, 2) + 0.001) {
+                throw new InvalidArgumentException(sprintf('Nominal pembayaran (%.2f) tidak boleh melebihi sisa tagihan (%.2f).', $amount, $currentDue));
+            }
+
             $transactionId = null;
 
             // Integrasi Finance: Catat mutasi kas masuk / keluar jika account_id disediakan
@@ -415,21 +435,21 @@ class BillingService implements BillingRegistryInterface
                     $flowDesc = sprintf(
                         'Pembayaran %s untuk %s (%s)',
                         $paymentNumber,
-                        $invoice['invoice_number'],
-                        $invoice['contact_name']
+                        $currentInvoice['invoice_number'],
+                        $currentInvoice['contact_name']
                     );
 
-                    $categories = finance()->listCategories($invoice['type'] === 'bill' ? 'expense' : 'income');
+                    $categories = finance()->listCategories($currentInvoice['type'] === 'bill' ? 'expense' : 'income');
                     $catId = !empty($categories) ? (int) $categories[0]['id'] : 1;
 
-                    if ($invoice['type'] === 'bill') {
+                    if ($currentInvoice['type'] === 'bill') {
                         $transactionId = finance()->recordOutflow(
                             $accountId,
                             $amount,
                             $catId,
-                            $invoice['contact_id'] ? (int) $invoice['contact_id'] : null,
+                            $currentInvoice['contact_id'] ? (int) $currentInvoice['contact_id'] : null,
                             $flowDesc,
-                            $invoice['invoice_number'],
+                            $currentInvoice['invoice_number'],
                             null,
                             false,
                             $paymentDate
@@ -439,9 +459,9 @@ class BillingService implements BillingRegistryInterface
                             $accountId,
                             $amount,
                             $catId,
-                            $invoice['contact_id'] ? (int) $invoice['contact_id'] : null,
+                            $currentInvoice['contact_id'] ? (int) $currentInvoice['contact_id'] : null,
                             $flowDesc,
-                            $invoice['invoice_number'],
+                            $currentInvoice['invoice_number'],
                             null,
                             $paymentDate
                         );
@@ -466,20 +486,24 @@ class BillingService implements BillingRegistryInterface
             ]);
 
             // Perbarui akumulasi invoice
-            $newPaid = round((float) $invoice['amount_paid'] + $amount, 2);
-            $newDue = max(0.0, round((float) $invoice['grand_total'] - $newPaid, 2));
+            $newPaid = round((float) $currentInvoice['amount_paid'] + $amount, 2);
+            $newDue = max(0.0, round((float) $currentInvoice['grand_total'] - $newPaid, 2));
             $isFullyPaid = $newDue <= 0.001;
 
             $newPaymentStatus = $isFullyPaid ? 'paid' : 'partially_paid';
             $newStatus = $isFullyPaid ? 'paid' : 'partially_paid';
 
-            $this->db->statement(
+            $affected = $this->db->affectingStatement(
                 "UPDATE invoices SET
                     amount_paid = ?, amount_due = ?, payment_status = ?, status = ?,
                     updated_at = datetime('now')
-                WHERE id = ? AND tenant_id = ?",
-                [$newPaid, $newDue, $newPaymentStatus, $newStatus, $invoiceId, $tenantId]
+                WHERE id = ? AND tenant_id = ? AND amount_due >= ?",
+                [$newPaid, $newDue, $newPaymentStatus, $newStatus, $invoiceId, $tenantId, round($amount - 0.001, 2)]
             );
+
+            if ($affected !== 1) {
+                throw new RuntimeException("Gagal mencatat pembayaran: sisa tagihan invoice telah berubah oleh transaksi lain.");
+            }
 
             return $this->getInvoice($invoiceId) ?? throw new RuntimeException('Gagal memuat invoice.');
         });
@@ -555,6 +579,18 @@ class BillingService implements BillingRegistryInterface
                 WHERE id = ? AND tenant_id = ?",
                 [$cancelNote, $id, $tenantId]
             );
+
+            // Batalkan alokasi fee/jasa medis (accrued) terkait agar tidak menjadi piutang menggantung
+            try {
+                $this->db->statement(
+                    "UPDATE tariff_fee_allocations 
+                     SET status = 'cancelled', updated_at = datetime('now') 
+                     WHERE invoice_id = ? AND tenant_id = ? AND status = 'accrued'",
+                    [$id, $tenantId]
+                );
+            } catch (\Throwable) {
+                // Modul tariff mungkin belum dimigrasi di beberapa skenario
+            }
 
             return $this->getInvoice($id) ?? throw new RuntimeException('Gagal memuat invoice.');
         });
@@ -731,9 +767,9 @@ class BillingService implements BillingRegistryInterface
                             $itemId,
                             $qty,
                             $roomId,
+                            sprintf('Pengurangan stok penjualan Faktur %s', $invoiceNumber),
                             'invoice',
-                            (string) $invoiceId,
-                            sprintf('Pengurangan stok penjualan Faktur %s', $invoiceNumber)
+                            (string) $invoiceId
                         );
                         continue;
                     }

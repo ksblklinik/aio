@@ -436,11 +436,15 @@ class FinanceService implements FinanceRegistryInterface
                 'updated_at' => $now,
             ]);
 
-            // Mutasi saldo kas berkurang
-            $this->db->statement(
-                "UPDATE financial_accounts SET current_balance = current_balance - ?, updated_at = ? WHERE id = ? AND tenant_id = ?",
-                [$amount, $now, $accountId, $tenantId]
+            // Mutasi saldo kas berkurang secara atomik bersyarat
+            $affected = $this->db->affectingStatement(
+                "UPDATE financial_accounts SET current_balance = round(current_balance - ?, 2), updated_at = ? WHERE id = ? AND tenant_id = ? AND current_balance >= ?",
+                [$amount, $now, $accountId, $tenantId, $amount]
             );
+
+            if ($affected !== 1) {
+                throw new RuntimeException("Saldo kas tidak mencukupi untuk pengeluaran ini.");
+            }
 
             // Double-Entry Ledger Integration
             $this->ledgerManager->record(

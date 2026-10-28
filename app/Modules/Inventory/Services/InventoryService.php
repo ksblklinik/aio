@@ -432,10 +432,43 @@ class InventoryService implements InventoryRegistryInterface
                 'batch_id' => $batchId,
             ]);
 
-            $this->db->statement(
-                "UPDATE items SET current_stock = ?, updated_at = ? WHERE id = ? AND tenant_id = ?",
-                [$stockAfter, $now, $itemId, $tenantId]
-            );
+            if ($cleanType === 'out') {
+                $affected = $this->db->affectingStatement(
+                    "UPDATE items SET current_stock = round(current_stock - ?, 4), updated_at = ? 
+                     WHERE id = ? AND tenant_id = ? AND current_stock >= ?",
+                    [$quantity, $now, $itemId, $tenantId, $quantity]
+                );
+                if ($affected !== 1) {
+                    throw new RuntimeException("Stok tidak mencukupi untuk pengeluaran ini.");
+                }
+            } elseif ($cleanType === 'in') {
+                $this->db->statement(
+                    "UPDATE items SET current_stock = round(current_stock + ?, 4), updated_at = ? WHERE id = ? AND tenant_id = ?",
+                    [$quantity, $now, $itemId, $tenantId]
+                );
+            } elseif ($cleanType === 'opname') {
+                $this->db->statement(
+                    "UPDATE items SET current_stock = ?, updated_at = ? WHERE id = ? AND tenant_id = ?",
+                    [$stockAfter, $now, $itemId, $tenantId]
+                );
+            } elseif ($cleanType === 'adjustment') {
+                if ($quantity < 0.0) {
+                    $absQty = abs($quantity);
+                    $affected = $this->db->affectingStatement(
+                        "UPDATE items SET current_stock = round(current_stock - ?, 4), updated_at = ? 
+                         WHERE id = ? AND tenant_id = ? AND current_stock >= ?",
+                        [$absQty, $now, $itemId, $tenantId, $absQty]
+                    );
+                    if ($affected !== 1) {
+                        throw new RuntimeException("Penyesuaian stok mengakibatkan saldo negatif: {$stockAfter}.");
+                    }
+                } else {
+                    $this->db->statement(
+                        "UPDATE items SET current_stock = round(current_stock + ?, 4), updated_at = ? WHERE id = ? AND tenant_id = ?",
+                        [$quantity, $now, $itemId, $tenantId]
+                    );
+                }
+            }
 
             // Update location stock
             if ($roomId !== null) {
@@ -463,12 +496,17 @@ class InventoryService implements InventoryRegistryInterface
                         ], 'id = ?', [(int) $locRow['id']]);
                     }
                 } elseif ($cleanType === 'out') {
-                    if ($locRow) {
-                        $newLocQty = max(0.0, round((float) $locRow['quantity'] - $quantity, 4));
-                        $this->db->update('inventory_stock_locations', [
-                            'quantity' => $newLocQty,
-                            'updated_at' => $now,
-                        ], 'id = ?', [(int) $locRow['id']]);
+                    if (!$locRow) {
+                        throw new RuntimeException("Stok di ruangan ini tidak mencukupi untuk pengeluaran ini.");
+                    }
+                    $affectedLoc = $this->db->affectingStatement(
+                        "UPDATE inventory_stock_locations 
+                         SET quantity = round(quantity - ?, 4), updated_at = ? 
+                         WHERE id = ? AND quantity >= ?",
+                        [$quantity, $now, (int) $locRow['id'], $quantity]
+                    );
+                    if ($affectedLoc !== 1) {
+                        throw new RuntimeException("Stok di ruangan ini tidak mencukupi untuk pengeluaran ini.");
                     }
                 } elseif ($cleanType === 'opname') {
                     if (!$locRow) {
@@ -516,10 +554,15 @@ class InventoryService implements InventoryRegistryInterface
                         [$quantity, $now, $batchId]
                     );
                 } elseif ($cleanType === 'out') {
-                    $this->db->statement(
-                        "UPDATE item_batches SET current_quantity = max(0.0, round(current_quantity - ?, 4)), updated_at = ? WHERE id = ?",
-                        [$quantity, $now, $batchId]
+                    $affectedBatch = $this->db->affectingStatement(
+                        "UPDATE item_batches 
+                         SET current_quantity = round(current_quantity - ?, 4), updated_at = ? 
+                         WHERE id = ? AND current_quantity >= ?",
+                        [$quantity, $now, $batchId, $quantity]
                     );
+                    if ($affectedBatch !== 1) {
+                        throw new RuntimeException("Stok pada batch ini tidak mencukupi untuk pengeluaran ini.");
+                    }
                 } elseif ($cleanType === 'opname') {
                     $this->db->statement(
                         "UPDATE item_batches SET current_quantity = ?, updated_at = ? WHERE id = ?",
@@ -999,10 +1042,19 @@ class InventoryService implements InventoryRegistryInterface
         };
 
         if (function_exists('lock')) {
+            $lockManager = null;
             try {
-                return (array) lock()->run("inventory:stock:{$tenantId}:{$itemId}", $deductCallback, ttlSeconds: 5, waitTimeoutMs: 3000);
+                $lockManager = lock();
             } catch (\Throwable) {
-                // Fallback to direct execution
+                $lockManager = null;
+            }
+
+            if ($lockManager instanceof \Core\Lock\LockManagerInterface) {
+                try {
+                    return (array) $lockManager->run("inventory:stock:{$tenantId}:{$itemId}", $deductCallback, ttlSeconds: 5, waitTimeoutMs: 3000);
+                } catch (\Core\Lock\LockTimeoutException $e) {
+                    throw new RuntimeException("Stok item sedang diproses oleh transaksi lain. Silakan coba kembali dalam beberapa saat.", 0, $e);
+                }
             }
         }
 
