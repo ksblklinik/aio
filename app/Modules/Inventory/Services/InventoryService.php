@@ -270,7 +270,7 @@ class InventoryService implements InventoryRegistryInterface
         return (float) $row['current_stock'];
     }
 
-    public function checkAvailability(int $itemId, float $requiredQuantity): bool
+    public function checkAvailability(int $itemId, float $requiredQuantity, ?int $roomId = null): bool
     {
         if ($requiredQuantity <= 0.0) {
             return true;
@@ -285,6 +285,10 @@ class InventoryService implements InventoryRegistryInterface
         // Layanan atau non-tracked item selalu tersedia
         if ($row['type'] === 'service' || !(bool) $row['track_inventory']) {
             return true;
+        }
+
+        if ($roomId !== null) {
+            return $this->getLocationStock($itemId, $roomId) >= $requiredQuantity;
         }
 
         return (float) $row['current_stock'] >= $requiredQuantity;

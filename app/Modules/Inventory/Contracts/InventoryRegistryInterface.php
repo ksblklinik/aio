@@ -54,10 +54,10 @@ interface InventoryRegistryInterface
     public function getStock(int $itemId): float;
 
     /**
-     * Periksa apakah stok item mencukupi untuk kuantitas tertentu.
+     * Periksa apakah stok item mencukupi untuk kuantitas tertentu (opsional per lokasi ruangan/gudang).
      * Untuk item bertipe 'service' atau yang tidak ditrack inventory-nya, selalu mengembalikan true.
      */
-    public function checkAvailability(int $itemId, float $requiredQuantity): bool;
+    public function checkAvailability(int $itemId, float $requiredQuantity, ?int $roomId = null): bool;
 
     /**
      * Catat mutasi pergerakan stok fisik (in, out, adjustment, opname).

@@ -128,6 +128,8 @@ class BillingService implements BillingRegistryInterface
                 'discount' => $discount,
                 'tax_rate' => $taxRate,
                 'subtotal' => round($itemSubtotal, 2),
+                'room_id' => !empty($item['room_id']) ? (int) $item['room_id'] : null,
+                'batch_id' => !empty($item['batch_id']) ? (int) $item['batch_id'] : null,
             ];
         }
 
@@ -698,14 +700,16 @@ class BillingService implements BillingRegistryInterface
             $itemId = !empty($item['item_id']) ? (int) $item['item_id'] : null;
             $itemType = (string) ($item['item_type'] ?? 'goods');
             $qty = (float) ($item['quantity'] ?? 1.0);
+            $roomId = !empty($item['room_id']) ? (int) $item['room_id'] : null;
 
             if ($itemId !== null && $itemType === 'goods') {
-                $isAvailable = inventory()->checkAvailability($itemId, $qty);
+                $isAvailable = inventory()->checkAvailability($itemId, $qty, $roomId);
                 if (!$isAvailable) {
                     throw new InvalidArgumentException(sprintf(
-                        "Stok tidak mencukupi untuk item '%s' (dibutuhkan %.2f).",
+                        "Stok tidak mencukupi untuk item '%s' (dibutuhkan %.2f%s).",
                         $item['item_name'],
-                        $qty
+                        $qty,
+                        $roomId ? " di ruangan/gudang ID $roomId" : ""
                     ));
                 }
             }
@@ -716,15 +720,36 @@ class BillingService implements BillingRegistryInterface
             $itemId = !empty($item['item_id']) ? (int) $item['item_id'] : null;
             $itemType = (string) ($item['item_type'] ?? 'goods');
             $qty = (float) ($item['quantity'] ?? 1.0);
+            $roomId = !empty($item['room_id']) ? (int) $item['room_id'] : null;
+            $batchId = !empty($item['batch_id']) ? (int) $item['batch_id'] : null;
 
             if ($itemId !== null && $itemType === 'goods') {
+                if ($roomId !== null && $batchId === null) {
+                    $batches = inventory()->listBatches($itemId, 'active');
+                    if (!empty($batches)) {
+                        inventory()->deductStockFefo(
+                            $itemId,
+                            $qty,
+                            $roomId,
+                            'invoice',
+                            (string) $invoiceId,
+                            sprintf('Pengurangan stok penjualan Faktur %s', $invoiceNumber)
+                        );
+                        continue;
+                    }
+                }
+
                 inventory()->recordStockMovement(
                     $itemId,
                     $qty,
                     'out',
                     sprintf('Pengurangan stok penjualan Faktur %s', $invoiceNumber),
                     'invoice',
-                    (string) $invoiceId
+                    (string) $invoiceId,
+                    null,
+                    null,
+                    $roomId,
+                    $batchId
                 );
             }
         }
@@ -743,6 +768,8 @@ class BillingService implements BillingRegistryInterface
             $itemId = !empty($item['item_id']) ? (int) $item['item_id'] : null;
             $itemType = (string) ($item['item_type'] ?? 'goods');
             $qty = (float) ($item['quantity'] ?? 1.0);
+            $roomId = !empty($item['room_id']) ? (int) $item['room_id'] : null;
+            $batchId = !empty($item['batch_id']) ? (int) $item['batch_id'] : null;
 
             if ($itemId !== null && $itemType === 'goods') {
                 inventory()->recordStockMovement(
@@ -751,7 +778,11 @@ class BillingService implements BillingRegistryInterface
                     'in',
                     sprintf('Pengembalian stok pembatalan Faktur %s', $invoiceNumber),
                     'invoice_cancel',
-                    (string) $invoiceId
+                    (string) $invoiceId,
+                    null,
+                    null,
+                    $roomId,
+                    $batchId
                 );
             }
         }
