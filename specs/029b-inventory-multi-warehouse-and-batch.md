@@ -84,10 +84,10 @@ Solusinya adalah memperkuat modul `Inventory` melalui **SPEC-029B** dengan menam
 - [x] **Phase 1: Database Migrations & Models**
   - [x] 1.1 Buat migration `database/migrations/2026_10_28_000026_add_multi_warehouse_and_batches.sql` untuk tabel `item_batches`, `inventory_stock_locations`, dan `inventory_transfers`.
   - [x] 1.2 Jalankan migrasi via console runner dan verifikasi skema database.
-- [ ] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
-  - [ ] 2.1 Perbarui interface `App\Modules\Inventory\Contracts\InventoryRegistryInterface`.
-  - [ ] 2.2 Tulis test suite `tests/Unit/InventoryMultiWarehouseTest.php` mencakup batch tracking, FEFO deduction, transfer stok antar gudang, dan near-expiry alert.
-  - [ ] 2.3 Implementasikan logika multi-lokasi & FEFO di `InventoryService` hingga seluruh unit test lolos 100%.
+- [x] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
+  - [x] 2.1 Perbarui interface `App\Modules\Inventory\Contracts\InventoryRegistryInterface`.
+  - [x] 2.2 Tulis test suite `tests/Unit/InventoryMultiWarehouseTest.php` mencakup batch tracking, FEFO deduction, transfer stok antar gudang, dan near-expiry alert.
+  - [x] 2.3 Implementasikan logika multi-lokasi & FEFO di `InventoryService` hingga seluruh unit test lolos 100%.
 - [ ] **Phase 3: Integration & UI Views**
   - [ ] 3.1 Perbarui Web Controller dan REST API Inventory untuk mendukung filter per gudang dan transfer form.
   - [ ] 3.2 Verifikasi integrasi pemotongan stok otomatis di modul `Billing` agar mendukung pemotongan per-ruangan/gudang.

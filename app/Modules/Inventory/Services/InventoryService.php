@@ -298,7 +298,9 @@ class InventoryService implements InventoryRegistryInterface
         ?string $referenceType = null,
         ?string $referenceId = null,
         ?float $unitCost = null,
-        ?int $userId = null
+        ?int $userId = null,
+        ?int $roomId = null,
+        ?int $batchId = null
     ): int {
         $tenantId = $this->getTenantId();
         $cleanType = strtolower(trim($type));
@@ -316,7 +318,9 @@ class InventoryService implements InventoryRegistryInterface
             $referenceType,
             $referenceId,
             $unitCost,
-            $userId
+            $userId,
+            $roomId,
+            $batchId
         ) {
             $item = $this->db->selectOne("SELECT * FROM items WHERE id = ? AND tenant_id = ?", [$itemId, $tenantId]);
             if (!$item) {
@@ -325,6 +329,50 @@ class InventoryService implements InventoryRegistryInterface
 
             if ($item['type'] === 'service' || !(bool) $item['track_inventory']) {
                 throw new RuntimeException("Item bertipe 'service' atau non-inventory tidak mengelola mutasi stok fisik.");
+            }
+
+            // SPEC-029B: Multi-warehouse room and batch validations
+            if ($roomId !== null) {
+                $room = $this->db->selectOne(
+                    "SELECT id, name FROM facilities_rooms WHERE id = ? AND tenant_id = ?",
+                    [$roomId, $tenantId]
+                );
+                if (!$room) {
+                    throw new RuntimeException("Ruangan/gudang tidak valid atau tidak ditemukan.");
+                }
+            }
+
+            $batch = null;
+            if ($batchId !== null && $batchId > 0) {
+                $batch = $this->db->selectOne(
+                    "SELECT * FROM item_batches WHERE id = ? AND item_id = ? AND tenant_id = ?",
+                    [$batchId, $itemId, $tenantId]
+                );
+                if (!$batch) {
+                    throw new RuntimeException("Nomor batch tidak valid untuk item ini.");
+                }
+            }
+
+            $batchKey = ($batchId !== null && $batchId > 0) ? $batchId : 0;
+
+            // Location-specific balance check on 'out'
+            if ($cleanType === 'out' && $roomId !== null) {
+                $locRow = $this->db->selectOne(
+                    "SELECT quantity FROM inventory_stock_locations WHERE tenant_id = ? AND item_id = ? AND room_id = ? AND batch_id = ?",
+                    [$tenantId, $itemId, $roomId, $batchKey]
+                );
+                $roomStock = (float) ($locRow['quantity'] ?? 0.0);
+                if ($roomStock < $quantity) {
+                    throw new RuntimeException("Stok di ruangan ini tidak mencukupi. Sisa: {$roomStock}, diminta: {$quantity}.");
+                }
+            }
+
+            // Batch-specific balance check on 'out'
+            if ($cleanType === 'out' && $batch !== null) {
+                $batchCurQty = (float) ($batch['current_quantity'] ?? 0.0);
+                if ($batchCurQty < $quantity) {
+                    throw new RuntimeException("Stok pada batch ini tidak mencukupi. Sisa: {$batchCurQty}, diminta: {$quantity}.");
+                }
             }
 
             $stockBefore = (float) $item['current_stock'];
@@ -376,12 +424,110 @@ class InventoryService implements InventoryRegistryInterface
                 'notes' => $notes,
                 'created_by' => $userId,
                 'created_at' => $now,
+                'room_id' => $roomId,
+                'batch_id' => $batchId,
             ]);
 
             $this->db->statement(
                 "UPDATE items SET current_stock = ?, updated_at = ? WHERE id = ? AND tenant_id = ?",
                 [$stockAfter, $now, $itemId, $tenantId]
             );
+
+            // Update location stock
+            if ($roomId !== null) {
+                $locRow = $this->db->selectOne(
+                    "SELECT id, quantity FROM inventory_stock_locations WHERE tenant_id = ? AND item_id = ? AND room_id = ? AND batch_id = ?",
+                    [$tenantId, $itemId, $roomId, $batchKey]
+                );
+
+                if ($cleanType === 'in') {
+                    if (!$locRow) {
+                        $this->db->insert('inventory_stock_locations', [
+                            'tenant_id' => $tenantId,
+                            'item_id' => $itemId,
+                            'room_id' => $roomId,
+                            'batch_id' => $batchKey,
+                            'quantity' => $quantity,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ]);
+                    } else {
+                        $newLocQty = round((float) $locRow['quantity'] + $quantity, 4);
+                        $this->db->update('inventory_stock_locations', [
+                            'quantity' => $newLocQty,
+                            'updated_at' => $now,
+                        ], 'id = ?', [(int) $locRow['id']]);
+                    }
+                } elseif ($cleanType === 'out') {
+                    if ($locRow) {
+                        $newLocQty = max(0.0, round((float) $locRow['quantity'] - $quantity, 4));
+                        $this->db->update('inventory_stock_locations', [
+                            'quantity' => $newLocQty,
+                            'updated_at' => $now,
+                        ], 'id = ?', [(int) $locRow['id']]);
+                    }
+                } elseif ($cleanType === 'opname') {
+                    if (!$locRow) {
+                        $this->db->insert('inventory_stock_locations', [
+                            'tenant_id' => $tenantId,
+                            'item_id' => $itemId,
+                            'room_id' => $roomId,
+                            'batch_id' => $batchKey,
+                            'quantity' => $quantity,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ]);
+                    } else {
+                        $this->db->update('inventory_stock_locations', [
+                            'quantity' => $quantity,
+                            'updated_at' => $now,
+                        ], 'id = ?', [(int) $locRow['id']]);
+                    }
+                } elseif ($cleanType === 'adjustment') {
+                    if (!$locRow) {
+                        $this->db->insert('inventory_stock_locations', [
+                            'tenant_id' => $tenantId,
+                            'item_id' => $itemId,
+                            'room_id' => $roomId,
+                            'batch_id' => $batchKey,
+                            'quantity' => max(0.0, $quantity),
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ]);
+                    } else {
+                        $newLocQty = max(0.0, round((float) $locRow['quantity'] + $quantity, 4));
+                        $this->db->update('inventory_stock_locations', [
+                            'quantity' => $newLocQty,
+                            'updated_at' => $now,
+                        ], 'id = ?', [(int) $locRow['id']]);
+                    }
+                }
+            }
+
+            // Update batch current_quantity
+            if ($batch !== null) {
+                if ($cleanType === 'in') {
+                    $this->db->statement(
+                        "UPDATE item_batches SET current_quantity = round(current_quantity + ?, 4), updated_at = ? WHERE id = ?",
+                        [$quantity, $now, $batchId]
+                    );
+                } elseif ($cleanType === 'out') {
+                    $this->db->statement(
+                        "UPDATE item_batches SET current_quantity = max(0.0, round(current_quantity - ?, 4)), updated_at = ? WHERE id = ?",
+                        [$quantity, $now, $batchId]
+                    );
+                } elseif ($cleanType === 'opname') {
+                    $this->db->statement(
+                        "UPDATE item_batches SET current_quantity = ?, updated_at = ? WHERE id = ?",
+                        [$quantity, $now, $batchId]
+                    );
+                } elseif ($cleanType === 'adjustment') {
+                    $this->db->statement(
+                        "UPDATE item_batches SET current_quantity = max(0.0, round(current_quantity + ?, 4)), updated_at = ? WHERE id = ?",
+                        [$quantity, $now, $batchId]
+                    );
+                }
+            }
 
             return $movId;
         });
@@ -526,4 +672,544 @@ class InventoryService implements InventoryRegistryInterface
         }
         return 'MOV/' . date('Y') . '/' . str_pad((string) mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
     }
+
+    // ==========================================
+    // SPEC-029B: Multi-Warehouse & Batch Methods
+    // ==========================================
+
+    public function getStockByLocation(int $itemId, ?int $roomId = null): array
+    {
+        $tenantId = $this->getTenantId();
+        $sql = "SELECT sl.*,
+                       r.name AS room_name,
+                       r.code AS room_code,
+                       r.floor AS room_floor,
+                       l.name AS location_name,
+                       b.batch_number,
+                       b.expiry_date,
+                       b.status AS batch_status
+                FROM inventory_stock_locations sl
+                JOIN facilities_rooms r ON r.id = sl.room_id
+                JOIN facilities_locations l ON l.id = r.location_id
+                LEFT JOIN item_batches b ON b.id = sl.batch_id
+                WHERE sl.item_id = ? AND sl.tenant_id = ? AND sl.quantity > 0";
+        $params = [$itemId, $tenantId];
+
+        if ($roomId !== null) {
+            $sql .= " AND sl.room_id = ?";
+            $params[] = $roomId;
+        }
+
+        $sql .= " ORDER BY r.name ASC, b.expiry_date ASC";
+
+        $rows = $this->db->selectAll($sql, $params);
+        return array_map(function ($row) {
+            $row['id'] = (int) $row['id'];
+            $row['tenant_id'] = (int) $row['tenant_id'];
+            $row['item_id'] = (int) $row['item_id'];
+            $row['room_id'] = (int) $row['room_id'];
+            $row['batch_id'] = (int) $row['batch_id'];
+            $row['quantity'] = (float) $row['quantity'];
+            return $row;
+        }, $rows);
+    }
+
+    public function getLocationStock(int $itemId, int $roomId): float
+    {
+        $tenantId = $this->getTenantId();
+        $row = $this->db->selectOne(
+            "SELECT COALESCE(SUM(quantity), 0.0) AS total
+             FROM inventory_stock_locations
+             WHERE item_id = ? AND room_id = ? AND tenant_id = ?",
+            [$itemId, $roomId, $tenantId]
+        );
+        return $row ? (float) ($row['total'] ?? 0.0) : 0.0;
+    }
+
+    public function createBatch(
+        int $itemId,
+        string $batchNumber,
+        string $expiryDate,
+        float $quantity = 0.0,
+        float $costPrice = 0.0,
+        ?string $notes = null
+    ): int {
+        $tenantId = $this->getTenantId();
+
+        $item = $this->getItem($itemId);
+        if (!$item) {
+            throw new RuntimeException("Item dengan ID {$itemId} tidak ditemukan.");
+        }
+
+        $cleanBatch = trim($batchNumber);
+        if ($cleanBatch === '') {
+            throw new RuntimeException("Nomor batch tidak boleh kosong.");
+        }
+
+        $cleanExpiry = trim($expiryDate);
+        if ($cleanExpiry === '') {
+            throw new RuntimeException("Tanggal kadaluarsa batch wajib diisi.");
+        }
+
+        $effectiveCost = $costPrice > 0.0 ? $costPrice : (float) ($item['cost_price'] ?? 0.0);
+        $now = date('Y-m-d H:i:s');
+
+        $batchId = (int) $this->db->insert('item_batches', [
+            'tenant_id' => $tenantId,
+            'item_id' => $itemId,
+            'batch_number' => $cleanBatch,
+            'expiry_date' => $cleanExpiry,
+            'initial_quantity' => $quantity,
+            'current_quantity' => $quantity,
+            'cost_price' => $effectiveCost,
+            'status' => 'active',
+            'notes' => $notes,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        return $batchId;
+    }
+
+    public function getBatch(int $batchId): ?array
+    {
+        $tenantId = $this->getTenantId();
+        $row = $this->db->selectOne(
+            "SELECT b.*, i.name AS item_name, i.code AS item_code
+             FROM item_batches b
+             JOIN items i ON i.id = b.item_id
+             WHERE b.id = ? AND b.tenant_id = ?",
+            [$batchId, $tenantId]
+        );
+
+        if (!$row) {
+            return null;
+        }
+
+        $row['id'] = (int) $row['id'];
+        $row['tenant_id'] = (int) $row['tenant_id'];
+        $row['item_id'] = (int) $row['item_id'];
+        $row['initial_quantity'] = (float) $row['initial_quantity'];
+        $row['current_quantity'] = (float) $row['current_quantity'];
+        $row['cost_price'] = (float) $row['cost_price'];
+
+        return $row;
+    }
+
+    public function listBatches(int $itemId, ?string $status = 'active'): array
+    {
+        $tenantId = $this->getTenantId();
+        $sql = "SELECT b.*, i.name AS item_name, i.code AS item_code
+                FROM item_batches b
+                JOIN items i ON i.id = b.item_id
+                WHERE b.item_id = ? AND b.tenant_id = ?";
+        $params = [$itemId, $tenantId];
+
+        if ($status !== null && $status !== '') {
+            $sql .= " AND b.status = ?";
+            $params[] = $status;
+        }
+
+        $sql .= " ORDER BY b.expiry_date ASC, b.id ASC";
+
+        $rows = $this->db->selectAll($sql, $params);
+        return array_map(function ($row) {
+            $row['id'] = (int) $row['id'];
+            $row['tenant_id'] = (int) $row['tenant_id'];
+            $row['item_id'] = (int) $row['item_id'];
+            $row['initial_quantity'] = (float) $row['initial_quantity'];
+            $row['current_quantity'] = (float) $row['current_quantity'];
+            $row['cost_price'] = (float) $row['cost_price'];
+            return $row;
+        }, $rows);
+    }
+
+    public function listNearExpiryItems(int $daysThreshold = 30): array
+    {
+        $tenantId = $this->getTenantId();
+        $sql = "SELECT b.*,
+                       i.name AS item_name,
+                       i.code AS item_code,
+                       i.type AS item_type,
+                       u.code AS unit_code,
+                       (CAST((julianday(b.expiry_date) - julianday('now')) AS INTEGER)) AS days_until_expiry
+                FROM item_batches b
+                JOIN items i ON i.id = b.item_id
+                LEFT JOIN inventory_units u ON u.id = i.unit_id
+                WHERE b.tenant_id = ?
+                  AND b.status = 'active'
+                  AND b.current_quantity > 0
+                  AND date(b.expiry_date) <= date('now', '+' || ? || ' days')
+                ORDER BY b.expiry_date ASC";
+
+        $rows = $this->db->selectAll($sql, [$tenantId, $daysThreshold]);
+        return array_map(function ($row) {
+            $row['id'] = (int) $row['id'];
+            $row['tenant_id'] = (int) $row['tenant_id'];
+            $row['item_id'] = (int) $row['item_id'];
+            $row['initial_quantity'] = (float) $row['initial_quantity'];
+            $row['current_quantity'] = (float) $row['current_quantity'];
+            $row['cost_price'] = (float) $row['cost_price'];
+            $row['days_until_expiry'] = (int) ($row['days_until_expiry'] ?? 0);
+            return $row;
+        }, $rows);
+    }
+
+    public function updateBatchStatus(int $batchId, string $status): bool
+    {
+        $tenantId = $this->getTenantId();
+        $cleanStatus = strtolower(trim($status));
+        if (!in_array($cleanStatus, ['active', 'quarantined', 'expired'], true)) {
+            throw new RuntimeException("Status batch tidak valid. Harus salah satu dari: active, quarantined, expired.");
+        }
+
+        $now = date('Y-m-d H:i:s');
+        $affected = $this->db->update('item_batches', [
+            'status' => $cleanStatus,
+            'updated_at' => $now,
+        ], 'id = ? AND tenant_id = ?', [$batchId, $tenantId]);
+
+        return $affected > 0;
+    }
+
+    public function deductStockFefo(
+        int $itemId,
+        float $quantity,
+        ?int $roomId = null,
+        string $notes = '',
+        ?string $referenceType = null,
+        ?string $referenceId = null,
+        ?int $userId = null
+    ): array {
+        if ($quantity <= 0.0) {
+            return [];
+        }
+
+        $tenantId = $this->getTenantId();
+        $item = $this->getItem($itemId);
+        if (!$item) {
+            throw new RuntimeException("Item dengan ID {$itemId} tidak ditemukan.");
+        }
+
+        if ($item['type'] === 'service' || !(bool) $item['track_inventory']) {
+            return [];
+        }
+
+        // Validate availability
+        if ($roomId !== null) {
+            $locStock = $this->getLocationStock($itemId, $roomId);
+            if ($locStock < $quantity) {
+                throw new RuntimeException("Stok di ruangan ini tidak mencukupi untuk pemotongan FEFO. Sisa: {$locStock}, diminta: {$quantity}.");
+            }
+        } else {
+            $totalStock = (float) $item['current_stock'];
+            if ($totalStock < $quantity) {
+                throw new RuntimeException("Total stok tidak mencukupi untuk pemotongan FEFO. Sisa: {$totalStock}, diminta: {$quantity}.");
+            }
+        }
+
+        // Query available batches ordered by FEFO (earliest expiry date first)
+        if ($roomId !== null) {
+            $batches = $this->db->selectAll(
+                "SELECT b.id, b.batch_number, b.expiry_date, sl.quantity AS available_quantity
+                 FROM inventory_stock_locations sl
+                 JOIN item_batches b ON b.id = sl.batch_id
+                 WHERE sl.item_id = ? AND sl.room_id = ? AND sl.tenant_id = ?
+                   AND sl.quantity > 0 AND b.status = 'active'
+                 ORDER BY b.expiry_date ASC, b.id ASC",
+                [$itemId, $roomId, $tenantId]
+            );
+        } else {
+            $batches = $this->db->selectAll(
+                "SELECT b.id, b.batch_number, b.expiry_date, b.current_quantity AS available_quantity
+                 FROM item_batches b
+                 WHERE b.item_id = ? AND b.tenant_id = ?
+                   AND b.current_quantity > 0 AND b.status = 'active'
+                 ORDER BY b.expiry_date ASC, b.id ASC",
+                [$itemId, $tenantId]
+            );
+        }
+
+        $remaining = $quantity;
+        $allocations = [];
+
+        foreach ($batches as $b) {
+            if ($remaining <= 0.0) {
+                break;
+            }
+
+            $avail = (float) $b['available_quantity'];
+            $deductQty = min($remaining, $avail);
+
+            $this->recordStockMovement(
+                $itemId,
+                $deductQty,
+                'out',
+                $notes,
+                $referenceType,
+                $referenceId,
+                null,
+                $userId,
+                $roomId,
+                (int) $b['id']
+            );
+
+            $allocations[] = [
+                'batch_id' => (int) $b['id'],
+                'batch_number' => $b['batch_number'],
+                'expiry_date' => $b['expiry_date'],
+                'quantity' => $deductQty,
+            ];
+
+            $remaining = round($remaining - $deductQty, 4);
+        }
+
+        // If there is still remaining unbatched stock to deduct
+        if ($remaining > 0.0) {
+            $this->recordStockMovement(
+                $itemId,
+                $remaining,
+                'out',
+                $notes,
+                $referenceType,
+                $referenceId,
+                null,
+                $userId,
+                $roomId,
+                null
+            );
+
+            $allocations[] = [
+                'batch_id' => null,
+                'batch_number' => null,
+                'expiry_date' => null,
+                'quantity' => $remaining,
+            ];
+        }
+
+        return $allocations;
+    }
+
+    public function transferStock(
+        int $sourceRoomId,
+        int $destinationRoomId,
+        array $items,
+        ?string $notes = null,
+        ?int $userId = null
+    ): array {
+        if ($sourceRoomId === $destinationRoomId) {
+            throw new RuntimeException("Gudang asal dan gudang tujuan tidak boleh sama.");
+        }
+
+        if (empty($items)) {
+            throw new RuntimeException("Daftar item yang akan ditransfer tidak boleh kosong.");
+        }
+
+        $tenantId = $this->getTenantId();
+
+        // Validate source and destination rooms
+        $sourceRoom = $this->db->selectOne(
+            "SELECT id, name FROM facilities_rooms WHERE id = ? AND tenant_id = ?",
+            [$sourceRoomId, $tenantId]
+        );
+        if (!$sourceRoom) {
+            throw new RuntimeException("Gudang asal tidak valid atau tidak ditemukan.");
+        }
+
+        $destRoom = $this->db->selectOne(
+            "SELECT id, name FROM facilities_rooms WHERE id = ? AND tenant_id = ?",
+            [$destinationRoomId, $tenantId]
+        );
+        if (!$destRoom) {
+            throw new RuntimeException("Gudang tujuan tidak valid atau tidak ditemukan.");
+        }
+
+        return $this->db->transaction(function () use (
+            $tenantId,
+            $sourceRoomId,
+            $destinationRoomId,
+            $sourceRoom,
+            $destRoom,
+            $items,
+            $notes,
+            $userId
+        ) {
+            // Generate sequence
+            $trfNumber = 'TRF/' . date('Y') . '/' . str_pad((string) mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
+            if (function_exists('sequence')) {
+                try {
+                    $trfNumber = sequence('inventory_transfer', 'TRF', 5, 'yearly', null, $tenantId);
+                } catch (\Throwable) {
+                    // Fallback to random pattern
+                }
+            }
+
+            $now = date('Y-m-d H:i:s');
+            $transferDate = date('Y-m-d');
+
+            $transferId = (int) $this->db->insert('inventory_transfers', [
+                'tenant_id' => $tenantId,
+                'transfer_number' => $trfNumber,
+                'source_room_id' => $sourceRoomId,
+                'destination_room_id' => $destinationRoomId,
+                'status' => 'completed',
+                'transfer_date' => $transferDate,
+                'notes' => $notes,
+                'created_by' => $userId,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+
+            foreach ($items as $it) {
+                $itemId = (int) ($it['item_id'] ?? 0);
+                $qty = (float) ($it['quantity'] ?? 0.0);
+                $batchId = isset($it['batch_id']) ? (int) $it['batch_id'] : 0;
+
+                if ($qty <= 0.0) {
+                    continue;
+                }
+
+                $item = $this->getItem($itemId);
+                if (!$item) {
+                    throw new RuntimeException("Item ID {$itemId} tidak ditemukan.");
+                }
+
+                $batchKey = $batchId > 0 ? $batchId : 0;
+                $sourceStockRow = $this->db->selectOne(
+                    "SELECT quantity FROM inventory_stock_locations WHERE tenant_id = ? AND item_id = ? AND room_id = ? AND batch_id = ?",
+                    [$tenantId, $itemId, $sourceRoomId, $batchKey]
+                );
+                $avail = (float) ($sourceStockRow['quantity'] ?? 0.0);
+
+                if ($avail < $qty) {
+                    throw new RuntimeException("Stok di gudang asal tidak mencukupi untuk item {$item['name']} (Sisa: {$avail}, diminta: {$qty}).");
+                }
+
+                // Transfer out from source room
+                $this->recordStockMovement(
+                    $itemId,
+                    $qty,
+                    'out',
+                    "Transfer keluar ke {$destRoom['name']} ({$trfNumber})",
+                    'inventory_transfer',
+                    (string) $transferId,
+                    null,
+                    $userId,
+                    $sourceRoomId,
+                    $batchId > 0 ? $batchId : null
+                );
+
+                // Transfer in to destination room
+                $this->recordStockMovement(
+                    $itemId,
+                    $qty,
+                    'in',
+                    "Transfer masuk dari {$sourceRoom['name']} ({$trfNumber})",
+                    'inventory_transfer',
+                    (string) $transferId,
+                    null,
+                    $userId,
+                    $destinationRoomId,
+                    $batchId > 0 ? $batchId : null
+                );
+
+                $this->db->insert('inventory_transfer_items', [
+                    'transfer_id' => $transferId,
+                    'item_id' => $itemId,
+                    'batch_id' => $batchKey,
+                    'quantity' => $qty,
+                    'notes' => $it['notes'] ?? null,
+                    'created_at' => $now,
+                ]);
+            }
+
+            return $this->getTransfer($transferId) ?? throw new RuntimeException('Gagal memuat data transfer.');
+        });
+    }
+
+    public function getTransfer(int $transferId): ?array
+    {
+        $tenantId = $this->getTenantId();
+        $row = $this->db->selectOne(
+            "SELECT t.*,
+                    sr.name AS source_room_name,
+                    dr.name AS destination_room_name
+             FROM inventory_transfers t
+             JOIN facilities_rooms sr ON sr.id = t.source_room_id
+             JOIN facilities_rooms dr ON dr.id = t.destination_room_id
+             WHERE t.id = ? AND t.tenant_id = ?",
+            [$transferId, $tenantId]
+        );
+
+        if (!$row) {
+            return null;
+        }
+
+        $row['id'] = (int) $row['id'];
+        $row['tenant_id'] = (int) $row['tenant_id'];
+        $row['source_room_id'] = (int) $row['source_room_id'];
+        $row['destination_room_id'] = (int) $row['destination_room_id'];
+
+        $items = $this->db->selectAll(
+            "SELECT ti.*, i.name AS item_name, i.code AS item_code, b.batch_number, b.expiry_date
+             FROM inventory_transfer_items ti
+             JOIN items i ON i.id = ti.item_id
+             LEFT JOIN item_batches b ON b.id = ti.batch_id
+             WHERE ti.transfer_id = ?",
+            [$transferId]
+        );
+
+        $row['items'] = array_map(function ($it) {
+            $it['id'] = (int) $it['id'];
+            $it['transfer_id'] = (int) $it['transfer_id'];
+            $it['item_id'] = (int) $it['item_id'];
+            $it['batch_id'] = (int) $it['batch_id'];
+            $it['quantity'] = (float) $it['quantity'];
+            return $it;
+        }, $items);
+
+        return $row;
+    }
+
+    public function listTransfers(array $filters = []): array
+    {
+        $tenantId = $this->getTenantId();
+        $sql = "SELECT t.*,
+                       sr.name AS source_room_name,
+                       dr.name AS destination_room_name,
+                       (SELECT COUNT(*) FROM inventory_transfer_items ti WHERE ti.transfer_id = t.id) AS items_count
+                FROM inventory_transfers t
+                JOIN facilities_rooms sr ON sr.id = t.source_room_id
+                JOIN facilities_rooms dr ON dr.id = t.destination_room_id
+                WHERE t.tenant_id = ?";
+        $params = [$tenantId];
+
+        if (!empty($filters['source_room_id'])) {
+            $sql .= " AND t.source_room_id = ?";
+            $params[] = (int) $filters['source_room_id'];
+        }
+
+        if (!empty($filters['destination_room_id'])) {
+            $sql .= " AND t.destination_room_id = ?";
+            $params[] = (int) $filters['destination_room_id'];
+        }
+
+        if (!empty($filters['status'])) {
+            $sql .= " AND t.status = ?";
+            $params[] = (string) $filters['status'];
+        }
+
+        $sql .= " ORDER BY t.created_at DESC, t.id DESC";
+
+        $rows = $this->db->selectAll($sql, $params);
+        return array_map(function ($row) {
+            $row['id'] = (int) $row['id'];
+            $row['tenant_id'] = (int) $row['tenant_id'];
+            $row['source_room_id'] = (int) $row['source_room_id'];
+            $row['destination_room_id'] = (int) $row['destination_room_id'];
+            $row['items_count'] = (int) ($row['items_count'] ?? 0);
+            return $row;
+        }, $rows);
+    }
 }
+
