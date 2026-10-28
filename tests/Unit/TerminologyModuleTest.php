@@ -275,4 +275,130 @@ class TerminologyModuleTest extends TestCase
         $helperService = terminology();
         $this->assertInstanceOf(TerminologyRegistryInterface::class, $helperService);
     }
+
+    public function testApiControllerSearchAndResolveMapping(): void
+    {
+        $cs1 = $this->service->createCodeSystem([
+            'code' => 'ICD-10',
+            'name' => 'WHO ICD-10',
+            'is_system' => 1,
+        ]);
+
+        $this->service->createConcept([
+            'code_system_id' => $cs1['id'],
+            'code' => 'B01.9',
+            'display_name' => 'Varicella without complication',
+            'synonyms' => ['Cacar Air', 'Chickenpox'],
+            'is_global' => true,
+        ]);
+
+        $apiController = new \App\Modules\Terminology\Controllers\ApiTerminologyController($this->service);
+
+        // Test API search
+        $request = new \Core\Http\Request(
+            method: 'GET',
+            uri: '/api/terminology/search',
+            queryParams: ['q' => 'Cacar Air', 'system' => 'ICD-10']
+        );
+        $response = $apiController->search($request);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $body = json_decode($response->getContent(), true);
+        $this->assertEquals('success', $body['status']);
+        $this->assertCount(1, $body['data']);
+        $this->assertEquals('B01.9', $body['data'][0]['code']);
+
+        // Test API resolve mapping
+        $cs2 = $this->service->createCodeSystem([
+            'code' => 'INTERNAL-DX',
+            'name' => 'Internal Diagnosis',
+            'is_system' => 0,
+        ]);
+
+        $this->service->createMapping([
+            'source_system_code' => 'INTERNAL-DX',
+            'source_code' => 'CACAR-01',
+            'target_system_code' => 'ICD-10',
+            'target_code' => 'B01.9',
+            'equivalence' => 'equivalent',
+        ]);
+
+        $resolveReq = new \Core\Http\Request(
+            method: 'POST',
+            uri: '/api/terminology/resolve-mapping',
+            bodyParams: [
+                'source_system_code' => 'INTERNAL-DX',
+                'source_code' => 'CACAR-01',
+                'target_system_code' => 'ICD-10',
+            ]
+        );
+        $resolveRes = $apiController->resolveMapping($resolveReq);
+        $this->assertEquals(200, $resolveRes->getStatusCode());
+        $resolveBody = json_decode($resolveRes->getContent(), true);
+        $this->assertEquals('success', $resolveBody['status']);
+        $this->assertEquals('B01.9', $resolveBody['data']['target_code']);
+        $this->assertEquals('Varicella without complication', $resolveBody['data']['target_concept']['display_name']);
+    }
+
+    public function testWebControllerLifecycle(): void
+    {
+        $session = new \Core\Http\Session();
+        $session->startArrayDriver();
+        $auth = new \App\Modules\Auth\Services\AuthService($this->db, $session, $this->tenantContext);
+
+        $webController = new \App\Modules\Terminology\Controllers\TerminologyController(
+            $auth,
+            $this->service,
+            $this->db,
+            $session
+        );
+
+        // Store custom code system
+        $storeCsReq = new \Core\Http\Request(
+            method: 'POST',
+            uri: '/terminology/code-systems',
+            bodyParams: [
+                'code' => 'LAB-INT',
+                'name' => 'Internal Laboratory Codes',
+                'description' => 'Tenant custom lab dictionary',
+            ]
+        );
+        $resCs = $webController->storeCodeSystem($storeCsReq);
+        $this->assertEquals(302, $resCs->getStatusCode());
+
+        $createdCs = $this->service->getCodeSystemByCode('LAB-INT');
+        $this->assertNotNull($createdCs);
+
+        // Store concept via web controller
+        $storeConceptReq = new \Core\Http\Request(
+            method: 'POST',
+            uri: '/terminology/concepts',
+            bodyParams: [
+                'code_system_id' => $createdCs['id'],
+                'code' => 'HB-01',
+                'display_name' => 'Hemoglobin Rutin',
+                'synonyms' => 'Hb, Hemoglobin Darah, Darah Rutin',
+            ]
+        );
+        $resConcept = $webController->storeConcept($storeConceptReq);
+        $this->assertEquals(302, $resConcept->getStatusCode());
+
+        $createdConcept = $this->service->getConceptByCode('LAB-INT', 'HB-01');
+        $this->assertNotNull($createdConcept);
+        $this->assertContains('Hb', $createdConcept['synonyms']);
+
+        // Test Index JSON response
+        $indexReq = new \Core\Http\Request(
+            method: 'GET',
+            uri: '/terminology',
+            queryParams: ['code_system_id' => $createdCs['id']]
+        );
+        $resIndex = $webController->index($indexReq);
+        $this->assertEquals(200, $resIndex->getStatusCode());
+        $indexData = json_decode($resIndex->getContent(), true);
+        $this->assertArrayHasKey('codeSystems', $indexData);
+        $this->assertArrayHasKey('concepts', $indexData);
+        $this->assertNotEmpty($indexData['concepts']);
+    }
 }
+

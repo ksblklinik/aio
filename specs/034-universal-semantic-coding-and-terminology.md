@@ -1,6 +1,6 @@
 # SPEC-034: Universal Semantic Coding & Terminology Registry
 
-- **Status**: `Draft`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity Platform Team
 - **Tanggal Dibuat**: 2026-10-28
 - **Target Modul**: `app/Modules/Terminology/`
@@ -28,16 +28,16 @@ Modul `Terminology` hadir sebagai fondasi universal Level 2 untuk menyimpan kata
 ## 2. Goals & Non-Goals
 
 ### Goals
-- [ ] Menyediakan **Code Systems Registry** (`terminology_code_systems`) untuk mendaftarkan otoritas kamus standar (ICD-10, ICD-9-CM, LOINC, KFA, HS-Code, KBLI, ISO-4217, SNOMED) beserta URI identifikasi resmi dan status global/tenant.
-- [ ] Menyediakan **Concept Codes Dictionary** (`terminology_concepts`):
+- [x] Menyediakan **Code Systems Registry** (`terminology_code_systems`) untuk mendaftarkan otoritas kamus standar (ICD-10, ICD-9-CM, LOINC, KFA, HS-Code, KBLI, ISO-4217, SNOMED) beserta URI identifikasi resmi dan status global/tenant.
+- [x] Menyediakan **Concept Codes Dictionary** (`terminology_concepts`):
   - Menyimpan kode, display name (*preferred term*), deskripsi, dan relasi hierarki (*parent code*).
   - Menyimpan kata kunci sinonim (*synonyms*) pencarian cepat dalam bahasa lokal (misal: mencari "demam berdarah" menemukan kode `A91 Dengue haemorrhagic fever`).
-- [ ] Menyediakan **Cross-Reference Mapping Engine** (`terminology_mappings`):
+- [x] Menyediakan **Cross-Reference Mapping Engine** (`terminology_mappings`):
   - Menghubungkan kode antar sistem kodifikasi (misal: Kode Internal $\leftrightarrow$ Kode BPJS $\leftrightarrow$ Kode SatuSehat) dengan atribut kesetaraan (`equivalent`, `narrower`, `wider`, `related_to`).
-- [ ] Menyediakan **Fast Autocomplete & Search Engine**:
+- [x] Menyediakan **Fast Autocomplete & Search Engine**:
   - Pencarian konsep instan berdasarkan kode, nama, atau sinonim dengan batasan sistem kodifikasi dan limit.
-- [ ] Menyediakan Contract Interface `TerminologyRegistryInterface`, Global Helper `terminology()`, dan REST API endpoints untuk integrasi auto-complete pada antarmuka pengguna.
-- [ ] Antarmuka manajemen Web Inertia React (`resources/js/Pages/Terminology/Index.tsx`) dengan tema dark/light mode baku.
+- [x] Menyediakan Contract Interface `TerminologyRegistryInterface`, Global Helper `terminology()`, dan REST API endpoints untuk integrasi auto-complete pada antarmuka pengguna.
+- [x] Antarmuka manajemen Web Inertia React (`resources/js/Pages/Terminology/Index.tsx`) dengan tema dark/light mode baku.
 
 ### Non-Goals
 - Modul ini **TIDAK** membungkus resource FHIR Bundle utuh (transformasi JSON FHIR R4 dilakukan oleh adaptor bridging SatuSehat di modul bisnis).
@@ -189,23 +189,23 @@ interface TerminologyRegistryInterface
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Setup Modul, Arsitektur, & Database Migrations**
-  - [ ] 1.1 Buat manifest modul `app/Modules/Terminology/module.json`.
-  - [ ] 1.2 Buat migrasi `database/migrations/2026_10_28_000029_create_terminology_and_code_systems_tables.sql`.
-  - [ ] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
-- [ ] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
-  - [ ] 2.1 Buat interface `App\Modules\Terminology\Contracts\TerminologyRegistryInterface`.
-  - [ ] 2.2 Buat Service Provider `App\Modules\Terminology\TerminologyServiceProvider` dan daftarkan modul.
-  - [ ] 2.3 Daftarkan helper global `terminology()` di `core/helpers.php`.
-  - [ ] 2.4 Tulis test suite `tests/Unit/TerminologyModuleTest.php` mencakup skenario lookup, sinonim, mapping, bulk import, dan tenant isolation.
-  - [ ] 2.5 Implementasikan `App\Modules\Terminology\Services\TerminologyService` hingga seluruh test lolos 100%.
-- [ ] **Phase 3: Web UI, Routes, & Programmatic REST API**
-  - [ ] 3.1 Buat routes modul di `app/Modules/Terminology/routes.php`.
-  - [ ] 3.2 Implementasikan Web Controller `TerminologyController` untuk antarmuka katalog kodifikasi dan mapping.
-  - [ ] 3.3 Implementasikan REST API Controller `ApiTerminologyController` untuk endpoint autocomplete pencarian cepat.
-  - [ ] 3.4 Buat antarmuka pengguna responsif Inertia React `resources/js/Pages/Terminology/Index.tsx` dengan Semantic UI Tokens.
-- [ ] **Phase 4: Final Verification, Review & Handoff**
-  - [ ] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat`.
-  - [ ] 4.2 Jalankan `npm run typecheck` dan build aset frontend.
-  - [ ] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
-  - [ ] 4.4 Merge atomic commit ke branch `main`.
+- [x] **Phase 1: Setup Modul, Arsitektur, & Database Migrations**
+  - [x] 1.1 Buat manifest modul `app/Modules/Terminology/module.json`.
+  - [x] 1.2 Buat migrasi `database/migrations/2026_10_28_000029_create_terminology_and_code_systems_tables.sql`.
+  - [x] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
+- [x] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
+  - [x] 2.1 Buat interface `App\Modules\Terminology\Contracts\TerminologyRegistryInterface`.
+  - [x] 2.2 Buat Service Provider `App\Modules\Terminology\TerminologyServiceProvider` dan daftarkan modul.
+  - [x] 2.3 Daftarkan helper global `terminology()` di `core/helpers.php`.
+  - [x] 2.4 Tulis test suite `tests/Unit/TerminologyModuleTest.php` mencakup skenario lookup, sinonim, mapping, bulk import, dan tenant isolation.
+  - [x] 2.5 Implementasikan `App\Modules\Terminology\Services\TerminologyService` hingga seluruh test lolos 100%.
+- [x] **Phase 3: Web UI, Routes, & Programmatic REST API**
+  - [x] 3.1 Buat routes modul di `app/Modules/Terminology/routes.php`.
+  - [x] 3.2 Implementasikan Web Controller `TerminologyController` untuk antarmuka katalog kodifikasi dan mapping.
+  - [x] 3.3 Implementasikan REST API Controller `ApiTerminologyController` untuk endpoint autocomplete pencarian cepat.
+  - [x] 3.4 Buat antarmuka pengguna responsif Inertia React `resources/js/Pages/Terminology/Index.tsx` dengan Semantic UI Tokens.
+- [x] **Phase 4: Final Verification, Review & Handoff**
+  - [x] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat`.
+  - [x] 4.2 Jalankan `npm run typecheck` dan build aset frontend.
+  - [x] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
+  - [x] 4.4 Merge atomic commit ke branch `main`.
