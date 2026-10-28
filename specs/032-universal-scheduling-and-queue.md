@@ -1,6 +1,6 @@
 # SPEC-032: Universal Scheduling, Appointments & Human Queue Engine
 
-- **Status**: `Draft`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity Platform Team
 - **Tanggal Dibuat**: 2026-10-28
 - **Target Modul**: `app/Modules/Schedule/`
@@ -202,23 +202,23 @@ interface ScheduleRegistryInterface
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Setup Modul, Arsitektur, & Database Migrations**
-  - [ ] 1.1 Buat manifest modul `app/Modules/Schedule/module.json`.
-  - [ ] 1.2 Buat migration `database/migrations/2026_10_28_000026_create_schedule_and_queue_tables.sql` untuk tabel `resource_schedules`, `appointments`, dan `queue_tickets`.
-  - [ ] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
-- [ ] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
-  - [ ] 2.1 Buat interface `App\Modules\Schedule\Contracts\ScheduleRegistryInterface`.
-  - [ ] 2.2 Buat Service Provider `App\Modules\Schedule\ScheduleServiceProvider` dan daftarkan ke modul.
-  - [ ] 2.3 Daftarkan helper global `schedule()` di `core/helpers.php`.
-  - [ ] 2.4 Tulis test suite `tests/Unit/ScheduleModuleTest.php` mencakup appointment, tiket antrean, state machine pemanggilan, display state, dan tenant isolation.
-  - [ ] 2.5 Implementasikan `App\Modules\Schedule\Services\ScheduleService` hingga seluruh skenario unit test lolos 100%.
-- [ ] **Phase 3: Web UI, Routes, & Programmatic REST API**
-  - [ ] 3.1 Buat routes modul di `app/Modules/Schedule/routes.php`.
-  - [ ] 3.2 Implementasikan Web Controller `ScheduleController` untuk konsol pemanggil antrean dan layar TV display ruang tunggu.
-  - [ ] 3.3 Implementasikan REST API Controller `ApiScheduleController` untuk mesin anjungan APM kiosk pendaftaran dan integrasi mobile.
-  - [ ] 3.4 Buat view template atau halaman UI responsif dark/light mode untuk pemanggil antrean dan TV display.
-- [ ] **Phase 4: Final Verification, Review & Handoff**
-  - [ ] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat` (memastikan tidak ada regresi).
-  - [ ] 4.2 Jalankan `npm run typecheck` dan script `scripts/verify.ps1`.
-  - [ ] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
-  - [ ] 4.4 Merge atomic commit ke branch `main`.
+- [x] **Phase 1: Setup Modul, Arsitektur, & Database Migrations**
+  - [x] 1.1 Buat manifest modul `app/Modules/Schedule/module.json`.
+  - [x] 1.2 Buat migration `database/migrations/2026_10_28_000027_create_schedule_and_queue_tables.sql` untuk tabel `resource_schedules`, `appointments`, dan `queue_tickets`.
+  - [x] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
+- [x] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
+  - [x] 2.1 Buat interface `App\Modules\Schedule\Contracts\ScheduleRegistryInterface`.
+  - [x] 2.2 Buat Service Provider `App\Modules\Schedule\ScheduleServiceProvider` dan daftarkan ke modul.
+  - [x] 2.3 Daftarkan helper global `schedule()` di `core/helpers.php`.
+  - [x] 2.4 Tulis test suite `tests/Unit/ScheduleModuleTest.php` mencakup appointment, tiket antrean, state machine pemanggilan, display state, dan tenant isolation.
+  - [x] 2.5 Implementasikan `App\Modules\Schedule\Services\ScheduleService` hingga seluruh skenario unit test lolos 100%.
+- [x] **Phase 3: Web UI, Routes, & Programmatic REST API**
+  - [x] 3.1 Buat routes modul di `app/Modules/Schedule/routes.php`.
+  - [x] 3.2 Implementasikan Web Controller `ScheduleController` untuk konsol pemanggil antrean dan layar TV display ruang tunggu.
+  - [x] 3.3 Implementasikan REST API Controller `ApiScheduleController` untuk mesin anjungan APM kiosk pendaftaran dan integrasi mobile.
+  - [x] 3.4 Buat view template atau halaman UI responsif dark/light mode untuk pemanggil antrean dan TV display.
+- [x] **Phase 4: Final Verification, Review & Handoff**
+  - [x] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat` (memastikan tidak ada regresi).
+  - [x] 4.2 Jalankan `npm run typecheck` dan script `scripts/verify.ps1`.
+  - [x] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
+  - [x] 4.4 Merge atomic commit ke branch `main`.
