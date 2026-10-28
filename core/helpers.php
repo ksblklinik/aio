@@ -979,6 +979,37 @@ if (!function_exists('reconcile')) {
     }
 }
 
+if (!function_exists('circuit')) {
+    /**
+     * Helper global untuk Universal Circuit Breaker.
+     */
+    function circuit(string $service, int $failureThreshold = 5, int $cooldownSeconds = 60): \Core\Resilience\CircuitBreakerInterface
+    {
+        $db = app(\Core\Database\Connection::class);
+        return new \Core\Resilience\DatabaseCircuitBreaker($db, $service, $failureThreshold, $cooldownSeconds);
+    }
+}
+
+if (!function_exists('watchdog')) {
+    /**
+     * Helper global untuk Platform Resilience Watchdog.
+     */
+    function watchdog(): \Core\Resilience\PlatformWatchdogInterface
+    {
+        return app(\Core\Resilience\PlatformWatchdogInterface::class);
+    }
+}
+
+if (!function_exists('dlq')) {
+    /**
+     * Helper global untuk Dead-Letter Queue (DLQ).
+     */
+    function dlq(): \Core\Queue\DeadLetterQueueInterface
+    {
+        return app(\Core\Queue\DeadLetterQueueInterface::class);
+    }
+}
+
 
 
 

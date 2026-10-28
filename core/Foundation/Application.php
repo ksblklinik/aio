@@ -449,6 +449,21 @@ class Application
         $c->singleton(\Core\Reconciliation\ReconciliationManager::class, function ($c) {
             return $c->get(\Core\Reconciliation\ReconciliationManagerInterface::class);
         });
+
+        // Platform Resilience Watchdog & Dead-Letter Queue
+        $c->singleton(\Core\Queue\DeadLetterQueueInterface::class, function ($c) {
+            return new \Core\Queue\DeadLetterQueue($c->get(Connection::class));
+        });
+        $c->singleton(\Core\Queue\DeadLetterQueue::class, function ($c) {
+            return $c->get(\Core\Queue\DeadLetterQueueInterface::class);
+        });
+        $c->singleton(\Core\Resilience\PlatformWatchdogInterface::class, function ($c) use ($base) {
+            $dbPath = (string) config('database.connections.sqlite.database', $base . '/database.sqlite');
+            return new \Core\Resilience\PlatformWatchdog($c->get(Connection::class), $dbPath);
+        });
+        $c->singleton(\Core\Resilience\PlatformWatchdog::class, function ($c) {
+            return $c->get(\Core\Resilience\PlatformWatchdogInterface::class);
+        });
     }
 
     public function registerModuleProviders(): void
@@ -756,7 +771,13 @@ HTML;
             ->register(new \Core\Console\Commands\DatabaseHealCommand())
             ->register(new \Core\Console\Commands\DatabasePruneBackupsCommand())
             ->register(new \Core\Console\Commands\ReconcileAuditCommand())
-            ->register(new \Core\Console\Commands\ReconcileSyncCommand());
+            ->register(new \Core\Console\Commands\ReconcileSyncCommand())
+            ->register(new \Core\Console\Commands\WatchdogHealthCommand())
+            ->register(new \Core\Console\Commands\CircuitListCommand())
+            ->register(new \Core\Console\Commands\CircuitResetCommand())
+            ->register(new \Core\Console\Commands\QueueDlqListCommand())
+            ->register(new \Core\Console\Commands\QueueDlqRetryCommand())
+            ->register(new \Core\Console\Commands\QueueDlqPurgeCommand());
 
         // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
         $this->bootModuleProviders();
