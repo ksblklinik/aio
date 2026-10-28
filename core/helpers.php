@@ -942,5 +942,23 @@ if (!function_exists('sse')) {
     }
 }
 
+if (!function_exists('lock')) {
+    /**
+     * Helper global untuk Universal Atomic Mutex & Concurrency Lock Engine.
+     * Jika dipanggil dengan argumen $resourceKey, mengembalikan instans LockInterface.
+     * Jika dipanggil tanpa argumen, mengembalikan instans LockManagerInterface.
+     */
+    function lock(?string $resourceKey = null, int $ttlSeconds = 10, ?string $owner = null): mixed
+    {
+        /** @var \Core\Lock\LockManagerInterface $manager */
+        $manager = app(\Core\Lock\LockManagerInterface::class);
+        if ($resourceKey !== null) {
+            return $manager->lock($resourceKey, $ttlSeconds, $owner);
+        }
+        return $manager;
+    }
+}
+
+
 
 

@@ -413,6 +413,17 @@ class Application
         $c->singleton(\Core\Broadcasting\SseBroadcaster::class, function ($c) {
             return $c->get(\Core\Broadcasting\SseBroadcasterInterface::class);
         });
+
+        // Universal Atomic Mutex & Concurrency Lock Engine
+        $c->singleton(\Core\Lock\Drivers\LockDriverInterface::class, function ($c) {
+            return new \Core\Lock\Drivers\DatabaseLockDriver($c->get(Connection::class));
+        });
+        $c->singleton(\Core\Lock\LockManagerInterface::class, function ($c) {
+            return new \Core\Lock\LockManager($c->get(\Core\Lock\Drivers\LockDriverInterface::class));
+        });
+        $c->singleton(\Core\Lock\LockManager::class, function ($c) {
+            return $c->get(\Core\Lock\LockManagerInterface::class);
+        });
     }
 
     public function registerModuleProviders(): void
@@ -711,7 +722,9 @@ HTML;
             ->register(new WebhookListCommand())
             ->register(new WebhookTestCommand())
             ->register(new ScheduleRunCommand())
-            ->register(new \Core\Console\Commands\SsePruneCommand());
+            ->register(new \Core\Console\Commands\SsePruneCommand())
+            ->register(new \Core\Console\Commands\LockPruneCommand())
+            ->register(new \Core\Console\Commands\LockListCommand());
 
         // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
         $this->bootModuleProviders();
