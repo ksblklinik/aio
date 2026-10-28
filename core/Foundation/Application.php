@@ -503,6 +503,29 @@ class Application
         $c->singleton(\Core\Privacy\TenantPrivacyManager::class, function ($c) {
             return $c->get(\Core\Privacy\TenantPrivacyManagerInterface::class);
         });
+
+        // Universal Runtime Performance Sentinel & SQLite Profiler
+        $c->singleton(\Core\Diagnostics\QueryProfiler::class, function () {
+            $threshold = (float) config('diagnostics.slow_query_threshold_ms', 25.0);
+            return new \Core\Diagnostics\QueryProfiler($threshold);
+        });
+        $c->singleton(\Core\Diagnostics\MemorySentinel::class, function () {
+            $threshold = (int) config('diagnostics.memory_warning_threshold_bytes', 67108864);
+            return new \Core\Diagnostics\MemorySentinel($threshold);
+        });
+        $c->singleton(\Core\Diagnostics\PerformanceSentinelInterface::class, function ($c) {
+            $db = $c->get(Connection::class);
+            $profiler = $c->get(\Core\Diagnostics\QueryProfiler::class);
+            $memory = $c->get(\Core\Diagnostics\MemorySentinel::class);
+
+            // Connect profiler to database connection
+            $db->setProfiler($profiler);
+
+            return new \Core\Diagnostics\PerformanceSentinel($db, $profiler, $memory);
+        });
+        $c->singleton(\Core\Diagnostics\PerformanceSentinel::class, function ($c) {
+            return $c->get(\Core\Diagnostics\PerformanceSentinelInterface::class);
+        });
     }
 
     public function registerModuleProviders(): void
@@ -823,7 +846,10 @@ HTML;
             ->register(new \Core\Console\Commands\OutboxPruneCommand())
             ->register(new \Core\Console\Commands\TenantExportCommand())
             ->register(new \Core\Console\Commands\TenantShredCommand())
-            ->register(new \Core\Console\Commands\TenantCryptoShredCommand());
+            ->register(new \Core\Console\Commands\TenantCryptoShredCommand())
+            ->register(new \Core\Console\Commands\SentinelProfileCommand())
+            ->register(new \Core\Console\Commands\SentinelSlowQueriesCommand())
+            ->register(new \Core\Console\Commands\SentinelStatusCommand());
 
         // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
         $this->bootModuleProviders();

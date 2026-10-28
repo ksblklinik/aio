@@ -1030,6 +1030,16 @@ if (!function_exists('privacy')) {
     }
 }
 
+if (!function_exists('sentinel')) {
+    /**
+     * Helper global untuk Universal Runtime Performance Sentinel & SQLite Profiling Engine.
+     */
+    function sentinel(): \Core\Diagnostics\PerformanceSentinelInterface
+    {
+        return app(\Core\Diagnostics\PerformanceSentinelInterface::class);
+    }
+}
+
 
 
 
