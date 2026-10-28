@@ -7,7 +7,7 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 ## 📌 Status Terakhir Sesi (Last Updated: 2026-10-28 08:45 WIB)
 
 * **Conversation ID Terakhir**: `4d7528e5-6993-4060-b918-14aabb4463fe`
-* **Active Git Branch**: `feat/032-universal-scheduling-and-queue` (Siap merge ke `main`)
+* **Active Git Branch**: `main`
 * **Status Dokumen / Roadmap**:
   - SPEC-013 ([`specs/013-core-hardening-and-unified-kernel.md`](file:///c:/aplikasi/aio/specs/013-core-hardening-and-unified-kernel.md)): `Completed` (merged to `main`).
   - SPEC-014 ([`specs/014-module-extension-contract.md`](file:///c:/aplikasi/aio/specs/014-module-extension-contract.md)): `Completed` (merged to `main`).
@@ -29,7 +29,7 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **SPEC-029B ([`specs/029b-inventory-multi-warehouse-and-batch.md`](file:///c:/aplikasi/aio/specs/029b-inventory-multi-warehouse-and-batch.md))**: `Completed` (merged to `main`).
   - **SPEC-030 ([`specs/030-universal-billing-and-invoicing.md`](file:///c:/aplikasi/aio/specs/030-universal-billing-and-invoicing.md))**: `Completed` (merged to `main`).
   - **SPEC-031 ([`specs/031-universal-facilities-and-locations.md`](file:///c:/aplikasi/aio/specs/031-universal-facilities-and-locations.md))**: `Completed` (merged to `main`).
-  - **SPEC-032 ([`specs/032-universal-scheduling-and-queue.md`](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md))**: `Completed` (Universal Scheduling, Appointments & Human Queue Engine).
+  - **SPEC-032 ([`specs/032-universal-scheduling-and-queue.md`](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md))**: `Completed` (merged to `main`).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
 * **Test Suite Status**: **396 tests (2275 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
 * **Database File**: `database.sqlite` di root repositori (27 migrasi applied).
