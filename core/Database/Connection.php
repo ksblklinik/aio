@@ -266,16 +266,41 @@ class Connection
 
     public function beginTransaction(): bool
     {
-        return $this->pdo->beginTransaction();
+        if ($this->transactionLevel === 0) {
+            $res = $this->pdo->beginTransaction();
+        } else {
+            $res = $this->pdo->exec("SAVEPOINT trans_{$this->transactionLevel}") !== false;
+        }
+        $this->transactionLevel++;
+        return $res;
     }
 
     public function commit(): bool
     {
-        return $this->pdo->commit();
+        if ($this->transactionLevel === 0) {
+            return false;
+        }
+        $this->transactionLevel--;
+        if ($this->transactionLevel === 0) {
+            return $this->pdo->commit();
+        }
+        return $this->pdo->exec("RELEASE SAVEPOINT trans_{$this->transactionLevel}") !== false;
     }
 
     public function rollBack(): bool
     {
-        return $this->pdo->rollBack();
+        if ($this->transactionLevel === 0) {
+            return false;
+        }
+        $this->transactionLevel--;
+        if ($this->transactionLevel === 0) {
+            return $this->pdo->rollBack();
+        }
+        return $this->pdo->exec("ROLLBACK TO SAVEPOINT trans_{$this->transactionLevel}") !== false;
+    }
+
+    public function getTransactionLevel(): int
+    {
+        return $this->transactionLevel;
     }
 }

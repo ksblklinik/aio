@@ -46,6 +46,10 @@ class WatchdogHealthCommand extends Command
                 $report->systemInfo['memory_usage_mb'] ?? 'N/A',
                 $report->systemInfo['memory_peak_mb'] ?? 'N/A'
             ));
+            if (!empty($report->systemInfo['app_key_insecure'])) {
+                $this->warn(" [!] PERINGATAN KEAMANAN: APP_KEY belum disetel atau menggunakan kunci fallback default dev.");
+                $this->warn("     Jalankan 'php aio key:generate' untuk mengamankan enkripsi dan segel digital.");
+            }
             $this->line(str_repeat('-', 80));
 
             $components = [

@@ -74,7 +74,7 @@ class AuditLogger
         $jsonProperties = !empty($properties) ? json_encode($properties, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : null;
 
         $createdAt = date('Y-m-d H:i:s');
-        $secretKey = (string) ($_ENV['APP_KEY'] ?? 'aio-audit-chain-key');
+        $secretKey = \Core\Security\AppKey::get();
 
         // Dapatkan current_hash dari baris terakhir untuk membentuk rantai kriptografis
         $lastRow = $this->db->selectOne("SELECT current_hash FROM audit_logs ORDER BY id DESC LIMIT 1");
@@ -129,7 +129,7 @@ class AuditLogger
             ];
         }
 
-        $secretKey = (string) ($_ENV['APP_KEY'] ?? 'aio-audit-chain-key');
+        $secretKey = \Core\Security\AppKey::get();
         $expectedPrevHash = (string) $rows[0]['prev_hash'];
         $verifiedCount = 0;
 

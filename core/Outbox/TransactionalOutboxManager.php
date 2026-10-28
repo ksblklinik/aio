@@ -101,13 +101,21 @@ class TransactionalOutboxManager implements TransactionalOutboxManagerInterface
     public function relay(int $batchSize = 50): array
     {
         $lockKey = 'outbox:relay';
-        $lockAcquired = false;
+        $activeLock = null;
 
         if (function_exists('lock')) {
             try {
-                $lockAcquired = lock()->acquire($lockKey, 60);
+                $activeLock = lock()->acquire($lockKey, 60);
+                if ($activeLock === null) {
+                    return [
+                        'published' => 0,
+                        'failed' => 0,
+                        'errors' => ['Relay lock is held by another active process.'],
+                    ];
+                }
             } catch (Throwable) {
-                $lockAcquired = false;
+                // If lock manager is not configured or throws, fallback to optimistic row claiming
+                $activeLock = null;
             }
         }
 
@@ -116,23 +124,41 @@ class TransactionalOutboxManager implements TransactionalOutboxManagerInterface
         $errors = [];
 
         try {
+            $staleThreshold = date('Y-m-d H:i:s', strtotime('-5 minutes'));
             $rows = $this->db->selectAll("
                 SELECT * FROM outbox_events 
-                WHERE status = 'pending' AND attempts < max_attempts 
+                WHERE (status = 'pending' OR (status = 'processing' AND updated_at <= ?))
+                  AND attempts < max_attempts 
                 ORDER BY id ASC 
                 LIMIT ?
-            ", [$batchSize]);
+            ", [$staleThreshold, $batchSize]);
 
             $now = date('Y-m-d H:i:s');
 
             foreach ($rows as $row) {
                 $id = (int) $row['id'];
-                $attempts = ((int) $row['attempts']) + 1;
+                $currentAttempts = (int) $row['attempts'];
                 $maxAttempts = (int) $row['max_attempts'];
                 $tenantId = $row['tenant_id'] !== null ? (int) $row['tenant_id'] : null;
                 $eventName = (string) $row['event_name'];
                 $channel = $row['target_channel'] ? (string) $row['target_channel'] : null;
                 $payload = json_decode((string) $row['payload'], true) ?: [];
+
+                // Optimistic claim: set status = 'processing', increment attempts
+                $claimed = $this->db->affectingStatement("
+                    UPDATE outbox_events 
+                    SET status = 'processing', attempts = attempts + 1, updated_at = ?
+                    WHERE id = ? 
+                      AND (status = 'pending' OR (status = 'processing' AND updated_at <= ?))
+                      AND attempts = ?
+                ", [$now, $id, $staleThreshold, $currentAttempts]);
+
+                if ($claimed !== 1) {
+                    // Row was claimed or modified by another worker, skip
+                    continue;
+                }
+
+                $attempts = $currentAttempts + 1;
 
                 try {
                     // 1. Dispatch to SSE Broadcaster if channel specified or default tenant channel
@@ -158,9 +184,9 @@ class TransactionalOutboxManager implements TransactionalOutboxManagerInterface
                     // 3. Mark as successfully published
                     $this->db->statement("
                         UPDATE outbox_events 
-                        SET status = 'published', attempts = ?, published_at = ?, last_error = NULL, updated_at = ?
+                        SET status = 'published', published_at = ?, last_error = NULL, updated_at = ?
                         WHERE id = ?
-                    ", [$attempts, $now, $now, $id]);
+                    ", [$now, $now, $id]);
 
                     $published++;
                 } catch (Throwable $e) {
@@ -172,9 +198,9 @@ class TransactionalOutboxManager implements TransactionalOutboxManagerInterface
 
                     $this->db->statement("
                         UPDATE outbox_events 
-                        SET status = ?, attempts = ?, last_error = ?, updated_at = ?
+                        SET status = ?, last_error = ?, updated_at = ?
                         WHERE id = ?
-                    ", [$newStatus, $attempts, $errMsg, $now, $id]);
+                    ", [$newStatus, $errMsg, $now, $id]);
                 }
             }
 
@@ -184,9 +210,9 @@ class TransactionalOutboxManager implements TransactionalOutboxManagerInterface
                 'errors' => $errors,
             ];
         } finally {
-            if ($lockAcquired && function_exists('lock')) {
+            if ($activeLock !== null) {
                 try {
-                    lock()->release($lockKey);
+                    $activeLock->release();
                 } catch (Throwable) {
                     // Ignore release failure
                 }
@@ -214,7 +240,7 @@ class TransactionalOutboxManager implements TransactionalOutboxManagerInterface
 
     public function getPendingCount(?int $tenantId = null): int
     {
-        $sql = "SELECT COUNT(*) as cnt FROM outbox_events WHERE status = 'pending'";
+        $sql = "SELECT COUNT(*) as cnt FROM outbox_events WHERE status IN ('pending', 'processing')";
         $params = [];
 
         if ($tenantId !== null) {
@@ -243,7 +269,7 @@ class TransactionalOutboxManager implements TransactionalOutboxManagerInterface
 
         try {
             $rows = $this->db->selectAll($sql, $params);
-            $stats = ['pending' => 0, 'published' => 0, 'failed' => 0, 'total' => 0];
+            $stats = ['pending' => 0, 'processing' => 0, 'published' => 0, 'failed' => 0, 'total' => 0];
 
             foreach ($rows as $r) {
                 $status = (string) $r['status'];
@@ -254,7 +280,7 @@ class TransactionalOutboxManager implements TransactionalOutboxManagerInterface
 
             return $stats;
         } catch (Throwable) {
-            return ['pending' => 0, 'published' => 0, 'failed' => 0, 'total' => 0];
+            return ['pending' => 0, 'processing' => 0, 'published' => 0, 'failed' => 0, 'total' => 0];
         }
     }
 

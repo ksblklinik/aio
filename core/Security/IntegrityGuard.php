@@ -41,7 +41,7 @@ class IntegrityGuard
         private string $appKey = ''
     ) {
         if ($this->appKey === '') {
-            $this->appKey = (string) ($_ENV['APP_KEY'] ?? 'aio-platform-secret-key-salt');
+            $this->appKey = \Core\Security\AppKey::get();
         }
     }
 

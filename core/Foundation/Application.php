@@ -384,7 +384,7 @@ class Application
 
         // Authenticated AES-256-GCM Encrypter
         $c->singleton(\Core\Security\Encrypter::class, function () {
-            $key = (string) (config('app.key') ?: env('APP_KEY', 'aio-universal-secret-key-32chars!!'));
+            $key = \Core\Security\AppKey::get();
             return new \Core\Security\Encrypter($key);
         });
 
@@ -395,7 +395,7 @@ class Application
 
         // Device Integrity & Anti-Fraud Guard
         $c->singleton(\Core\Security\IntegrityGuard::class, function () {
-            $key = (string) (config('app.key') ?: env('APP_KEY', 'aio-universal-secret-key-32chars!!'));
+            $key = \Core\Security\AppKey::get();
             return new \Core\Security\IntegrityGuard($key);
         });
 
@@ -435,7 +435,7 @@ class Application
             $db = $c->get(Connection::class);
             $driver = $c->get(\Core\Backup\Drivers\BackupDriverInterface::class);
             $backupDir = (string) config('backup.path', $base . '/storage/backups');
-            $appKey = (string) (config('app.key') ?: env('APP_KEY', 'aio-universal-secret-key-32chars!!'));
+            $appKey = \Core\Security\AppKey::get();
             return new \Core\Backup\BackupManager($db, $driver, $backupDir, $appKey);
         });
         $c->singleton(\Core\Backup\BackupManager::class, function ($c) {
@@ -481,7 +481,7 @@ class Application
         // Universal Tenant Crypto-Shredding, Data Portability & GDPR/PDP Privacy Engine
         $c->singleton(\Core\Privacy\TenantKeyManager::class, function ($c) {
             $db = $c->get(Connection::class);
-            $appKey = (string) (config('app.key') ?: env('APP_KEY', 'aio-universal-secret-key-32chars!!'));
+            $appKey = \Core\Security\AppKey::get();
             return new \Core\Privacy\TenantKeyManager($db, $appKey);
         });
         $c->singleton(\Core\Privacy\DataPortabilityExporter::class, function ($c) {
@@ -490,7 +490,7 @@ class Application
         $c->singleton(\Core\Privacy\TenantDataShredder::class, function ($c) {
             $db = $c->get(Connection::class);
             $keyManager = $c->get(\Core\Privacy\TenantKeyManager::class);
-            $appKey = (string) (config('app.key') ?: env('APP_KEY', 'aio-universal-secret-key-32chars!!'));
+            $appKey = \Core\Security\AppKey::get();
             return new \Core\Privacy\TenantDataShredder($db, $keyManager, $appKey);
         });
         $c->singleton(\Core\Privacy\TenantPrivacyManagerInterface::class, function ($c) {
@@ -847,6 +847,7 @@ HTML;
             ->register(new \Core\Console\Commands\TenantExportCommand())
             ->register(new \Core\Console\Commands\TenantShredCommand())
             ->register(new \Core\Console\Commands\TenantCryptoShredCommand())
+            ->register(new \Core\Console\Commands\KeyGenerateCommand())
             ->register(new \Core\Console\Commands\SentinelProfileCommand())
             ->register(new \Core\Console\Commands\SentinelSlowQueriesCommand())
             ->register(new \Core\Console\Commands\SentinelStatusCommand());
