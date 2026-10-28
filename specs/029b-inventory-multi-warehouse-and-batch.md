@@ -81,9 +81,9 @@ Solusinya adalah memperkuat modul `Inventory` melalui **SPEC-029B** dengan menam
 
 ## 4. Atomic Task Checklist
 
-- [ ] **Phase 1: Database Migrations & Models**
-  - [ ] 1.1 Buat migration `database/migrations/2026_10_28_000027_add_multi_warehouse_and_batches.sql` untuk tabel `item_batches` dan `inventory_stock_locations`.
-  - [ ] 1.2 Jalankan migrasi via console runner dan verifikasi skema database.
+- [x] **Phase 1: Database Migrations & Models**
+  - [x] 1.1 Buat migration `database/migrations/2026_10_28_000026_add_multi_warehouse_and_batches.sql` untuk tabel `item_batches`, `inventory_stock_locations`, dan `inventory_transfers`.
+  - [x] 1.2 Jalankan migrasi via console runner dan verifikasi skema database.
 - [ ] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
   - [ ] 2.1 Perbarui interface `App\Modules\Inventory\Contracts\InventoryRegistryInterface`.
   - [ ] 2.2 Tulis test suite `tests/Unit/InventoryMultiWarehouseTest.php` mencakup batch tracking, FEFO deduction, transfer stok antar gudang, dan near-expiry alert.
