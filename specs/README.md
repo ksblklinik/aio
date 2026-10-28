@@ -57,6 +57,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 042 | [042-universal-tenant-crypto-shredding-and-data-portability.md](file:///c:/aplikasi/aio/specs/042-universal-tenant-crypto-shredding-and-data-portability.md) | Universal Tenant Crypto-Shredding, Data Portability & GDPR/PDP Anonymization Engine | `Completed` | 2026-10-28 |
 | 043 | [043-universal-runtime-performance-sentinel-and-profiler.md](file:///c:/aplikasi/aio/specs/043-universal-runtime-performance-sentinel-and-profiler.md) | Universal Runtime Performance Sentinel & SQLite Profiling Engine | `Completed` | 2026-10-28 |
 | 044 | [044-core-security-gap-remediation.md](file:///c:/aplikasi/aio/specs/044-core-security-gap-remediation.md) | Core Security & Resilience Gap Remediation | `Completed` | 2026-10-28 |
+| 045 | [045-level-2-concurrency-and-business-integrity-hardening.md](file:///c:/aplikasi/aio/specs/045-level-2-concurrency-and-business-integrity-hardening.md) | Level 2 Concurrency & Business Integrity Hardening | `Completed` | 2026-10-28 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 

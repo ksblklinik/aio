@@ -575,6 +575,27 @@ class TariffService implements TariffRegistryInterface
     public function recordInvoiceSplits(int $invoiceId, array $items): array
     {
         $tenantId = $this->getTenantId();
+
+        $hasInvoiceItemIds = false;
+        foreach ($items as $item) {
+            if (!empty($item['invoice_item_id'])) {
+                $hasInvoiceItemIds = true;
+                break;
+            }
+        }
+
+        // Idempotency batch: jika item tidak memiliki invoice_item_id dan invoice sudah pernah diproses
+        if (!$hasInvoiceItemIds) {
+            $existing = $this->db->select("
+                SELECT * FROM tariff_fee_allocations 
+                WHERE tenant_id = ? AND invoice_id = ?
+            ", [$tenantId, $invoiceId]);
+
+            if (!empty($existing)) {
+                return $existing;
+            }
+        }
+
         $allocations = [];
 
         foreach ($items as $item) {
@@ -589,6 +610,23 @@ class TariffService implements TariffRegistryInterface
             $splits = $this->calculateSplits($itemId, $lineTotal, $priceBookId, $performerContactId);
 
             foreach ($splits as $split) {
+                // Idempotency per item jika invoice_item_id terdefinisi
+                if ($invoiceItemId !== null) {
+                    $existing = $this->db->selectOne("
+                        SELECT id FROM tariff_fee_allocations 
+                        WHERE tenant_id = ? AND invoice_id = ? AND invoice_item_id = ? AND split_rule_id = ?
+                    ", [$tenantId, $invoiceId, $invoiceItemId, $split['split_rule_id']]);
+
+                    if ($existing) {
+                        $allocations[] = array_merge($split, [
+                            'id' => (int)$existing['id'],
+                            'invoice_id' => $invoiceId,
+                            'status' => 'accrued',
+                        ]);
+                        continue;
+                    }
+                }
+
                 $stmt = $this->db->pdo()->prepare("
                     INSERT INTO tariff_fee_allocations (
                         tenant_id, invoice_id, invoice_item_id, split_rule_id, item_id,

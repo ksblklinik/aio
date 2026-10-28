@@ -458,10 +458,19 @@ class ScheduleService implements ScheduleRegistryInterface
         };
 
         if (function_exists('lock')) {
+            $lockManager = null;
             try {
-                return (array) lock()->run("queue:issue:{$tenantId}:{$prefix}:{$date}", $issueCallback, ttlSeconds: 5, waitTimeoutMs: 3000);
+                $lockManager = lock();
             } catch (\Throwable) {
-                // Fallback to direct execution
+                $lockManager = null;
+            }
+
+            if ($lockManager instanceof \Core\Lock\LockManagerInterface) {
+                try {
+                    return (array) $lockManager->run("queue:issue:{$tenantId}:{$prefix}:{$date}", $issueCallback, ttlSeconds: 5, waitTimeoutMs: 3000);
+                } catch (\Core\Lock\LockTimeoutException $e) {
+                    throw new RuntimeException("Penerbitan antrean prefix '{$prefix}' sedang sibuk. Silakan coba kembali dalam beberapa saat.", 0, $e);
+                }
             }
         }
 
@@ -515,40 +524,41 @@ class ScheduleService implements ScheduleRegistryInterface
         $prefix = strtoupper($prefix);
 
         $callCallback = function () use ($tenantId, $date, $prefix, $roomId, $spaceId, $userId): ?array {
-            // Ambil tiket waiting dengan sequence terkecil hari ini
-            $nextTicket = $this->db->selectOne(
-                "SELECT id FROM queue_tickets
-                 WHERE tenant_id = ? AND ticket_date = ? AND prefix = ? AND status = 'waiting'
-                 ORDER BY sequence_number ASC LIMIT 1",
-                [$tenantId, $date, $prefix]
-            );
-
-            if (!$nextTicket) {
-                return null;
-            }
-
-            $ticketId = (int) $nextTicket['id'];
+            $maxRetries = 3;
+            $ticket = null;
             $now = date('Y-m-d H:i:s');
 
-            $updates = [
-                'status' => 'called',
-                'called_at' => $now,
-                'call_count' => 1,
-                'updated_at' => $now,
-            ];
-            if ($roomId !== null) {
-                $updates['room_id'] = $roomId;
-            }
-            if ($spaceId !== null) {
-                $updates['space_id'] = $spaceId;
-            }
-            if ($userId !== null) {
-                $updates['called_by'] = $userId;
+            for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
+                $nextTicket = $this->db->selectOne(
+                    "SELECT id FROM queue_tickets
+                     WHERE tenant_id = ? AND ticket_date = ? AND prefix = ? AND status = 'waiting'
+                     ORDER BY sequence_number ASC LIMIT 1",
+                    [$tenantId, $date, $prefix]
+                );
+
+                if (!$nextTicket) {
+                    return null;
+                }
+
+                $ticketId = (int) $nextTicket['id'];
+
+                $affected = $this->db->affectingStatement(
+                    "UPDATE queue_tickets SET 
+                        status = 'called', called_at = ?, call_count = 1, updated_at = ?,
+                        room_id = ?, space_id = ?, called_by = ?
+                     WHERE id = ? AND tenant_id = ? AND status = 'waiting'",
+                    [$now, $now, $roomId, $spaceId, $userId, $ticketId, $tenantId]
+                );
+
+                if ($affected === 1) {
+                    $ticket = $this->getQueueTicket($ticketId);
+                    break;
+                }
             }
 
-            $this->db->update('queue_tickets', $updates, 'id = ? AND tenant_id = ?', [$ticketId, $tenantId]);
-
-            $ticket = $this->getQueueTicket($ticketId);
+            if (!$ticket) {
+                return null;
+            }
             if ($ticket) {
                 try {
                     if (function_exists('sse')) {
@@ -577,10 +587,19 @@ class ScheduleService implements ScheduleRegistryInterface
         };
 
         if (function_exists('lock')) {
+            $lockManager = null;
             try {
-                return lock()->run("queue:call:{$tenantId}:{$prefix}:{$date}", $callCallback, ttlSeconds: 5, waitTimeoutMs: 3000);
+                $lockManager = lock();
             } catch (\Throwable) {
-                // Fallback to direct execution
+                $lockManager = null;
+            }
+
+            if ($lockManager instanceof \Core\Lock\LockManagerInterface) {
+                try {
+                    return $lockManager->run("queue:call:{$tenantId}:{$prefix}:{$date}", $callCallback, ttlSeconds: 5, waitTimeoutMs: 3000);
+                } catch (\Core\Lock\LockTimeoutException $e) {
+                    throw new RuntimeException("Pemanggilan antrean prefix '{$prefix}' sedang sibuk. Silakan coba kembali dalam beberapa saat.", 0, $e);
+                }
             }
         }
 

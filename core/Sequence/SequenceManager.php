@@ -150,10 +150,19 @@ class SequenceManager
         });
 
         if (function_exists('lock')) {
+            $lockManager = null;
             try {
-                return (string) lock()->run("sequence:{$tId}:{$name}", $generateCallback, ttlSeconds: 5, waitTimeoutMs: 3000);
+                $lockManager = lock();
             } catch (\Throwable) {
-                // fallback
+                $lockManager = null;
+            }
+
+            if ($lockManager instanceof \Core\Lock\LockManagerInterface) {
+                try {
+                    return (string) $lockManager->run("sequence:{$tId}:{$name}", $generateCallback, ttlSeconds: 5, waitTimeoutMs: 3000);
+                } catch (\Core\Lock\LockTimeoutException $e) {
+                    throw new RuntimeException("Penomoran sequence '{$name}' sedang sibuk karena diakses proses lain.", 0, $e);
+                }
             }
         }
 
