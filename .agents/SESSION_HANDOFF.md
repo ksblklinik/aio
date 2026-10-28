@@ -32,9 +32,10 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **SPEC-032 ([`specs/032-universal-scheduling-and-queue.md`](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md))**: `Completed` (merged to `main`).
   - **SPEC-033 ([`specs/033-universal-tariffs-and-split-fee.md`](file:///c:/aplikasi/aio/specs/033-universal-tariffs-and-split-fee.md))**: `Completed` (Universal Tariffs, Multi-Payer Price Books & Split Fee Engine).
   - **SPEC-034 ([`specs/034-universal-semantic-coding-and-terminology.md`](file:///c:/aplikasi/aio/specs/034-universal-semantic-coding-and-terminology.md))**: `Completed` (Universal Semantic Coding & Terminology Registry).
+  - **SPEC-035 ([`specs/035-universal-document-cryptographic-seal-and-verification.md`](file:///c:/aplikasi/aio/specs/035-universal-document-cryptographic-seal-and-verification.md))**: `Completed` (Universal Document Cryptographic Seal & Verification Portal).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
-* **Test Suite Status**: **415 tests (2428 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
-* **Database File**: `database.sqlite` di root repositori (29 migrasi applied).
+* **Test Suite Status**: **425 tests (2482 assertions) PASS 100%**, `tsc --noEmit` clean, Vite build clean.
+* **Database File**: `database.sqlite` di root repositori (30 migrasi applied).
 
 ---
 
@@ -144,10 +145,32 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
+## 📦 Capaian & Hasil Eksekusi SPEC-035 (Universal Document Cryptographic Seal & Verification Portal):
+1. **Database Schema & Migrations**:
+   - Migrasi `2026_10_28_000030_create_document_seals_tables.sql` membuat tabel:
+     - `document_seals`: Penyimpanan segel kriptografis dokumen, token verifikasi unik, tipe dokumen, nomor, penandatangan, subjek, hash kanonikal SHA-256, HMAC signature, masa berlaku, dan alasan pencabutan.
+     - `document_verification_logs`: Jejak audit setiap interaksi pemindaian QR code / akses portal publik (timestamp, IP address, user-agent, referer, hasil verifikasi).
+2. **Core Seal & Digital Signature Engine (`DocumentSealRegistryInterface`)**:
+   - `sealDocument()`: Pembuatan segel kriptografis dokumen dengan sorting kanonikal rekursif, kalkulasi SHA-256, penandatanganan HMAC dengan secret tenant, masking privasi nama subjek, dan URL verifikasi publik.
+   - `verifyPublicDocument()`: Verifikasi publik terbuka (zero-trust) tanpa otentikasi untuk pemindai QR code, evaluasi status (aktif, revoked, expired, not_found), dan pencatatan audit log otomatis.
+   - `revokeSeal()`: Pencabutan keabsahan dokumen disertai alasan resmi.
+   - `verifyPayloadIntegrity()`: Pemeriksaan anti-tampering apakah payload dokumen telah diubah atau dipalsukan.
+3. **Web UI, Public Portal & REST API**:
+   - Rute Publik terbuka: `/verify/{token}` dan `/api/verify/{token}`.
+   - Rute Terproteksi: `/seal` (back-office), `/seal/documents`, REST API `/api/seal/documents`.
+   - Halaman Portal Verifikasi Publik `resources/js/Pages/Seal/Verify.tsx`: Tampilan responsif ramah seluler (*mobile-first*), lencana status visual (Sah & Otentik, Dicabut, Kedaluwarsa, Tidak Ditemukan), rincian penandatangan, data subjek dengan penyamaran privasi, dan segel hash SHA-256.
+   - Halaman Back-Office `resources/js/Pages/Seal/Index.tsx`: Master-detail dashboard, modal penerbitan segel, modal pencabutan dokumen, dan riwayat pemindaian publik real-time.
+4. **Verifikasi & Test**:
+   - Test suite baru [`tests/Unit/SealModuleTest.php`](file:///c:/aplikasi/aio/tests/Unit/SealModuleTest.php) (10 tests, 54 assertions) lolos 100%.
+   - Global test suite meningkat menjadi **425 tests (2482 assertions)** PASS 100%.
+
+---
+
 ## 🚀 Rencana Langkah Berikutnya (Penguatan Core & Level 2):
-1. **SPEC-035: Universal Document Cryptographic Seal & Verification Portal**:
-   - Digital signature / TTE, segel kriptografis SHA-256, QR code validasi publik (`/verify/doc/{hash}`) untuk kwitansi, invoice, surat sakit, resume medis, atau e-certificate.
-2. **Core Hardening: Universal Server-Sent Events (SSE) Push Bus**:
-   - Menggantikan polling interval pada TV Display antrean (SPEC-032) dengan real-time push sub-detik native browser.
+1. **Core Hardening: Universal Server-Sent Events (SSE) Push Bus**:
+   - Menggantikan polling interval pada TV Display antrean (SPEC-032) dan notifikasi in-app dengan real-time push sub-detik native browser tanpa dependensi WebSocket eksternal.
+2. **Review Kesiapan Menuju Modul Bisnis Level 3 (Klinik / Healthcare)**:
+   - Fondasi Level 2 telah sangat lengkap: Kontak & Peran (027), Finansial & Kas (028), Inventori & FEFO (029 & 029B), Billing & Invoice (030), Fasilitas & Ruangan (031), Jadwal & Antrean TV (032), Tarif & Split Fee (033), Terminologi Standar ICD-10/LOINC (034), dan Segel Dokumen/TTE (035).
+
 
 

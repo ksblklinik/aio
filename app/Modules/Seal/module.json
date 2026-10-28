@@ -1,0 +1,27 @@
+{
+  "id": "seal",
+  "name": "Document Seal & Verification",
+  "description": "Universal cryptographic document seal, digital signature verification, and zero-trust public verification portal.",
+  "version": "1.0.0",
+  "author": "Antigravity Platform Team",
+  "category": "knowledge",
+  "icon": "ShieldCheck",
+  "route": "/seal",
+  "dependencies": ["auth", "workspaces"],
+  "is_core": false,
+  "is_active": true,
+  "table_name": "document_seals",
+  "provider": "App\\Modules\\Seal\\SealServiceProvider",
+  "permissions": [
+    {
+      "key": "seal.view",
+      "name": "Lihat Segel Dokumen & Log Verifikasi",
+      "description": "Melihat daftar dokumen yang telah disegel dan riwayat verifikasi publik"
+    },
+    {
+      "key": "seal.manage",
+      "name": "Kelola & Cabut Segel Dokumen",
+      "description": "Menerbitkan segel dokumen baru, mencabut (revocation) keabsahan dokumen"
+    }
+  ]
+}
