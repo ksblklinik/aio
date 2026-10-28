@@ -1,6 +1,6 @@
 # SPEC-031: Universal Facilities, Spaces & Locations Registry
 
-- **Status**: `Draft`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity Platform Team
 - **Tanggal Dibuat**: 2026-10-28
 - **Target Modul**: `app/Modules/Facility/`
@@ -214,8 +214,8 @@ interface FacilityRegistryInterface
   - [x] 3.2 Implementasikan Web Controller `FacilityController` untuk manajemen lokasi, ruangan, dan unit bed/meja.
   - [x] 3.3 Implementasikan REST API Controller `ApiFacilityController` untuk lookup lokasi/ruangan/space programatik.
   - [x] 3.4 Buat view template atau halaman UI responsif dark/light mode untuk fasilitas & ruangan.
-- [ ] **Phase 4: Final Verification, Review & Handoff**
-  - [ ] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat` (memastikan tidak ada regresi).
-  - [ ] 4.2 Jalankan `npm run typecheck` dan script `scripts/verify.ps1`.
-  - [ ] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
-  - [ ] 4.4 Merge atomic commit ke branch `main`.
+- [x] **Phase 4: Final Verification, Review & Handoff**
+  - [x] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat` (memastikan tidak ada regresi).
+  - [x] 4.2 Jalankan `npm run typecheck` dan script `scripts/verify.ps1`.
+  - [x] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
+  - [x] 4.4 Merge atomic commit ke branch `main`.

@@ -43,7 +43,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 029 | [029-universal-inventory-and-items.md](file:///c:/aplikasi/aio/specs/029-universal-inventory-and-items.md) | Universal Items, Catalog & Inventory Engine | `Completed` | 2026-10-27 |
 | 029B | [029b-inventory-multi-warehouse-and-batch.md](file:///c:/aplikasi/aio/specs/029b-inventory-multi-warehouse-and-batch.md) | Inventory Multi-Warehouse, Stock Transfer, Batch & Expiry Engine | `Draft` | 2026-10-28 |
 | 030 | [030-universal-billing-and-invoicing.md](file:///c:/aplikasi/aio/specs/030-universal-billing-and-invoicing.md) | Universal Invoicing, Billing & Document Engine | `Completed` | 2026-10-28 |
-| 031 | [031-universal-facilities-and-locations.md](file:///c:/aplikasi/aio/specs/031-universal-facilities-and-locations.md) | Universal Facilities, Spaces & Locations Registry | `Draft` | 2026-10-28 |
+| 031 | [031-universal-facilities-and-locations.md](file:///c:/aplikasi/aio/specs/031-universal-facilities-and-locations.md) | Universal Facilities, Spaces & Locations Registry | `Completed` | 2026-10-28 |
 | 032 | [032-universal-scheduling-and-queue.md](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md) | Universal Scheduling, Appointments & Human Queue Engine | `Draft` | 2026-10-28 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
