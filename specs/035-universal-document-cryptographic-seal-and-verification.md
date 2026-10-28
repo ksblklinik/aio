@@ -1,6 +1,6 @@
 # SPEC-035: Universal Document Cryptographic Seal & Verification Portal
 
-- **Status**: `Draft`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity Platform Team
 - **Tanggal Dibuat**: 2026-10-28
 - **Target Modul**: `app/Modules/Seal/`
@@ -26,12 +26,12 @@ Modul `Seal` hadir sebagai fondasi universal Level 2 untuk menerbitkan segel kri
 ## 2. Goals & Non-Goals
 
 ### Goals
-- [ ] Menyediakan **Document Seal Engine** (`document_seals`):
+- [x] Menyediakan **Document Seal Engine** (`document_seals`):
   - Menerbitkan segel kriptografis untuk dokumen resmi lintas domain (Invoice, Kwitansi, Surat Keterangan Dokter, Resume Medis, Surat Jalan, Sertifikat).
   - Menghasilkan ringkasan data kanonikal (*canonical payload hash*) menggunakan algoritma SHA-256.
   - Menghasilkan tanda tangan digital HMAC-SHA256 yang diikat pada kunci rahasia (*tenant signature secret key*).
   - Menghasilkan token verifikasi publik acak yang aman (*cryptographically secure random token*) dan URL verifikasi publik (`https://domain.com/verify/{token}`).
-- [ ] Menyediakan **Public Verification Portal** (`GET /verify/{token}`):
+- [x] Menyediakan **Public Verification Portal** (`GET /verify/{token}`):
   - Halaman web terbuka tanpa otentikasi (dapat diakses siapa saja melalui pemindaian QR code).
   - Tampilan responsif ramah seluler (*mobile-first*) dengan status validitas visual yang tegas:
     - **Hijau (Sah & Otentik)**: Menampilkan nama institusi/klinik penerbit, nomor dokumen, tanggal penerbitan, penandatangan resmi, peruntukan, dan ringkasan hash SHA-256.
@@ -39,12 +39,12 @@ Modul `Seal` hadir sebagai fondasi universal Level 2 untuk menerbitkan segel kri
     - **Kuning (Kedaluwarsa / Expired)**: Dokumen telah melewati batas masa berlaku (*valid_until*).
     - **Abu-abu / 404 (Tidak Sah / Palsu)**: Token tidak ditemukan dalam basis data resmi.
   - Opsi penyamaran privasi (*privacy data masking*, misal: `Ah*** Fau**`, `NIK: 3171***`) untuk melindungi data pribadi sensitif pasien/konsumen dari publik.
-- [ ] Menyediakan **Verification Audit Logging** (`document_verification_logs`):
+- [x] Menyediakan **Verification Audit Logging** (`document_verification_logs`):
   - Mencatat setiap interaksi pemindaian QR / akses portal verifikasi (timestamp, IP address, User-Agent browser, status hasil verifikasi).
-- [ ] Menyediakan **Revocation & Lifecycle Management**:
+- [x] Menyediakan **Revocation & Lifecycle Management**:
   - Fasilitas pencabutan keabsahan dokumen (*revoke*) dengan alasan resmi dari penerbit.
-- [ ] Menyediakan Contract Interface `DocumentSealRegistryInterface`, Global Helper `documentSeal()`, dan REST API endpoints.
-- [ ] Antarmuka manajemen Web Inertia React (`resources/js/Pages/Seal/Index.tsx`) dengan tema dark/light mode baku.
+- [x] Menyediakan Contract Interface `DocumentSealRegistryInterface`, Global Helper `documentSeal()`, dan REST API endpoints.
+- [x] Antarmuka manajemen Web Inertia React (`resources/js/Pages/Seal/Index.tsx`) dengan tema dark/light mode baku.
 
 ### Non-Goals
 - Modul ini **TIDAK** menerbitkan sertifikat X.509 dari Root CA eksternal (misal: BSrE/Peruri) secara langsung; modul ini menyediakan engine segel kriptografis internal aplikasi dan payload adapter jika ke depannya dihubungkan ke CA eksternal.
@@ -221,25 +221,25 @@ interface DocumentSealRegistryInterface
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Setup Modul, Arsitektur, & Database Migrations**
-  - [ ] 1.1 Buat manifest modul `app/Modules/Seal/module.json`.
-  - [ ] 1.2 Buat migrasi `database/migrations/2026_10_28_000030_create_document_seals_tables.sql`.
-  - [ ] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
-- [ ] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
-  - [ ] 2.1 Buat interface `App\Modules\Seal\Contracts\DocumentSealRegistryInterface`.
-  - [ ] 2.2 Buat Service Provider `App\Modules\Seal\SealServiceProvider` dan daftarkan modul.
-  - [ ] 2.3 Daftarkan helper global `documentSeal()` di `core/helpers.php`.
-  - [ ] 2.4 Tulis test suite `tests/Unit/SealModuleTest.php` mencakup pembuatan segel, verifikasi publik, revocation, expiry, jejak audit, dan isolasi tenant.
-  - [ ] 2.5 Implementasikan `App\Modules\Seal\Services\DocumentSealService` hingga seluruh unit test lolos 100%.
-- [ ] **Phase 3: Web UI, Public Verification Portal, & REST API**
-  - [ ] 3.1 Buat routes modul di `app/Modules/Seal/routes.php` (mencakup rute terbuka tanpa auth `/verify/{token}`).
-  - [ ] 3.2 Implementasikan Web Controller `SealController` untuk dashboard back-office manajemen segel dokumen.
-  - [ ] 3.3 Implementasikan Public Controller `PublicVerifyController` untuk halaman publik verifikasi QR code.
-  - [ ] 3.4 Implementasikan REST API Controller `ApiSealController` untuk integrasi segel lintas modul.
-  - [ ] 3.5 Buat antarmuka pengguna responsif Inertia React `resources/js/Pages/Seal/Index.tsx` untuk back-office.
-  - [ ] 3.6 Buat halaman verifikasi publik `resources/js/Pages/Seal/Verify.tsx` (mobile-first, status badge, rincian keabsahan, anti-tampering hash).
-- [ ] **Phase 4: Final Verification, Review & Handoff**
-  - [ ] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat`.
-  - [ ] 4.2 Jalankan `npm run typecheck` dan build aset frontend.
-  - [ ] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
-  - [ ] 4.4 Merge atomic commit ke branch `main`.
+- [x] **Phase 1: Setup Modul, Arsitektur, & Database Migrations**
+  - [x] 1.1 Buat manifest modul `app/Modules/Seal/module.json`.
+  - [x] 1.2 Buat migrasi `database/migrations/2026_10_28_000030_create_document_seals_tables.sql`.
+  - [x] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
+- [x] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
+  - [x] 2.1 Buat interface `App\Modules\Seal\Contracts\DocumentSealRegistryInterface`.
+  - [x] 2.2 Buat Service Provider `App\Modules\Seal\SealServiceProvider` dan daftarkan modul.
+  - [x] 2.3 Daftarkan helper global `documentSeal()` di `core/helpers.php`.
+  - [x] 2.4 Tulis test suite `tests/Unit/SealModuleTest.php` mencakup pembuatan segel, verifikasi publik, revocation, expiry, jejak audit, dan isolasi tenant.
+  - [x] 2.5 Implementasikan `App\Modules\Seal\Services\DocumentSealService` hingga seluruh unit test lolos 100%.
+- [x] **Phase 3: Web UI, Public Verification Portal, & REST API**
+  - [x] 3.1 Buat routes modul di `app/Modules/Seal/routes.php` (mencakup rute terbuka tanpa auth `/verify/{token}`).
+  - [x] 3.2 Implementasikan Web Controller `SealController` untuk dashboard back-office manajemen segel dokumen.
+  - [x] 3.3 Implementasikan Public Controller `PublicVerifyController` untuk halaman publik verifikasi QR code.
+  - [x] 3.4 Implementasikan REST API Controller `ApiSealController` untuk integrasi segel lintas modul.
+  - [x] 3.5 Buat antarmuka pengguna responsif Inertia React `resources/js/Pages/Seal/Index.tsx` untuk back-office.
+  - [x] 3.6 Buat halaman verifikasi publik `resources/js/Pages/Seal/Verify.tsx` (mobile-first, status badge, rincian keabsahan, anti-tampering hash).
+- [x] **Phase 4: Final Verification, Review & Handoff**
+  - [x] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat`.
+  - [x] 4.2 Jalankan `npm run typecheck` dan build aset frontend.
+  - [x] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
+  - [x] 4.4 Merge atomic commit ke branch `main`.

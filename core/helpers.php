@@ -915,3 +915,14 @@ if (!function_exists('terminology')) {
     }
 }
 
+if (!function_exists('documentSeal')) {
+    /**
+     * Helper global untuk Universal Document Cryptographic Seal & Verification Portal
+     */
+    function documentSeal(): \App\Modules\Seal\Contracts\DocumentSealRegistryInterface
+    {
+        return app(\App\Modules\Seal\Contracts\DocumentSealRegistryInterface::class);
+    }
+}
+
+

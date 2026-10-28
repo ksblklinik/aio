@@ -47,7 +47,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 032 | [032-universal-scheduling-and-queue.md](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md) | Universal Scheduling, Appointments & Human Queue Engine | `Completed` | 2026-10-28 |
 | 033 | [033-universal-tariffs-and-split-fee.md](file:///c:/aplikasi/aio/specs/033-universal-tariffs-and-split-fee.md) | Universal Tariffs, Multi-Payer Price Books & Split Fee Engine | `Completed` | 2026-10-28 |
 | 034 | [034-universal-semantic-coding-and-terminology.md](file:///c:/aplikasi/aio/specs/034-universal-semantic-coding-and-terminology.md) | Universal Semantic Coding & Terminology Registry | `Completed` | 2026-10-28 |
-| 035 | [035-universal-document-cryptographic-seal-and-verification.md](file:///c:/aplikasi/aio/specs/035-universal-document-cryptographic-seal-and-verification.md) | Universal Document Cryptographic Seal & Verification Portal | `Draft` | 2026-10-28 |
+| 035 | [035-universal-document-cryptographic-seal-and-verification.md](file:///c:/aplikasi/aio/specs/035-universal-document-cryptographic-seal-and-verification.md) | Universal Document Cryptographic Seal & Verification Portal | `Completed` | 2026-10-28 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 
