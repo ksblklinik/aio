@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import {
   Volume2,
   VolumeX,
@@ -6,8 +6,10 @@ import {
   Users,
   CheckCircle2,
   Sparkles,
-  Maximize2
+  Maximize2,
+  Radio
 } from 'lucide-react';
+import { useSse } from '../../hooks/useSse';
 
 interface CalledTicket {
   id: number;
@@ -58,35 +60,59 @@ export default function Display({ displayState: initialData, currentTenant }: Di
     return () => clearInterval(timer);
   }, []);
 
-  // Poll active queue state every 3 seconds
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch('/api/schedule/queue/display');
-        const json = await res.json();
-        if (json.status === 'success' && json.data) {
-          setData(json.data);
-
-          // Check for new ticket to announce via Text-To-Speech
-          const latest = json.data.latest_called;
-          if (latest && latest.ticket_number !== lastAnnouncedTicketRef.current) {
-            lastAnnouncedTicketRef.current = latest.ticket_number;
-            if (soundEnabled && 'speechSynthesis' in window) {
-              const text = latest.tts_announcement || `Nomor antrean ${latest.ticket_number}`;
-              const utterance = new SpeechSynthesisUtterance(text);
-              utterance.lang = 'id-ID';
-              utterance.rate = 0.9;
-              window.speechSynthesis.speak(utterance);
-            }
-          }
-        }
-      } catch {
-        // network polling error silent
+  const refreshDisplayData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/schedule/queue/display');
+      const json = await res.json();
+      if (json.status === 'success' && json.data) {
+        setData(json.data);
       }
-    }, 3000);
+    } catch {
+      // silent
+    }
+  }, []);
 
-    return () => clearInterval(interval);
+  const speakTicket = useCallback((text: string) => {
+    if (soundEnabled && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'id-ID';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
   }, [soundEnabled]);
+
+  // Real-time Push via Universal Server-Sent Events (SSE) Bus
+  const { isConnected } = useSse({
+    channel: 'queue',
+    tenantId: currentTenant?.id,
+    events: ['ticket_called', 'ticket_issued'],
+    fallbackPollIntervalMs: 8000,
+    onEvent: (evt) => {
+      if (evt.event === 'ticket_called' && evt.data) {
+        const payload = evt.data;
+        const ticketNum = payload.ticket_number;
+        const announcement = payload.tts_announcement || `Nomor antrean ${ticketNum}`;
+
+        if (ticketNum && ticketNum !== lastAnnouncedTicketRef.current) {
+          lastAnnouncedTicketRef.current = ticketNum;
+          speakTicket(announcement);
+        }
+
+        refreshDisplayData();
+      } else if (evt.event === 'ticket_issued') {
+        refreshDisplayData();
+      }
+    },
+  });
+
+  // Polling penyelarasan cadangan berfrekuensi rendah (setiap 15 detik) untuk integritas data menyeluruh
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshDisplayData();
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [refreshDisplayData]);
 
   const toggleSound = () => {
     setSoundEnabled((prev) => !prev);
@@ -116,9 +142,23 @@ export default function Display({ displayState: initialData, currentTenant }: Di
             <Tv className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-white uppercase">
-              {currentTenant?.name || 'Sistem Antrean Terpadu'}
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-black tracking-tight text-white uppercase">
+                {currentTenant?.name || 'Sistem Antrean Terpadu'}
+              </h1>
+              {isConnected ? (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <Radio className="w-3 h-3" />
+                  REAL-TIME (SSE)
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-400" />
+                  POLLING MODE
+                </span>
+              )}
+            </div>
             <p className="text-xs text-slate-400 font-medium">Layar Informasi Panggilan Antrean Ruang Tunggu</p>
           </div>
         </div>

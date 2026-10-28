@@ -63,3 +63,8 @@ $router->get('/api/health', function () {
 // Universal Tenant Storage Download (Signed URL & Public files)
 $router->get('/storage/download/{id}', [\Core\Storage\FileDownloadController::class, 'download']);
 
+// Universal Server-Sent Events (SSE) Push Bus & Polling Endpoints
+$router->get('/api/sse/stream', [\Core\Broadcasting\SseController::class, 'stream']);
+$router->get('/api/sse/poll', [\Core\Broadcasting\SseController::class, 'poll']);
+
+

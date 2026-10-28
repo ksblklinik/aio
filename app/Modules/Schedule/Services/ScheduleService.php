@@ -440,7 +440,20 @@ class ScheduleService implements ScheduleRegistryInterface
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-        return $this->getQueueTicket($id) ?? [];
+        $ticket = $this->getQueueTicket($id) ?? [];
+        try {
+            if (function_exists('sse') && !empty($ticket)) {
+                sse('queue', 'ticket_issued', [
+                    'ticket_id' => $id,
+                    'ticket_number' => $ticketNumber,
+                    'prefix' => $prefix,
+                    'service_name' => (string) ($data['service_name'] ?? 'Poli Umum'),
+                    'status' => 'waiting',
+                ], (string) $tenantId);
+            }
+        } catch (\Throwable) {}
+
+        return $ticket;
     }
 
     public function getQueueTicket(int $id): ?array
@@ -466,6 +479,7 @@ class ScheduleService implements ScheduleRegistryInterface
     {
         $tenantId = $this->getTenantId();
         $date = $date ?? date('Y-m-d');
+
         $sql = "SELECT q.*,
                        r.name AS room_name,
                        r.code AS room_code,
@@ -521,7 +535,32 @@ class ScheduleService implements ScheduleRegistryInterface
 
         $this->db->update('queue_tickets', $updates, 'id = ? AND tenant_id = ?', [$ticketId, $tenantId]);
 
-        return $this->getQueueTicket($ticketId);
+        $ticket = $this->getQueueTicket($ticketId);
+        if ($ticket) {
+            try {
+                if (function_exists('sse')) {
+                    $tts = sprintf(
+                        'Nomor antrean %s, silakan menuju ke %s',
+                        implode(' ', str_split($ticket['ticket_number'])),
+                        $ticket['room_name'] ?? ($ticket['service_name'] ?? 'ruang pelayanan')
+                    );
+                    sse('queue', 'ticket_called', [
+                        'ticket_id' => $ticket['id'],
+                        'ticket_number' => $ticket['ticket_number'],
+                        'prefix' => $ticket['prefix'],
+                        'service_name' => $ticket['service_name'],
+                        'room_name' => $ticket['room_name'] ?? null,
+                        'space_name' => $ticket['space_name'] ?? null,
+                        'status' => 'called',
+                        'called_at' => $ticket['called_at'] ?? $now,
+                        'call_count' => $ticket['call_count'],
+                        'tts_announcement' => $tts,
+                    ], (string) $tenantId);
+                }
+            } catch (\Throwable) {}
+        }
+
+        return $ticket;
     }
 
     public function recallTicket(int $ticketId): array
@@ -540,7 +579,32 @@ class ScheduleService implements ScheduleRegistryInterface
             [$now, $now, $ticketId, $tenantId]
         );
 
-        return $this->getQueueTicket($ticketId) ?? [];
+        $recalled = $this->getQueueTicket($ticketId) ?? [];
+        if (!empty($recalled)) {
+            try {
+                if (function_exists('sse')) {
+                    $tts = sprintf(
+                        'Panggilan ulang. Nomor antrean %s, silakan menuju ke %s',
+                        implode(' ', str_split($recalled['ticket_number'])),
+                        $recalled['room_name'] ?? ($recalled['service_name'] ?? 'ruang pelayanan')
+                    );
+                    sse('queue', 'ticket_called', [
+                        'ticket_id' => $recalled['id'],
+                        'ticket_number' => $recalled['ticket_number'],
+                        'prefix' => $recalled['prefix'],
+                        'service_name' => $recalled['service_name'],
+                        'room_name' => $recalled['room_name'] ?? null,
+                        'space_name' => $recalled['space_name'] ?? null,
+                        'status' => 'called',
+                        'called_at' => $recalled['called_at'] ?? $now,
+                        'call_count' => $recalled['call_count'],
+                        'tts_announcement' => $tts,
+                    ], (string) $tenantId);
+                }
+            } catch (\Throwable) {}
+        }
+
+        return $recalled;
     }
 
     public function startServing(int $ticketId): array
