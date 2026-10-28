@@ -424,6 +424,23 @@ class Application
         $c->singleton(\Core\Lock\LockManager::class, function ($c) {
             return $c->get(\Core\Lock\LockManagerInterface::class);
         });
+
+        // Universal Disaster Recovery & Hot-Backup Engine
+        $c->singleton(\Core\Backup\Drivers\BackupDriverInterface::class, function ($c) use ($base) {
+            $db = $c->get(Connection::class);
+            $dbPath = (string) config('database.connections.sqlite.database', $base . '/database.sqlite');
+            return new \Core\Backup\Drivers\SqliteBackupDriver($db, $dbPath);
+        });
+        $c->singleton(\Core\Backup\BackupManagerInterface::class, function ($c) use ($base) {
+            $db = $c->get(Connection::class);
+            $driver = $c->get(\Core\Backup\Drivers\BackupDriverInterface::class);
+            $backupDir = (string) config('backup.path', $base . '/storage/backups');
+            $appKey = (string) (config('app.key') ?: env('APP_KEY', 'aio-universal-secret-key-32chars!!'));
+            return new \Core\Backup\BackupManager($db, $driver, $backupDir, $appKey);
+        });
+        $c->singleton(\Core\Backup\BackupManager::class, function ($c) {
+            return $c->get(\Core\Backup\BackupManagerInterface::class);
+        });
     }
 
     public function registerModuleProviders(): void
@@ -724,7 +741,12 @@ HTML;
             ->register(new ScheduleRunCommand())
             ->register(new \Core\Console\Commands\SsePruneCommand())
             ->register(new \Core\Console\Commands\LockPruneCommand())
-            ->register(new \Core\Console\Commands\LockListCommand());
+            ->register(new \Core\Console\Commands\LockListCommand())
+            ->register(new \Core\Console\Commands\DatabaseBackupCommand())
+            ->register(new \Core\Console\Commands\DatabaseRestoreCommand())
+            ->register(new \Core\Console\Commands\DatabaseVerifyCommand())
+            ->register(new \Core\Console\Commands\DatabaseHealCommand())
+            ->register(new \Core\Console\Commands\DatabasePruneBackupsCommand());
 
         // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
         $this->bootModuleProviders();
