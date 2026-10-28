@@ -477,6 +477,32 @@ class Application
         $c->singleton(\Core\Outbox\TransactionalOutboxManager::class, function ($c) {
             return $c->get(\Core\Outbox\TransactionalOutboxManagerInterface::class);
         });
+
+        // Universal Tenant Crypto-Shredding, Data Portability & GDPR/PDP Privacy Engine
+        $c->singleton(\Core\Privacy\TenantKeyManager::class, function ($c) {
+            $db = $c->get(Connection::class);
+            $appKey = (string) (config('app.key') ?: env('APP_KEY', 'aio-universal-secret-key-32chars!!'));
+            return new \Core\Privacy\TenantKeyManager($db, $appKey);
+        });
+        $c->singleton(\Core\Privacy\DataPortabilityExporter::class, function ($c) {
+            return new \Core\Privacy\DataPortabilityExporter($c->get(Connection::class));
+        });
+        $c->singleton(\Core\Privacy\TenantDataShredder::class, function ($c) {
+            $db = $c->get(Connection::class);
+            $keyManager = $c->get(\Core\Privacy\TenantKeyManager::class);
+            $appKey = (string) (config('app.key') ?: env('APP_KEY', 'aio-universal-secret-key-32chars!!'));
+            return new \Core\Privacy\TenantDataShredder($db, $keyManager, $appKey);
+        });
+        $c->singleton(\Core\Privacy\TenantPrivacyManagerInterface::class, function ($c) {
+            return new \Core\Privacy\TenantPrivacyManager(
+                $c->get(\Core\Privacy\TenantKeyManager::class),
+                $c->get(\Core\Privacy\DataPortabilityExporter::class),
+                $c->get(\Core\Privacy\TenantDataShredder::class)
+            );
+        });
+        $c->singleton(\Core\Privacy\TenantPrivacyManager::class, function ($c) {
+            return $c->get(\Core\Privacy\TenantPrivacyManagerInterface::class);
+        });
     }
 
     public function registerModuleProviders(): void
@@ -794,7 +820,10 @@ HTML;
             ->register(new \Core\Console\Commands\OutboxRelayCommand())
             ->register(new \Core\Console\Commands\OutboxDrainCommand())
             ->register(new \Core\Console\Commands\OutboxStatusCommand())
-            ->register(new \Core\Console\Commands\OutboxPruneCommand());
+            ->register(new \Core\Console\Commands\OutboxPruneCommand())
+            ->register(new \Core\Console\Commands\TenantExportCommand())
+            ->register(new \Core\Console\Commands\TenantShredCommand())
+            ->register(new \Core\Console\Commands\TenantCryptoShredCommand());
 
         // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
         $this->bootModuleProviders();

@@ -1020,6 +1020,16 @@ if (!function_exists('outbox')) {
     }
 }
 
+if (!function_exists('privacy')) {
+    /**
+     * Helper global untuk Universal Tenant Crypto-Shredding, Data Portability & GDPR/PDP Privacy Engine.
+     */
+    function privacy(): \Core\Privacy\TenantPrivacyManagerInterface
+    {
+        return app(\Core\Privacy\TenantPrivacyManagerInterface::class);
+    }
+}
+
 
 
 
