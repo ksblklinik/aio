@@ -441,6 +441,14 @@ class Application
         $c->singleton(\Core\Backup\BackupManager::class, function ($c) {
             return $c->get(\Core\Backup\BackupManagerInterface::class);
         });
+
+        // Universal Cross-Module Integrity Auditor & Automated Data Reconciler
+        $c->singleton(\Core\Reconciliation\ReconciliationManagerInterface::class, function ($c) {
+            return new \Core\Reconciliation\ReconciliationManager($c->get(Connection::class));
+        });
+        $c->singleton(\Core\Reconciliation\ReconciliationManager::class, function ($c) {
+            return $c->get(\Core\Reconciliation\ReconciliationManagerInterface::class);
+        });
     }
 
     public function registerModuleProviders(): void
@@ -746,7 +754,9 @@ HTML;
             ->register(new \Core\Console\Commands\DatabaseRestoreCommand())
             ->register(new \Core\Console\Commands\DatabaseVerifyCommand())
             ->register(new \Core\Console\Commands\DatabaseHealCommand())
-            ->register(new \Core\Console\Commands\DatabasePruneBackupsCommand());
+            ->register(new \Core\Console\Commands\DatabasePruneBackupsCommand())
+            ->register(new \Core\Console\Commands\ReconcileAuditCommand())
+            ->register(new \Core\Console\Commands\ReconcileSyncCommand());
 
         // Boot module providers (memungkinkan modul mendaftarkan command CLI mereka)
         $this->bootModuleProviders();

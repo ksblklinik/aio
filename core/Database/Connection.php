@@ -89,6 +89,11 @@ class Connection
         $this->pdo = null;
     }
 
+    public function lastInsertId(?string $name = null): string|false
+    {
+        return $this->getPdo()->lastInsertId($name);
+    }
+
     public function statement(string $sql, array $params = []): bool
     {
         $stmt = $this->pdo->prepare($sql);
