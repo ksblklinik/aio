@@ -139,7 +139,7 @@ class DeadLetterQueue implements DeadLetterQueueInterface
             $params[] = $thresholdDate;
         }
 
-        return (int) $this->db->statement($sql, $params);
+        return $this->db->affectingStatement($sql, $params);
     }
 
     public function diagnostics(): array

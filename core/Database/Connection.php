@@ -100,6 +100,13 @@ class Connection
         return $stmt->execute($params);
     }
 
+    public function affectingStatement(string $sql, array $params = []): int
+    {
+        $stmt = $this->getPdo()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->rowCount();
+    }
+
     public function exec(string $sql): int|false
     {
         return $this->pdo->exec($sql);
