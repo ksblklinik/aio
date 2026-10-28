@@ -7,7 +7,7 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 ## 📌 Status Terakhir Sesi (Last Updated: 2026-10-28 08:25 WIB)
 
 * **Conversation ID Terakhir**: `4d7528e5-6993-4060-b918-14aabb4463fe`
-* **Active Git Branch**: `feat/029b-inventory-multi-warehouse-and-batch` (Siap merge ke `main`)
+* **Active Git Branch**: `main` (Merged cleanly via `--no-ff`, working tree clean)
 * **Status Dokumen / Roadmap**:
   - SPEC-013 ([`specs/013-core-hardening-and-unified-kernel.md`](file:///c:/aplikasi/aio/specs/013-core-hardening-and-unified-kernel.md)): `Completed` (merged to `main`).
   - SPEC-014 ([`specs/014-module-extension-contract.md`](file:///c:/aplikasi/aio/specs/014-module-extension-contract.md)): `Completed` (merged to `main`).
@@ -83,7 +83,6 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 ---
 
 ## 🚀 Rencana Langkah Berikutnya:
-1. **Merge branch `feat/029b-inventory-multi-warehouse-and-batch` ke `main` via `--no-ff`**.
-2. **Eksekusi SPEC-032: Universal Scheduling, Appointments & Human Queue Engine**:
-   - Mengonsumsi data ruangan & counter/meja dari SPEC-031 (`facilities_rooms`, `facilities_spaces`).
-   - Mendukung antrean pendaftaran mandiri (Kiosk), panggilan antrean ruang tunggu (Display TV), appointment booking multi-petugas/dokter, dan multi-sektor.
+1. **Eksekusi SPEC-032: Universal Scheduling, Appointments & Human Queue Engine**:
+   - Menghubungkan ruangan & counter/meja dari SPEC-031 (`facilities_rooms`, `facilities_spaces`).
+   - Mendukung antrean pendaftaran mandiri (Kiosk), display panggilan ruang tunggu (Waiting Room TV Display), appointment booking multi-petugas/dokter, dan multi-sektor.
