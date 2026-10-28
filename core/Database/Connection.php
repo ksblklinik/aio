@@ -16,6 +16,7 @@ class Connection
     private ?string $username = null;
     private ?string $password = null;
     private array $options = [];
+    private ?\Core\Diagnostics\QueryProfiler $profiler = null;
 
     public function __construct(string $dsn, ?string $username = null, ?string $password = null, array $options = [])
     {
@@ -94,30 +95,59 @@ class Connection
         return $this->getPdo()->lastInsertId($name);
     }
 
+    public function setProfiler(?\Core\Diagnostics\QueryProfiler $profiler): void
+    {
+        $this->profiler = $profiler;
+    }
+
+    public function getProfiler(): ?\Core\Diagnostics\QueryProfiler
+    {
+        return $this->profiler;
+    }
+
     public function statement(string $sql, array $params = []): bool
     {
+        $start = microtime(true);
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute($params);
+        $res = $stmt->execute($params);
+        if ($this->profiler !== null) {
+            $this->profiler->record($sql, $params, (microtime(true) - $start) * 1000.0);
+        }
+        return $res;
     }
 
     public function affectingStatement(string $sql, array $params = []): int
     {
+        $start = microtime(true);
         $stmt = $this->getPdo()->prepare($sql);
         $stmt->execute($params);
-        return $stmt->rowCount();
+        $count = $stmt->rowCount();
+        if ($this->profiler !== null) {
+            $this->profiler->record($sql, $params, (microtime(true) - $start) * 1000.0);
+        }
+        return $count;
     }
 
     public function exec(string $sql): int|false
     {
-        return $this->pdo->exec($sql);
+        $start = microtime(true);
+        $res = $this->pdo->exec($sql);
+        if ($this->profiler !== null) {
+            $this->profiler->record($sql, [], (microtime(true) - $start) * 1000.0);
+        }
+        return $res;
     }
 
     public function selectAll(string $sql, array $params = []): array
     {
+        $start = microtime(true);
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $rows = $stmt->fetchAll();
         $stmt->closeCursor();
+        if ($this->profiler !== null) {
+            $this->profiler->record($sql, $params, (microtime(true) - $start) * 1000.0);
+        }
         return $rows;
     }
 
@@ -137,10 +167,14 @@ class Connection
 
     public function selectOne(string $sql, array $params = []): ?array
     {
+        $start = microtime(true);
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $row = $stmt->fetch();
         $stmt->closeCursor();
+        if ($this->profiler !== null) {
+            $this->profiler->record($sql, $params, (microtime(true) - $start) * 1000.0);
+        }
         return $row !== false ? $row : null;
     }
 
