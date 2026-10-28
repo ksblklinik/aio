@@ -1,6 +1,6 @@
 # SPEC-033: Universal Tariffs, Multi-Payer Price Books & Split Fee Engine
 
-- **Status**: `Draft`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity Platform Team
 - **Tanggal Dibuat**: 2026-10-28
 - **Target Modul**: `app/Modules/Tariff/`
@@ -219,23 +219,23 @@ interface TariffRegistryInterface
 
 ## 6. Atomic Task Checklist
 
-- [ ] **Phase 1: Setup Modul, Arsitektur, & Database Migrations**
-  - [ ] 1.1 Buat manifest modul `app/Modules/Tariff/module.json`.
-  - [ ] 1.2 Buat migrasi `database/migrations/2026_10_28_000028_create_tariff_and_split_fee_tables.sql`.
-  - [ ] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
-- [ ] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
-  - [ ] 2.1 Buat interface `App\Modules\Tariff\Contracts\TariffRegistryInterface`.
-  - [ ] 2.2 Buat Service Provider `App\Modules\Tariff\TariffServiceProvider` dan daftarkan modul.
-  - [ ] 2.3 Daftarkan helper global `tariff()` di `core/helpers.php`.
-  - [ ] 2.4 Tulis test suite `tests/Unit/TariffModuleTest.php` mencakup skenario happy path, edge cases, dan tenant isolation.
-  - [ ] 2.5 Implementasikan `App\Modules\Tariff\Services\TariffService` hingga seluruh test lolos 100%.
-- [ ] **Phase 3: Web UI, Routes, & Programmatic REST API**
-  - [ ] 3.1 Buat routes modul di `app/Modules/Tariff/routes.php`.
-  - [ ] 3.2 Implementasikan Web Controller `TariffController` untuk manajemen buku tarif, matriks tarif, dan payout honorarium.
-  - [ ] 3.3 Implementasikan REST API Controller `ApiTariffController` untuk resolusi tarif real-time oleh kasir/kiosk.
-  - [ ] 3.4 Buat antarmuka pengguna responsif Inertia React `resources/js/Pages/Tariff/Index.tsx` dengan Semantic UI Tokens.
-- [ ] **Phase 4: Final Verification, Review & Handoff**
-  - [ ] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat`.
-  - [ ] 4.2 Jalankan `npm run typecheck` dan build aset frontend.
-  - [ ] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
-  - [ ] 4.4 Merge atomic commit ke branch `main`.
+- [x] **Phase 1: Setup Modul, Arsitektur, & Database Migrations**
+  - [x] 1.1 Buat manifest modul `app/Modules/Tariff/module.json`.
+  - [x] 1.2 Buat migrasi `database/migrations/2026_10_28_000028_create_tariff_and_split_fee_tables.sql`.
+  - [x] 1.3 Jalankan migrasi via console runner dan verifikasi skema database.
+- [x] **Phase 2: Service Contracts & Core Engine Implementation (TDD)**
+  - [x] 2.1 Buat interface `App\Modules\Tariff\Contracts\TariffRegistryInterface`.
+  - [x] 2.2 Buat Service Provider `App\Modules\Tariff\TariffServiceProvider` dan daftarkan modul.
+  - [x] 2.3 Daftarkan helper global `tariff()` di `core/helpers.php`.
+  - [x] 2.4 Tulis test suite `tests/Unit/TariffModuleTest.php` mencakup skenario happy path, edge cases, dan tenant isolation.
+  - [x] 2.5 Implementasikan `App\Modules\Tariff\Services\TariffService` hingga seluruh test lolos 100%.
+- [x] **Phase 3: Web UI, Routes, & Programmatic REST API**
+  - [x] 3.1 Buat routes modul di `app/Modules/Tariff/routes.php`.
+  - [x] 3.2 Implementasikan Web Controller `TariffController` untuk manajemen buku tarif, matriks tarif, dan payout honorarium.
+  - [x] 3.3 Implementasikan REST API Controller `ApiTariffController` untuk resolusi tarif real-time oleh kasir/kiosk.
+  - [x] 3.4 Buat antarmuka pengguna responsif Inertia React `resources/js/Pages/Tariff/Index.tsx` dengan Semantic UI Tokens.
+- [x] **Phase 4: Final Verification, Review & Handoff**
+  - [x] 4.1 Jalankan seluruh test suite global via `vendor/bin/phpunit.bat`.
+  - [x] 4.2 Jalankan `npm run typecheck` dan build aset frontend.
+  - [x] 4.3 Perbarui `specs/README.md` dan `.agents/SESSION_HANDOFF.md`.
+  - [x] 4.4 Merge atomic commit ke branch `main`.
