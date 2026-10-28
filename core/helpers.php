@@ -959,6 +959,17 @@ if (!function_exists('lock')) {
     }
 }
 
+if (!function_exists('backup')) {
+    /**
+     * Helper global untuk Universal Disaster Recovery, Hot-Backup & Database Self-Healing Engine.
+     */
+    function backup(): \Core\Backup\BackupManagerInterface
+    {
+        return app(\Core\Backup\BackupManagerInterface::class);
+    }
+}
+
+
 
 
 

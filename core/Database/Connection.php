@@ -12,6 +12,10 @@ class Connection
 {
     private ?PDO $pdo = null;
     private int $transactionLevel = 0;
+    private string $dsn;
+    private ?string $username = null;
+    private ?string $password = null;
+    private array $options = [];
 
     public function __construct(string $dsn, ?string $username = null, ?string $password = null, array $options = [])
     {
@@ -21,8 +25,19 @@ class Connection
             PDO::ATTR_EMULATE_PREPARES => false,
         ];
 
-        $this->pdo = new PDO($dsn, $username, $password, array_replace($defaultOptions, $options));
-        $this->initializePragmas($dsn);
+        $this->dsn = $dsn;
+        $this->username = $username;
+        $this->password = $password;
+        $this->options = array_replace($defaultOptions, $options);
+
+        $this->reconnect();
+    }
+
+    public function reconnect(): void
+    {
+        $this->close();
+        $this->pdo = new PDO($this->dsn, $this->username, $this->password, $this->options);
+        $this->initializePragmas($this->dsn);
     }
 
     private function initializePragmas(string $dsn): void
@@ -58,17 +73,19 @@ class Connection
 
     public function getPdo(): PDO
     {
+        if ($this->pdo === null) {
+            $this->reconnect();
+        }
         return $this->pdo;
     }
 
     public function pdo(): PDO
     {
-        return $this->pdo;
+        return $this->getPdo();
     }
 
     public function close(): void
     {
-        // @phpstan-ignore-next-line
         $this->pdo = null;
     }
 
