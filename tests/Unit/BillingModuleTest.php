@@ -434,4 +434,144 @@ class BillingModuleTest extends TestCase
         $this->assertEquals(1.0, $summary['count_paid']);
         $this->assertEquals(1.0, $summary['count_unpaid']);
     }
+
+    public function testInvoiceDeductsStockFromSpecificLocationAndFefoBatch(): void
+    {
+        $this->tenantContext->setTenantId('1');
+
+        $locId = (int) $this->db->insert('facilities_locations', [
+            'tenant_id' => 1,
+            'code' => 'LOC-FARMASI',
+            'name' => 'Klinik Farmasi',
+            'type' => 'clinic',
+            'is_active' => 1,
+        ]);
+        $roomId = (int) $this->db->insert('facilities_rooms', [
+            'tenant_id' => 1,
+            'location_id' => $locId,
+            'code' => 'GUD-OBAT',
+            'name' => 'Gudang Obat Utama',
+            'floor' => '1',
+            'type' => 'storage',
+            'capacity' => 500,
+            'is_active' => 1,
+        ]);
+
+        $itemId = $this->inventory->createItem([
+            'name' => 'Paracetamol 500mg Strip',
+            'type' => 'goods',
+            'selling_price' => 10000,
+            'initial_stock' => 0,
+        ]);
+
+        // Batch 1: Expire lebih awal (2026-11-01) - 10 strip
+        $b1 = $this->inventory->createBatch($itemId, 'BATCH-NOV', '2026-11-01');
+        $this->inventory->recordStockMovement(
+            itemId: $itemId,
+            quantity: 10,
+            type: 'in',
+            notes: 'Penerimaan batch nov',
+            roomId: $roomId,
+            batchId: $b1
+        );
+
+        // Batch 2: Expire lebih lambat (2026-12-01) - 10 strip
+        $b2 = $this->inventory->createBatch($itemId, 'BATCH-DEC', '2026-12-01');
+        $this->inventory->recordStockMovement(
+            itemId: $itemId,
+            quantity: 10,
+            type: 'in',
+            notes: 'Penerimaan batch dec',
+            roomId: $roomId,
+            batchId: $b2
+        );
+
+        $this->assertEquals(20.0, $this->inventory->getStock($itemId));
+        $this->assertEquals(20.0, $this->inventory->getLocationStock($itemId, $roomId));
+
+        // Terbitkan invoice 12 strip dengan room_id yang ditentukan
+        $invoice = $this->billing->createInvoice([
+            'contact_name' => 'Pasien BPJS 001',
+            'status' => 'issued',
+            'items' => [
+                [
+                    'item_id' => $itemId,
+                    'item_name' => 'Paracetamol 500mg Strip',
+                    'quantity' => 12,
+                    'unit_price' => 10000,
+                    'room_id' => $roomId,
+                ],
+            ],
+        ]);
+
+        $this->assertNotNull($invoice);
+        // Sisa total stok harus 8
+        $this->assertEquals(8.0, $this->inventory->getStock($itemId));
+
+        // Verifikasi alokasi FEFO: Batch NOV (10) habis (0), Batch DEC (10) berkurang 2 (sisa 8)
+        $batch1Data = $this->inventory->getBatch($b1);
+        $batch2Data = $this->inventory->getBatch($b2);
+        $this->assertEquals(0.0, (float) $batch1Data['current_quantity']);
+        $this->assertEquals(8.0, (float) $batch2Data['current_quantity']);
+
+        // Batalkan invoice -> stok dan batch harus kembali
+        $this->billing->cancelInvoice((int) $invoice['id'], 'Retur obat', true);
+        $this->assertEquals(20.0, $this->inventory->getStock($itemId));
+    }
+
+    public function testInvoiceFailsWhenRoomStockIsInsufficient(): void
+    {
+        $this->tenantContext->setTenantId('1');
+
+        $locId = (int) $this->db->insert('facilities_locations', [
+            'tenant_id' => 1,
+            'code' => 'LOC-FARMASI-2',
+            'name' => 'Klinik Farmasi 2',
+            'type' => 'clinic',
+            'is_active' => 1,
+        ]);
+        $roomId = (int) $this->db->insert('facilities_rooms', [
+            'tenant_id' => 1,
+            'location_id' => $locId,
+            'code' => 'GUD-OBAT-2',
+            'name' => 'Gudang Obat 2',
+            'floor' => '1',
+            'type' => 'storage',
+            'capacity' => 500,
+            'is_active' => 1,
+        ]);
+
+        $itemId = $this->inventory->createItem([
+            'name' => 'Amoxicillin 500mg',
+            'type' => 'goods',
+            'selling_price' => 15000,
+            'initial_stock' => 0,
+        ]);
+
+        // Simpan hanya 5 strip di ruangan ini
+        $this->inventory->recordStockMovement(
+            itemId: $itemId,
+            quantity: 5,
+            type: 'in',
+            notes: 'Penerimaan obat',
+            roomId: $roomId
+        );
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Stok tidak mencukupi untuk item 'Amoxicillin 500mg' (dibutuhkan 10.00 di ruangan/gudang ID $roomId).");
+
+        $this->billing->createInvoice([
+            'contact_name' => 'Pasien Umum',
+            'status' => 'issued',
+            'items' => [
+                [
+                    'item_id' => $itemId,
+                    'item_name' => 'Amoxicillin 500mg',
+                    'quantity' => 10,
+                    'unit_price' => 15000,
+                    'room_id' => $roomId,
+                ],
+            ],
+        ]);
+    }
 }
