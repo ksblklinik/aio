@@ -4,10 +4,10 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 📌 Status Terakhir Sesi (Last Updated: 2026-10-28 05:28 WIB)
+## 📌 Status Terakhir Sesi (Last Updated: 2026-10-28 07:40 WIB)
 
 * **Conversation ID Terakhir**: `4d7528e5-6993-4060-b918-14aabb4463fe`
-* **Active Git Branch**: `main` (Working tree clean, all SPEC-013 hingga SPEC-030 merged cleanly via `--no-ff`)
+* **Active Git Branch**: `feat/031-universal-facilities-and-locations` (siap dimerge ke `main`)
 * **Status Dokumen / Roadmap**:
   - SPEC-013 ([`specs/013-core-hardening-and-unified-kernel.md`](file:///c:/aplikasi/aio/specs/013-core-hardening-and-unified-kernel.md)): `Completed` (merged to `main`).
   - SPEC-014 ([`specs/014-module-extension-contract.md`](file:///c:/aplikasi/aio/specs/014-module-extension-contract.md)): `Completed` (merged to `main`).
@@ -26,50 +26,47 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **SPEC-027 ([`specs/027-universal-contact-registry.md`](file:///c:/aplikasi/aio/specs/027-universal-contact-registry.md))**: `Completed` (merged to `main`).
   - **SPEC-028 ([`specs/028-universal-finance-engine.md`](file:///c:/aplikasi/aio/specs/028-universal-finance-engine.md))**: `Completed` (merged to `main`).
   - **SPEC-029 ([`specs/029-universal-inventory-and-items.md`](file:///c:/aplikasi/aio/specs/029-universal-inventory-and-items.md))**: `Completed` (merged to `main`).
-  - **SPEC-030 ([`specs/030-universal-billing-and-invoicing.md`](file:///c:/aplikasi/aio/specs/030-universal-billing-and-invoicing.md))**: `Completed` (siap dimerge ke `main`).
+  - **SPEC-030 ([`specs/030-universal-billing-and-invoicing.md`](file:///c:/aplikasi/aio/specs/030-universal-billing-and-invoicing.md))**: `Completed` (merged to `main`).
+  - **SPEC-031 ([`specs/031-universal-facilities-and-locations.md`](file:///c:/aplikasi/aio/specs/031-universal-facilities-and-locations.md))**: `Completed` (Universal Facilities, Spaces & Locations Registry - Level 2 Shared Foundation).
+  - **SPEC-029B ([`specs/029b-inventory-multi-warehouse-and-batch.md`](file:///c:/aplikasi/aio/specs/029b-inventory-multi-warehouse-and-batch.md))**: `Draft` (Inventory Multi-Warehouse, Stock Transfer, Batch & Expiry FEFO).
+  - **SPEC-032 ([`specs/032-universal-scheduling-and-queue.md`](file:///c:/aplikasi/aio/specs/032-universal-scheduling-and-queue.md))**: `Draft` (Universal Scheduling, Appointments & Human Queue Engine).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
-* **Test Suite Status**: **360 tests (2037 assertions) PASS 100%**, `tsc --noEmit` clean, `verify.ps1` all passed.
-* **Database File**: `database.sqlite` di root repositori (24 migrasi applied).
+* **Test Suite Status**: **376 tests (2137 assertions) PASS 100%**, `tsc --noEmit` clean, `verify.ps1` all passed.
+* **Database File**: `database.sqlite` di root repositori (25 migrasi applied).
 
 ---
 
-## 📦 Capaian & Hasil Eksekusi SPEC-030 (Universal Invoicing, Billing & Document Engine - Level 2 Shared Foundation):
-1. **Modul Arsitektur Level 2 (`app/Modules/Billing/`)**:
-   - Manifest terdaftar di kategori `resources` dengan rute `/billing` dan service provider `BillingServiceProvider`.
-   - Migrasi basis data terisolasi multi-tenant: `invoices`, `invoice_items`, `invoice_payments`.
-2. **Model Dokumen Transaksi Universal (`invoices` & `invoice_items`)**:
-   - Mendukung tipe dokumen: `invoice` (Faktur Penjualan / Piutang AR) dan `bill` (Tagihan Pembelian / Hutang AP).
-   - Penomoran otomatis berurutan tahunan via sequence: `INV/2026/00001` dan `BILL/2026/00001`.
-   - Perhitungan otomatis akurat: subtotal, diskon item/faktur, pajak, grand total, jumlah terbayar (*amount_paid*), dan sisa tagihan (*amount_due*).
-   - Status siklus hidup: `draft`, `issued`, `partially_paid`, `paid`, `cancelled`.
-3. **Pencatatan Pembayaran & Kuitansi (`invoice_payments`)**:
-   - Rekam pelunasan sebagian maupun lunas dengan nomor kuitansi otomatis via `sequence('payment_receipt', 'RCP')` (e.g., `RCP/2026/00001`).
-   - Integrasi otomatis ke `finance()`: saat pembayaran dicatat dan akun kas/bank dipilih, membukukan transaksi kas masuk/keluar ke akun keuangan terkait!
-4. **Dua Mode Operasional Transaksi**:
-   - **Mode Kasir Cepat (Quick POS Checkout)**: Satu langkah atomik via `quickCheckout()` yang membuat invoice, memotong stok fisik via `inventory()`, mencatat pelunasan & membukukan kas via `finance()`, dan menghitung nominal kembalian (*change*).
-   - **Mode Faktur Tempo (AR Invoicing)**: Draft $\rightarrow$ Issued (potong stok) $\rightarrow$ Cicilan Pembayaran $\rightarrow$ Paid.
-5. **Integrasi Antar-Modul Level 2**:
-   - **Inventory**: Validasi ketersediaan stok (`checkAvailability`), mutasi stok keluar (`recordStockMovement('out')`), serta pengembalian stok otomatis (`recordStockMovement('in')`) jika invoice dibatalkan. Item non-fisik (`service`) tidak terhambat batas stok fisik.
-   - **Finance**: Pembukuan otomatis transaksi kas masuk/keluar via `finance()->recordInflow()` dan `recordOutflow()`.
-   - **Contact**: Lookup otomatis profil pelanggan/vendor via `contacts()->find()`.
-6. **Exported Shared Contract Interface (`BillingRegistryInterface`)**:
-   - Global helper: `billing(): BillingRegistryInterface` dan `invoices(): BillingRegistryInterface`.
-7. **Web Management & Programmatic REST API**:
-   - Web Controller (`BillingController`) untuk daftar tagihan, form faktur, pembayaran, dan pencetakan struk kuitansi termal (`/billing/{id}/receipt`).
-   - REST API Controller (`ApiBillingController`) untuk integrasi checkout POS dan pembayaran programatik.
-   - Halaman antarmuka Inertia React (`resources/js/Pages/Billing/Index.tsx`) dengan metric cards dan status badges bertema semantic tokens.
-8. **Verifikasi & Test**:
-   - 9 unit test komprehensif di [`tests/Unit/BillingModuleTest.php`](file:///c:/aplikasi/aio/tests/Unit/BillingModuleTest.php) lolos 100%.
-   - Global test suite meningkat menjadi **360 tests (2037 assertions)**.
+## 📦 Capaian & Hasil Eksekusi SPEC-031 (Universal Facilities, Spaces & Locations Registry - Level 2 Shared Foundation):
+1. **Modul Arsitektur Level 2 (`app/Modules/Facility/`)**:
+   - Manifest terdaftar di kategori `resources` dengan rute `/facility` dan service provider `FacilityServiceProvider`.
+   - Migrasi basis data terisolasi multi-tenant: `facilities_locations`, `facilities_rooms`, `facilities_spaces`.
+2. **Model Relasi Fisik 3 Lapis (Hierarchical Physical Spaces)**:
+   - **Gedung / Cabang / Posko (`facilities_locations`)**: Headquarters, Branch, Site, Warehouse, Outpost. Penomoran otomatis via `sequence('facility_location', 'LOC', 5, 'yearly')`.
+   - **Ruangan Fungsional (`facilities_rooms`)**: Service, Storage, Inpatient, Office, Meeting, Procedure, Other. Lantai (*floor*), kapasitas, dan catatan fasilitas.
+   - **Unit Mikro / Slot (`facilities_spaces`)**: Bed, Desk, Chair, Dock, Booth, Other. Status siklus ketersediaan mikro: `available`, `occupied`, `maintenance`, `reserved`.
+3. **Penyediaan Fondasi untuk Multi-Warehouse & Antrean**:
+   - `listStorageRooms(?int $locationId = null)`: Khusus menyediakan daftar ruangan bertipe gudang (`storage`) untuk konsumsi modul Inventory multi-warehouse (SPEC-029B).
+   - `getRoomOccupancy(int $roomId)`: Menghitung jumlah slot, ketersediaan, terisi, dalam perbaikan, serta persentase *occupancy rate* secara instan.
+   - `getFacilitySummary()`: Ringkasan agregat seluruh gedung, ruangan, depo penyimpanan, dan unit bed/meja.
+4. **Exported Shared Contract Interface (`FacilityRegistryInterface`)**:
+   - Global helper: `facilities(): FacilityRegistryInterface`.
+5. **Web Management & Programmatic REST API**:
+   - Web Controller (`FacilityController`) untuk hierarki denah gedung $\rightarrow$ ruangan $\rightarrow$ bed/slot.
+   - REST API Controller (`ApiFacilityController`) untuk integrasi sistem kiosk, IoT, atau modul bisnis eksternal.
+   - Halaman antarmuka Inertia React (`resources/js/Pages/Facility/Index.tsx`) responsif dark/light mode menggunakan semantic tokens baku.
+6. **Verifikasi & Test**:
+   - 16 unit test komprehensif di [`tests/Unit/FacilityModuleTest.php`](file:///c:/aplikasi/aio/tests/Unit/FacilityModuleTest.php) lolos 100%.
+   - Global test suite meningkat menjadi **376 tests (2137 assertions)**.
 
 ---
 
 ## 🚀 Rencana Langkah Berikutnya:
-1. **Pondasi Level 2 yang Telah Selesai (4 Pilar Lengkap Universal)**:
+1. **Pondasi Level 2 Universal (5 Pilar Selesai)**:
    - `Contact` (SPEC-027): Relasi orang, pelanggan, vendor, multi-role.
    - `Finance` (SPEC-028): Akun kas/bank, transaksi arus kas, approval, P&L.
    - `Inventory` (SPEC-029): Katalog barang, jasa, satuan ukuran, mutasi stok fisik.
    - `Billing` (SPEC-030): Faktur penjualan, tagihan pembelian, kasir cepat POS, pelunasan kuitansi.
-2. **Langkah Strategis Selanjutnya**:
-   - Opsi A: **Universal Facilities, Rooms & Locations Registry (SPEC-031)** (Ruangan, poliklinik, gudang, bed/meja operasional).
-   - Opsi B: **Memulai Modul Vertikal Level 3 (e.g. Modul Klinik / POS Retail / Service Desk)** yang mengonsumsi keempat pilar Level 2 di atas.
+   - `Facility` (SPEC-031): Gedung, ruangan, gudang, bed/meja operasional, occupancy rate.
+2. **Prioritas Eksekusi Berikutnya**:
+   - **SPEC-029B: Inventory Multi-Warehouse, Stock Transfer, Batch & Expiry Tracking (FEFO)** (Mengonsumsi master storage dari SPEC-031).
+   - **SPEC-032: Universal Scheduling, Appointments & Human Queue Engine** (Mengonsumsi poli/ruang/meja dari SPEC-031).

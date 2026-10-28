@@ -845,5 +845,16 @@ if (!function_exists('invoices')) {
     }
 }
 
+if (!function_exists('facilities')) {
+    /**
+     * Helper global untuk Universal Facilities, Spaces & Locations Registry
+     */
+    function facilities(): \App\Modules\Facility\Contracts\FacilityRegistryInterface
+    {
+        return app(\App\Modules\Facility\Contracts\FacilityRegistryInterface::class);
+    }
+}
+
+
 
 

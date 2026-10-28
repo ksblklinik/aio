@@ -1,0 +1,27 @@
+{
+  "id": "facility",
+  "name": "Facilities & Locations",
+  "description": "Universal master lokasi fisik, gedung, ruangan, gudang, dan unit bed/meja terisolasi multi-tenant.",
+  "version": "1.0.0",
+  "author": "Antigravity Platform Team",
+  "category": "resources",
+  "icon": "Building2",
+  "route": "/facility",
+  "dependencies": ["auth", "workspaces"],
+  "is_core": false,
+  "is_active": true,
+  "table_name": "facilities_locations",
+  "provider": "App\\Modules\\Facility\\FacilityServiceProvider",
+  "permissions": [
+    {
+      "key": "facility.view",
+      "name": "Lihat Fasilitas & Ruangan",
+      "description": "Melihat daftar gedung, denah ruangan, dan ketersediaan bed/meja"
+    },
+    {
+      "key": "facility.manage",
+      "name": "Kelola Fasilitas & Ruangan",
+      "description": "Menambah/mengubah data gedung, ruangan, dan mengatur status bed/meja"
+    }
+  ]
+}
