@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "author": "Antigravity Platform Team",
   "category": "finance",
-  "icon": "ReceiptPercent",
+  "icon": "BadgePercent",
   "route": "/tariff",
   "dependencies": ["auth", "workspaces", "contact", "inventory", "billing"],
   "is_core": false,
