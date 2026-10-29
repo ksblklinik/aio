@@ -35,6 +35,10 @@ Ketika merekomendasikan MCP baru, agen harus menyajikan:
 
 ---
 
-## 4. Guardrail: Graceful Fallback
-- MCP adalah peningkat kapabilitas (*enhancer*), bukan penghalang (*blocker*).
-- Jika pengguna memilih **tidak** mengaktifkan MCP yang direkomendasikan, agen **wajib tetap dapat bekerja** menggunakan alat bawaan standar (file skema lokal, CLI biasa, atau unit test mock) tanpa mogok.
+## 4. Guardrails & Mitigasi Risiko MCP
+
+1. **Ponytail MCP Filter (Anti-Overhead)**:
+   - Dilarang merekomendasikan MCP jika tugas dapat diselesaikan secara sederhana dan cepat oleh tool CLI standar atau mock unit test lokal. MCP hanya direkomendasikan jika kapabilitasnya secara fundamental tidak bisa digantikan oleh CLI biasa (misal: interaksi visual browser, inspeksi schema database remote yang hidup).
+2. **Graceful Fallback**:
+   - MCP adalah peningkat kapabilitas (*enhancer*), bukan penghalang (*blocker*).
+   - Jika pengguna memilih **tidak** mengaktifkan MCP yang direkomendasikan, agen **wajib tetap dapat bekerja** menggunakan alat bawaan standar (file skema lokal, CLI biasa, atau unit test mock) tanpa mogok.

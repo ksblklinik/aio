@@ -12,6 +12,7 @@ Efisiensi token diterapkan untuk **menjaga ketajaman daya ingat (attention reten
     ```powershell
     powershell -ExecutionPolicy Bypass -File ./scripts/map.ps1
     ```
+  - **Repo-Map Freshness Trigger**: Setiap kali selesai mengimplementasikan modul baru atau memodifikasi lebih dari 10 kelas/interface, jalankan `scripts/map.ps1` agar peta kode disk tetap sinkron.
 - **Cari Dulu, Baca Kemudian**:
   - Jangan membaca file ratusan baris secara penuh jika hanya mencari fungsi atau variabel tertentu.
   - Gunakan `grep_search` untuk menemukan nomor baris spesifik terlebih dahulu.

@@ -22,8 +22,9 @@ Gunakan skill ini ketika menambahkan variabel konfigurasi baru, mengintegrasikan
     DB_FOREIGN_KEYS=true
     ```
 
-### 2. Runtime Schema Validation (Fail-Fast)
-- Terapkan validasi variabel environment penting saat bootstrapping kernel aplikasi (fail-fast via `config()` check atau exception terarah jika `APP_KEY` / database DSN kosong).
+### 2. Runtime Schema Validation (Fail-Fast) & Centralized Access
+- **Centralized Config Access**: Modul bisnis **dilarang** memanggil `$_ENV` atau `getenv()` secara langsung di dalam service/controller. Seluruh konfigurasi wajib diakses melalui helper terpusat `config('key')` atau Service Provider untuk menjamin testability dan isolasi runtime.
+- **Fail-Fast Validation**: Terapkan validasi variabel environment penting saat bootstrapping kernel aplikasi (fail-fast via `config()` check atau exception terarah jika `APP_KEY` / database DSN kosong).
 - Pastikan aplikasi gagal start dengan pesan error yang jelas jika ada variabel wajib yang belum didefinisikan, daripada mengalami runtime crash di tengah jalan.
 
 ### 3. Pencegahan Kebocoran (Guardrail)

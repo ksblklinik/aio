@@ -50,8 +50,9 @@ Sebelum menulis baris kode baru, kelas baru, atau fungsi baru, agen **WAJIB** me
 
 ## Batasan Yang Tidak Boleh Ditawar (Non-Negotiable Safeguards)
 
-Pragmatisme dan prinsip "malas menulis kode" **DILARANG KERAS** mengorbankan:
+Pragmatisme dan prinsip "hemat menulis kode" **DILARANG KERAS** mengorbankan:
 1. **Keamanan & Isolasi Multi-Tenant**: Tenant guard (`tenant_id`), token auth, password hashing, dan enkripsi data medis (PHI/PDP).
-2. **Validasi Batas Kepercayaan (Trust Boundaries)**: Input sanitization, validasi form, CSRF token.
+2. **Validasi Batas Kepercayaan (Trust Boundaries)**: Input sanitization, validasi form, CSRF token, fail-fast error handling.
 3. **Integritas Konkurensi & Transaksi**: Atomic lock, DB transactions, dan offline-first data consistency.
-4. **Kelengkapan Pengujian (TDD)**: Test suite harus tetap komprehensif, mencakup skenario gagal (*sad path*), dan verifikasi 100% lulus.
+4. **Kelengkapan Pengujian (TDD)**: Test suite harus tetap komprehensif, mencakup skenario normal dan gagal (*sad path*), serta verifikasi 100% lulus. Baris kode test tidak boleh dipangkas atas nama Ponytail.
+5. **Deep Module Boundary**: Kontrak batas publik modul (`Contracts/*RegistryInterface.php`) adalah fondasi decoupling modular wajib sesuai [`codebase-design`](file:///c:/aplikasi/aio/.agents/skills/codebase-design/SKILL.md) dan BUKAN merupakan abstraksi prematur.

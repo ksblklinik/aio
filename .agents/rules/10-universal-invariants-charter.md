@@ -48,8 +48,8 @@ Meskipun model bisnis dan alur operasional di lapangan bervariasi, sistem diatur
 17. **Validasi Batas Domain & Fail-Fast**: Masukan data dari batas luar (UI, barcode, API eksternal) wajib divalidasi terhadap batas fisis domain (*fail-fast at boundary*).
 18. **Batas Sumber Daya Terikat**: Seluruh query, paginasi, alokasi memori, dan worker queue wajib memiliki batas atas terikat (*strictly bounded $O(1)$ space/time complexity*) untuk mencegah OOM crash.
 20. **Pembendungan Radius Ledakan**: Kegagalan integrasi pihak ketiga (bridging BPJS, SatuSehat, payment gateway) dilarang melumpuhkan operasi primer lokal (*Circuit Breaker & Graceful Fallback*).
-21. **Keterpulihan Bencana Terverifikasi**: File backup wajib diuji pulih otomatis secara berkala untuk membuktikan target RPO/RTO. File database wajib lolos uji integritas fisik (`PRAGMA integrity_check`).
-23. **Evolusi Skema Non-Destruktif**: Perubahan skema basis data wajib mengikuti pola *Expand and Contract*. Kolom lama dilarang dihapus sebelum seluruh node edge bertransisi.
+21: **Keterpulihan Bencana Terverifikasi**: File backup wajib diuji pulih otomatis secara berkala untuk membuktikan target RPO/RTO. File database wajib lolos uji integritas fisik (`PRAGMA integrity_check`).
+23: **Evolusi Skema Non-Destruktif**: Perubahan skema basis data wajib mengikuti pola *Expand and Contract*. Kolom lama dilarang dihapus sebelum seluruh node edge bertransisi.
 
 ---
 
@@ -79,3 +79,12 @@ Meskipun model bisnis dan alur operasional di lapangan bervariasi, sistem diatur
 1. **Tier 1 (Sinkronus Real-Time $< 5\text{ms}$)**: Dieksekusi di dalam transaksi DB ACID (Inv 1, 2, 3, 11, 13, 16, 17, 19, 24, 25, 26, 27, 28, 29, 30).
 2. **Tier 2 (Asinkronus Outbox $< 500\text{ms}$)**: Dieksekusi oleh queue worker (Inv 6, 8, 9, 12, 14, 27-notif, 28-alert).
 3. **Tier 3 (Audit Periodik / On-Demand via `ReconciliationManager`)**: Dieksekusi berkala atau saat tutup buku/sync (Inv 4, 5, 7, 10, 15, 18, 20, 21, 22, 23, 24-audit, 25-audit).
+
+---
+
+## 4. Protokol Registrasi Auditor Modul Baru
+
+Setiap modul Level 2 atau Level 3 yang memperkenalkan entitas transaksional baru wajib memastikan invarian terkait diaudit:
+1. **Implementasi Auditor**: Buat class auditor yang mengimplementasikan `Core\Reconciliation\Contracts\ReconciliationAuditorInterface`.
+2. **Registrasi di Kernel**: Daftarkan class auditor tersebut di `Core\Reconciliation\ReconciliationManager` melalui ServiceProvider modul terkait.
+3. **Penyediaan Auto-Heal**: Sertakan logika sinkronisasi otomatis (*healing*) untuk deviasi yang aman diperbaiki tanpa intervensi manual.

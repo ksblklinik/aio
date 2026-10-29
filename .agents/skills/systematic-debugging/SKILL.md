@@ -35,4 +35,4 @@ Gunakan skill ini ketika menghadapi error, bug yang sulit dilacak, atau saat ran
 - Terapkan perbaikan terkecil yang menyelesaikan masalah secara presisi.
 - Jalankan kembali skrip reproduksi/test: pastikan status berubah menjadi **PASS**.
 - Jalankan seluruh test suite (`powershell -ExecutionPolicy Bypass -File ./scripts/verify.ps1` atau `php vendor/bin/phpunit` dan `npm run typecheck`) untuk memastikan **tidak ada regresi** (*no collateral damage*).
-- Bersihkan semua log debug sementara sebelum commit.
+- **Pre-Commit Clean-Up Gate**: Jalankan `git diff` untuk memeriksa dan menghapus seluruh artefak debugging sementara (`var_dump`, `dd`, `print_r`, `console.log`, `debugger;`) sebelum membuat commit.

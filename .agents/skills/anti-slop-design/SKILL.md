@@ -52,6 +52,8 @@ Setiap elemen interaktif (tombol, baris tabel, kartu, tab, input form) wajib mem
    - Gunakan animasi denyut (*shimmer/pulse*) skeleton yang proporsional sesuai bentuk data tabel atau kartu yang sedang dimuat.
 5. **Ergonomi Data Angka & Monospace**:
    - Seluruh kolom angka moneter, kuantitas stok, persentase tarif, dan jam transaksi wajib menggunakan font angka proporsional: `font-mono tabular-nums`.
+6. **Aksesibilitas Gerak (Motion Restraint & Reduced-Motion)**:
+   - Seluruh durasi transisi interaktif dibatasi maksimal 150ms. Sediakan graceful fallback untuk pengguna dengan preferensi kurangi gerak: `motion-reduce:transition-none motion-reduce:transform-none`.
 
 ---
 

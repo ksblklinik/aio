@@ -25,6 +25,7 @@ Gunakan skill ini ketika pengguna meminta pembuatan fitur baru, refactor besar, 
    - Salin dan modifikasi struktur dari [specs/templates/SPEC_TEMPLATE.md](file:///c:/aplikasi/aio/specs/templates/SPEC_TEMPLATE.md).
    - Tulis spesifikasi lengkap di `specs/<nomor>-<nama-fitur>.md`.
    - Terapkan panduan arsitektur dari skill `codebase-design` (topologi 3 lapis, netralitas platform profit/non-profit, deep modules vs shallow wrappers, kontrak interface yang bersih) serta prinsip **Ponytail Pragmatism** (Rule 09): pastikan tidak ada abstraksi prematur atau over-engineering di dalam rancangan.
+   - **Edge Cases & Test Strategy Gate**: Wajib menyertakan minimal 3 skenario kegagalan (*sad path*) dan rencana pengujian spesifik. Dilarang mengesahkan spec yang hanya memuat *happy path*.
    - Pastikan bagian **Atomic Task Checklist** memiliki rincian langkah kerja yang jelas, granular, dan teratur.
 
 5. **Perbarui Indeks:**

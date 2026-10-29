@@ -18,10 +18,11 @@ Gunakan skill ini setiap kali ada kebutuhan mengubah skema database (tabel baru,
 - **ANSI SQL Portability First**:
   - Prioritaskan tipe data dan sintaks SQL standar (`INTEGER`, `TEXT`, `REAL`, `TIMESTAMP`, `FOREIGN KEY`) yang kompatibel lintas engine (SQLite, PostgreSQL, MySQL).
   - Hindari fungsi bawaan vendor yang terlalu spesifik pada level tabel bisnis.
-- **Backwards Compatibility**:
+- **Backwards Compatibility & SQLite Safety**:
   - Hindari menghapus kolom langsung jika ada data yang masih aktif digunakan.
-  - Untuk kolom non-nullable baru pada tabel yang sudah memiliki data, tentukan nilai *default value* yang aman.
+  - Untuk kolom non-nullable baru pada tabel yang sudah memiliki data, **wajib** sertakan klausa `DEFAULT` yang aman (di SQLite, `ADD COLUMN NOT NULL` tanpa `DEFAULT` akan memicu kegagalan DDL).
   - Tambahkan indeks pada kolom yang sering dijadikan filter query (`tenant_id`, `status`, foreign key).
+  - Untuk migrasi destruktif atau perubahan foreign key rumit, gunakan pola *Expand and Contract* (buat tabel baru, salin data, drop tabel lama, rename).
 
 ### 3. Pembuatan Skrip Migrasi (Up & Down)
 - Buat file migrasi di `database/migrations/` dengan format penamaan berurutan: `YYYY_MM_DD_HHMMSS_<deskripsi>.sql`.

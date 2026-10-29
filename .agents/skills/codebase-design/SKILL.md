@@ -156,6 +156,8 @@ Untuk menjamin otonomi modul dan isolasi multi-tenant yang ketat:
    - `Services/`: Menangani orkestrasi bisnis, validasi aturan domain, transaksi ACID (`$this->db->transaction()`), dan penegakan invarian data.
 3. **Penyimpanan State & Cache**:
    - Dilarang menyimpan state transaksional di properti statis PHP (*static variables*) untuk mencegah kebocoran data antar-request (*cross-tenant leakage*).
+4. **Domain Decomposition Rule (Action Classes)**:
+   - Jika sebuah Service menangani lebih dari 3 sub-entitas atau mendekati 400 baris, dekomposisi logika ke dalam *Action Classes* spesifik di sub-folder `Services/Actions/` (misal: `CreateInvoiceAction`, `ProcessRefundAction`). Service utama bertindak sebagai orkestrator ringkas tanpa pembengkakan kelas (*no God Service*).
 
 ---
 

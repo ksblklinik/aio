@@ -4,27 +4,36 @@
 Sebuah tugas atau sub-tugas baru dianggap **selesai** apabila telah memenuhi langkah verifikasi berikut:
 
 1. **Syntax & Type Checking**:
-   - Menjalankan type-check/compiler (misal: `tsc --noEmit`, `go vet`, `mypy`, dsb.).
+   - Menjalankan type-check/compiler (`npm run typecheck` / `tsc --noEmit`).
    - Bebas dari error kompilasi dan linting kritis.
 
-2. **Automated Tests**:
-   - Menjalankan unit test suite atau test runner yang relevan.
-   - Semua test baru dan test lama yang berkaitan wajib berstatus **PASS**.
+2. **Automated Tests (100% Passing)**:
+   - Menjalankan unit & integration test suite (`php vendor/bin/phpunit`).
+   - Semua test baru dan seluruh test lama wajib berstatus **PASS** (Zero Regressions).
 
-3. **Runtime / Build Verification**:
-   - Menjalankan build command (`npm run build`, `cargo build`, dsb.) untuk memastikan bundling/packaging sukses.
-   - **Anti-False Positive Asset Verification (Anti Layar Kosong)**:
+3. **Runtime & Build Verification (Anti Layar Kosong)**:
+   - Menjalankan build frontend (`npm run build`) untuk memastikan packaging bersih.
+   - **Anti-False Positive Asset Verification**:
      - Dilarang menyimpulkan halaman web sukses hanya dari respons HTTP 200 pada root HTML.
-     - Agen **wajib** memverifikasi bahwa file JavaScript (`.js`) dan CSS (`.css`) yang dirujuk oleh tag `<script>` dan `<link>` di dalam HTML dapat disajikan secara fisik oleh web server dengan status **HTTP 200** (tidak 404).
-     - Pastikan web server development (misal PHP built-in server) memiliki guard bypass file statis yang aktif.
+     - Agen **wajib** memverifikasi bahwa file bundle JavaScript (`.js`) dan CSS (`.css`) yang dirujuk oleh tag `<script>` dan `<link>` di dalam HTML dapat disajikan secara fisik oleh web server dengan status **HTTP 200** (tidak 404).
 
-4. **Unified Verification Gate**:
+4. **Pembersihan Artefak Debugging (Anti-Zombie Debugging)**:
+   - Sebelum commit, periksa diff (`git diff`) dan pastikan tidak ada sisa debugging liar:
+     - PHP: `var_dump(`, `dd(`, `print_r(`, `error_log(`.
+     - JS/TS: `console.log(`, `debugger;`.
+   - File scratch sementara di root wajib dibersihkan.
+
+5. **Unified Verification Gate**:
    - Sebelum melakukan commit, jalankan script verifikasi proyek:
      ```powershell
      powershell -ExecutionPolicy Bypass -File ./scripts/verify.ps1
      ```
-   - Pastikan script menghasilkan output `ALL CHECKS PASSED`.
+   - *Alternatif Lintas Platform (Linux/CI/Bash)*:
+     ```bash
+     php vendor/bin/phpunit && npm run typecheck && npm run build
+     ```
+   - Pastikan seluruh pengujian menghasilkan output sukses tanpa error.
 
-5. **Status Update**:
-   - Centang checkbox pada dokumen spec di folder `specs/`.
-   - Ringkas hasil verifikasi dan berikan diff singkat kepada pengguna.
+6. **Status Update**:
+   - Centang checkbox tugas pada dokumen spec terkait di folder `specs/`.
+   - Dokumentasikan ringkasan verifikasi sebelum melakukan commit atomik.

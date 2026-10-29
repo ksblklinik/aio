@@ -11,12 +11,9 @@ Gunakan skill ini untuk mengelola riwayat Git yang disiplin, membuat branch fitu
 
 ### 1. Inisialisasi Fitur Baru (Branching)
 Sebelum mulai mengerjakan spec baru:
-1. Pastikan repo Git sudah terinisialisasi (`git status`). Jika belum:
-   ```bash
-   git init
-   git branch -M main
-   ```
-2. Buat branch baru berbasis nomor spec dan nama fitur:
+1. Pastikan repo Git sudah terinisialisasi dan bersih (`git status`).
+2. **Branch Switch Pre-Flight**: Dilarang berpindah branch jika working tree kotor. Stash atau commit perubahan sebelum `checkout`.
+3. Buat branch baru berbasis nomor spec dan nama fitur:
    ```bash
    git checkout -b feat/<nomor-spec>-<nama-fitur>
    # Contoh: git checkout -b feat/001-user-auth
