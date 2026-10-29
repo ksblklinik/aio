@@ -7,7 +7,8 @@
 ## 2. Format Pesan Commit (Conventional Commits + Spec ID)
 Format standar:
 ```
-<type>(<scope>): <deskripsi singkat> [spec-<nomor>/task-<id>]
+<type>(<scope>): <deskripsi singkat> (SPEC-<nomor>)
+# atau: <type>(<scope>): <deskripsi singkat> [spec-<nomor>/task-<id>]
 ```
 
 ### Jenis `<type>` yang Digunakan:
@@ -19,10 +20,10 @@ Format standar:
 - `chore`: Perubahan konfigurasi, tooling, atau dependensi build.
 
 ### Contoh Pesan Commit:
-- `docs(spec): draft specification for user auth [spec-001]`
+- `docs(spec): draft specification for universal invariants (SPEC-046)`
+- `feat(core): expand universal invariants to 30 with 3 new reconciliation auditors (SPEC-048)`
 - `test(auth): add unit test for password hashing [spec-001/task-2.1]`
 - `feat(auth): implement bcrypt hashing service [spec-001/task-2.1]`
-- `test(auth): add integration test for jwt login [spec-001/task-3.1]`
 
 ## 3. Aturan Keamanan & Integritas (Guardrails)
 1. **Never Stage Everything (`git add .`) Buta**:

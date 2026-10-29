@@ -34,7 +34,8 @@ Segera setelah sub-tugas di dokumen spec diverifikasi lolos:
    ```
 3. Buat commit menggunakan konvensi:
    ```bash
-   git commit -m "<type>(<scope>): <deskripsi singkat> [spec-<nomor>/task-<id>]"
+   git commit -m "<type>(<scope>): <deskripsi singkat> (SPEC-<nomor>)"
+   # atau per task: git commit -m "<type>(<scope>): <deskripsi singkat> [spec-<nomor>/task-<id>]"
    ```
 4. Pastikan file `.env` atau credential tidak pernah masuk ke stage.
 

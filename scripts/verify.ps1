@@ -1,11 +1,11 @@
-# Verification Script for jstudio (PowerShell)
+# Verification Script for aio (PowerShell)
 # Usage: powershell -ExecutionPolicy Bypass -File ./scripts/verify.ps1
 
 $ErrorActionPreference = "Stop"
 $scriptFailed = $false
 
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "  jstudio Pre-Commit Verification Gate   " -ForegroundColor Cyan
+Write-Host "    aio Pre-Commit Verification Gate     " -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
 # 1. Security Check: Ensure sensitive files and hardcoded secrets are not staged

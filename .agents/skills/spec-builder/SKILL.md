@@ -15,7 +15,7 @@ Gunakan skill ini ketika pengguna meminta pembuatan fitur baru, refactor besar, 
 
 2. **Evaluasi Kebutuhan Server MCP (Proactive MCP Check):**
    - Evaluasi apakah spec merancang kapabilitas Core (adapter database enterprise Postgres/MySQL/Redis, queue distributed) atau integrasi eksternal (browser E2E, SatuSehat, Payment Gateway).
-   - Jika ada, rekomendasikan konfigurasi MCP yang sesuai ke pengguna (sesuai [06-mcp-lifecycle-recommendation.md](file:///c:/aplikasi/aio/.agents/rules/06-mcp-lifecycle-recommendation.md)) untuk didaftarkan ke `.agents/mcp_config.json`.
+   - Jika ada, rekomendasikan konfigurasi MCP yang sesuai ke pengguna (sesuai [06-mcp-lifecycle-recommendation.md](file:///c:/aplikasi/aio/.agents/rules/06-mcp-lifecycle-recommendation.md)) untuk didaftarkan ke `.agents/plugins/aio/mcp_config.json`.
 
 3. **Cek Nomor Urut Spec:**
    - Baca file [specs/README.md](file:///c:/aplikasi/aio/specs/README.md) untuk melihat daftar spec yang sudah ada.

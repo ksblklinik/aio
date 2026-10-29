@@ -14,12 +14,12 @@ Gunakan skill ini ketika menambahkan variabel konfigurasi baru, mengintegrasikan
   - Wajib langsung didaftarkan ke `.env.example` dengan nilai dummy/placeholder yang aman.
   - Berikan komentar penjelasan format yang diharapkan:
     ```bash
-    # Port server aplikasi
-    PORT=3000
-    # URL database SQLite atau PostgreSQL
-    DATABASE_URL="file:./dev.db"
-    # Secret key untuk JWT (minimal 32 karakter)
-    JWT_SECRET="ganti-dengan-secret-acak"
+    # Application Key (wajib diisi, minimal 32 karakter acak / base64)
+    APP_KEY=base64:your-generated-key
+    # Database Configuration (SQLite default)
+    DB_CONNECTION=sqlite
+    DB_PATH=database.sqlite
+    DB_FOREIGN_KEYS=true
     ```
 
 ### 2. Runtime Schema Validation (Fail-Fast)

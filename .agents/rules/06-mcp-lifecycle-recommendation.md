@@ -30,7 +30,7 @@ Agen harus memberikan rekomendasi MCP pada saat:
 Ketika merekomendasikan MCP baru, agen harus menyajikan:
 1. **Nama & Fungsi MCP**: Layanan apa yang disediakan dan mengapa proyek ini membutuhkannya sekarang.
 2. **Keuntungan Nyata**: Perbandingan jika menggunakan MCP vs menggunakan perintah CLI manual.
-3. **Snippet Konfigurasi**: Blok JSON siap pakai yang akan ditambahkan ke `.agents/mcp_config.json` (atau global `~/.gemini/config/mcp_config.json`).
+3. **Snippet Konfigurasi**: Blok JSON siap pakai yang akan ditambahkan ke `.agents/plugins/aio/mcp_config.json` (atau global `~/.gemini/config/mcp_config.json`).
 4. **Persetujuan Pengguna**: Meminta persetujuan sebelum menambahkan konfigurasi ke file MCP terkait.
 
 ---

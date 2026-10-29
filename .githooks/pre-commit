@@ -1,5 +1,5 @@
 #!/bin/sh
-# Git Pre-Commit Hook for jstudio
+# Git Pre-Commit Hook for aio
 # Otomatis mengeksekusi scripts/verify.ps1 sebelum commit diterima oleh Git.
 
 powershell.exe -ExecutionPolicy Bypass -NoProfile -File "./scripts/verify.ps1"

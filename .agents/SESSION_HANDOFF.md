@@ -48,7 +48,7 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **SPEC-048 ([`specs/048-expanded-universal-invariants-and-integrity-governance.md`](file:///c:/aplikasi/aio/specs/048-expanded-universal-invariants-and-integrity-governance.md))**: `Completed` (Expanded Universal Invariants & Cross-Entity Integrity Governance: 30 Invariants Charter, 3 New Reconciler Auditors `ProvenanceLineageAuditor`, `RestrictedFundAuditor`, `FitnessSafetyAuditor`, 11 Registered Integrity Pillars, and Multi-Entity Test Suite).
   - **Rule 09 & Skill `ponytail-pragmatism`**: `Active` (Adopsi Project Ponytail: 7-step decision ladder, anti-bloat, native PHP/SQL first).
   - **Rule 10 ([`10-universal-invariants-charter.md`](file:///c:/aplikasi/aio/.agents/rules/10-universal-invariants-charter.md))**: `Active` (Konstitusi 30 Invarian Universal, 8 Matriks Mitigasi Benturan, dan 3 Tingkatan Gerbang Eksekusi).
-  - **Harmonisasi Rules & Skills**: `Completed` (Adopsi Caveman No-Fluff di Rule 05, portabilitas multi-DB di Rule 06/08, Anti-Schema Drift di Rule 02, pembersihan path basi ke `aio`).
+  - **Harmonisasi Rules & Skills**: `Completed` (Adopsi Caveman No-Fluff di Rule 05, portabilitas multi-DB di Rule 06/08, Anti-Schema Drift di Rule 02, pembersihan path basi ke `aio`, regenerasi 311 file simbol di `REPO_MAP.md`, penyelarasan format commit `(SPEC-XXX)`, dan template `.env` PHP).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
 * **Test Suite Status**: **534 tests (3085 assertions) PASS 100%**, `npm run typecheck` clean.
 * **Database File**: `database.sqlite` di root repositori (36 migrasi applied).
