@@ -10,7 +10,7 @@ use Core\Diagnostics\MemorySentinel;
 use Core\Diagnostics\PerformanceSentinel;
 use Core\Diagnostics\PerformanceSentinelInterface;
 use Core\Diagnostics\QueryProfiler;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class PerformanceSentinelTest extends TestCase
 {

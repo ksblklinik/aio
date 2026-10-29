@@ -125,7 +125,11 @@ class Application
 
         // Default Database Connection (PRAGMA WAL & FK diinisialisasi otomatis di Connection)
         $c->singleton(Connection::class, function ($c) {
-            return $c->get(\Core\Database\DatabaseManager::class)->connection();
+            $conn = $c->get(\Core\Database\DatabaseManager::class)->connection();
+            if ((bool) config('diagnostics.profiler_enabled', true)) {
+                $conn->setProfiler($c->get(\Core\Diagnostics\QueryProfiler::class));
+            }
+            return $conn;
         });
 
         // Logger
@@ -505,9 +509,13 @@ class Application
         });
 
         // Universal Runtime Performance Sentinel & SQLite Profiler
-        $c->singleton(\Core\Diagnostics\QueryProfiler::class, function () {
+        $c->singleton(\Core\Diagnostics\QueryProfiler::class, function () use ($base) {
             $threshold = (float) config('diagnostics.slow_query_threshold_ms', 25.0);
-            return new \Core\Diagnostics\QueryProfiler($threshold);
+            $maxBuffer = (int) config('diagnostics.slow_query_max_buffer', 100);
+            $storagePath = config('diagnostics.slow_query_storage_path')
+                ? (string) config('diagnostics.slow_query_storage_path')
+                : $base . '/storage/diagnostics/slow_queries.json';
+            return new \Core\Diagnostics\QueryProfiler($threshold, $maxBuffer, $storagePath);
         });
         $c->singleton(\Core\Diagnostics\MemorySentinel::class, function () {
             $threshold = (int) config('diagnostics.memory_warning_threshold_bytes', 67108864);

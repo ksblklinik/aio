@@ -7,7 +7,7 @@ namespace Tests\Unit;
 use Core\Database\Connection;
 use Core\Database\Migrator;
 use Core\Reconciliation\ReconciliationManager;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class UniversalInvariantsTest extends TestCase
 {

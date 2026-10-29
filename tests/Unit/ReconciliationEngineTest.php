@@ -17,7 +17,7 @@ use Core\Reconciliation\Auditors\TariffSplitAuditor;
 use Core\Reconciliation\Auditors\TenantReferentialAuditor;
 use Core\Reconciliation\ReconciliationManager;
 use Core\Reconciliation\ReconciliationManagerInterface;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class ReconciliationEngineTest extends TestCase
 {

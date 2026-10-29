@@ -59,6 +59,7 @@ Folder ini berisi seluruh spesifikasi teknis (*technical specs*) untuk proyek i
 | 044 | [044-core-security-gap-remediation.md](file:///c:/aplikasi/aio/specs/044-core-security-gap-remediation.md) | Core Security & Resilience Gap Remediation | `Completed` | 2026-10-28 |
 | 045 | [045-level-2-concurrency-and-business-integrity-hardening.md](file:///c:/aplikasi/aio/specs/045-level-2-concurrency-and-business-integrity-hardening.md) | Level 2 Concurrency & Business Integrity Hardening | `Completed` | 2026-10-28 |
 | 046 | [046-universal-invariants-and-integrity-governance.md](file:///c:/aplikasi/aio/specs/046-universal-invariants-and-integrity-governance.md) | Universal Invariants & Cross-Entity Integrity Governance | `Completed` | 2026-10-29 |
+| 047 | [047-diagnostics-persistence-and-test-isolation-hardening.md](file:///c:/aplikasi/aio/specs/047-diagnostics-persistence-and-test-isolation-hardening.md) | Diagnostics Persistence, PII Redaction & Test Context Isolation | `Completed` | 2026-10-29 |
 
 *(Perbarui tabel di atas setiap kali membuat spesifikasi baru)*
 
