@@ -25,6 +25,7 @@ class ModelsTest extends TestCase
         $this->db = new Connection('sqlite::memory:');
         $migrator = new Migrator($this->db);
         $migrator->runMigrationsFrom(__DIR__ . '/../../database/migrations');
+        $migrator->runMigrationsFrom(dirname(__DIR__, 2) . '/app/Modules/Projects/Database/Migrations', 'projects');
 
         $this->tenantContext = new TenantContext();
         $this->tenantScope = new TenantScope($this->tenantContext, $this->db);

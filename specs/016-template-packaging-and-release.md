@@ -34,10 +34,10 @@ Setelah SPEC-013, SPEC-014, dan SPEC-015 rampung, repositori telah memiliki fond
   - [x] 2.1 Buat sub-perintah `php aio app:install` yang memandu setup `.env`, generate key, migrasi, dan seed interaktif.
   - [x] 2.2 Verifikasi kompatibilitas perintah instalasi di Windows (PowerShell) dan Linux (Bash).
 
-- [ ] **Phase 3: Reference Module Migration & Data Sanitization**
-  - [ ] 3.1 Refactor modul bawaan `Projects` agar menggunakan `ModuleProvider`, migrasi lokal modul, dan permission gate.
-  - [ ] 3.2 Bersihkan database lokal dari data pengujian manual; sediakan seeder bersih di `database/seeders/`.
-  - [ ] 3.3 Pastikan `.gitignore` secara ketat mengabaikan file database sqlite lokal dan log aktif.
+- [x] **Phase 3: Reference Module Migration & Data Sanitization**
+  - [x] 3.1 Refactor modul bawaan `Projects` agar menggunakan `ModuleProvider`, migrasi lokal modul, dan permission gate.
+  - [x] 3.2 Bersihkan database lokal dari data pengujian manual; sediakan seeder bersih di `database/seeders/`.
+  - [x] 3.3 Pastikan `.gitignore` secara ketat mengabaikan file database sqlite lokal dan log aktif.
 
 - [ ] **Phase 4: Developer Documentation & Guidelines**
   - [ ] 4.1 Perbarui `README.md` dengan panduan instalasi 3 menit dari template.

@@ -47,6 +47,7 @@ class QueueTenantPropagationTest extends TestCase
         $this->db = new Connection('sqlite::memory:');
         $migrator = new Migrator($this->db);
         $migrator->runMigrationsFrom(dirname(__DIR__, 2) . '/database/migrations');
+        $migrator->runMigrationsFrom(dirname(__DIR__, 2) . '/app/Modules/Projects/Database/Migrations', 'projects');
 
         $this->container = new Container();
         $this->container->singleton(Connection::class, fn() => $this->db);

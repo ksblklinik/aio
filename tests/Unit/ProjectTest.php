@@ -34,6 +34,7 @@ class ProjectTest extends TestCase
         $this->db = new Connection('sqlite::memory:');
         $migrator = new Migrator($this->db);
         $migrator->runMigrationsFrom(__DIR__ . '/../../database/migrations');
+        $migrator->runMigrationsFrom(dirname(__DIR__, 2) . '/app/Modules/Projects/Database/Migrations', 'projects');
 
         $this->session = new Session();
         $this->tenantContext = new TenantContext();
@@ -115,5 +116,73 @@ class ProjectTest extends TestCase
 
         $controller->destroy($reqDel, $projectId);
         $this->assertCount(0, Project::allForTenant($this->tenantScope));
+    }
+
+    public function test_rbac_store_project_blocked_for_member_without_permission(): void
+    {
+        $owner = $this->auth->register('Owner', 'owner2@test.com', 'secret', 'Acme 2');
+        $tenant = $this->auth->currentTenant();
+
+        $controller = new ProjectController($this->auth, $this->tenantScope, $this->db, $this->session, $this->inertia);
+
+        // Member
+        $member = User::create($this->db, ['name' => 'Regular Member', 'email' => 'reg@test.com', 'password' => 'secret']);
+        $tenant->addMember($this->db, (int) $member->id, 'member');
+
+        $this->auth->login($member, (int) $tenant->id);
+        $this->assertSame('member', $this->auth->currentRole());
+
+        $req = new Request('POST', '/projects', [], [], ['name' => 'Unauthorized Project']);
+        $resp = $controller->store($req);
+
+        $this->assertSame(302, $resp->getStatusCode());
+        $this->assertStringContainsString('Akses ditolak', (string) $this->session->getFlash('error'));
+        $this->assertCount(0, Project::allForTenant($this->tenantScope));
+    }
+
+    public function test_task_crud_and_permission_enforcement(): void
+    {
+        $owner = $this->auth->register('Owner', 'owner3@test.com', 'secret', 'Acme 3');
+        $tenant = $this->auth->currentTenant();
+
+        $projectController = new ProjectController($this->auth, $this->tenantScope, $this->db, $this->session, $this->inertia);
+        $taskController = new TaskController($this->auth, $this->db, $this->session);
+
+        // Owner creates project
+        $req = new Request('POST', '/projects', [], [], ['name' => 'Task Project']);
+        $projectController->store($req);
+        $projects = Project::allForTenant($this->tenantScope);
+        $this->assertCount(1, $projects);
+        $projectId = (int) $projects[0]->id;
+
+        // Regular member attempts to create task
+        $member = User::create($this->db, ['name' => 'Member 3', 'email' => 'mem3@test.com', 'password' => 'secret']);
+        $tenant->addMember($this->db, (int) $member->id, 'member');
+
+        $this->auth->login($member, (int) $tenant->id);
+
+        $taskReq = new Request('POST', '/tasks', [], [], ['project_id' => $projectId, 'title' => 'Member Task']);
+        $taskController->store($taskReq);
+        $this->assertStringContainsString('Akses ditolak', (string) $this->session->getFlash('error'));
+
+        // Owner creates task
+        $this->auth->login($owner, (int) $tenant->id);
+        $taskController->store($taskReq);
+        $this->assertStringContainsString('berhasil ditambahkan', (string) $this->session->getFlash('success'));
+
+        $tasks = $projects[0]->getTasks($this->db);
+        $this->assertCount(1, $tasks);
+        $taskId = (int) $tasks[0]->id;
+        $this->assertFalse((bool) $tasks[0]->isCompleted);
+
+        // Toggle task by owner
+        $taskController->toggle(new Request('POST', "/tasks/{$taskId}/toggle"), $taskId);
+        $tasksAfterToggle = $projects[0]->getTasks($this->db);
+        $this->assertTrue((bool) $tasksAfterToggle[0]->isCompleted);
+
+        // Destroy task by owner
+        $taskController->destroy(new Request('POST', "/tasks/{$taskId}/delete"), $taskId);
+        $tasksAfterDelete = $projects[0]->getTasks($this->db);
+        $this->assertCount(0, $tasksAfterDelete);
     }
 }

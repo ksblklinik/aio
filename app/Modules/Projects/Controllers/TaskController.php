@@ -23,6 +23,12 @@ class TaskController
 
     public function store(Request $request): Response
     {
+        $role = $this->auth->currentRole();
+        if ($role !== 'owner' && $role !== 'admin' && !can('projects.manage') && !can('projects.create')) {
+            $this->session->flash('error', 'Akses ditolak: Izin [projects.create] diperlukan.');
+            return Response::redirect('/projects');
+        }
+
         $projectId = (int) $request->input('project_id', 0);
         $title = trim((string) $request->input('title', ''));
 
@@ -55,6 +61,12 @@ class TaskController
 
     public function toggle(Request $request, int $id): Response
     {
+        $role = $this->auth->currentRole();
+        if ($role !== 'owner' && $role !== 'admin' && !can('projects.manage') && !can('projects.edit')) {
+            $this->session->flash('error', 'Akses ditolak: Izin [projects.edit] diperlukan.');
+            return Response::redirect('/projects');
+        }
+
         $tenant = $this->auth->currentTenant();
         $tenantId = (int) ($tenant?->id ?? 0);
 
@@ -72,6 +84,12 @@ class TaskController
 
     public function destroy(Request $request, int $id): Response
     {
+        $role = $this->auth->currentRole();
+        if ($role !== 'owner' && $role !== 'admin' && !can('projects.manage') && !can('projects.delete')) {
+            $this->session->flash('error', 'Akses ditolak: Izin [projects.delete] diperlukan.');
+            return Response::redirect('/projects');
+        }
+
         $tenant = $this->auth->currentTenant();
         $tenantId = (int) ($tenant?->id ?? 0);
 

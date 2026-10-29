@@ -11,5 +11,12 @@
   "is_core": false,
   "is_active": true,
   "table_name": "projects",
+  "permissions": [
+    "projects.view",
+    "projects.create",
+    "projects.edit",
+    "projects.delete",
+    "projects.manage"
+  ],
   "provider": "App\\Modules\\Projects\\ProjectsServiceProvider"
 }

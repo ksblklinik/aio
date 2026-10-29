@@ -67,6 +67,12 @@ class ProjectController
 
     public function store(Request $request): Response
     {
+        $role = $this->auth->currentRole();
+        if ($role !== 'owner' && $role !== 'admin' && !can('projects.create') && !can('projects.manage')) {
+            $this->session->flash('error', 'Akses ditolak: Izin [projects.create] diperlukan.');
+            return Response::redirect('/projects');
+        }
+
         $name = trim((string) $request->input('name', ''));
         $description = trim((string) $request->input('description', ''));
         $status = (string) $request->input('status', 'in_progress');
@@ -120,6 +126,12 @@ class ProjectController
 
     public function update(Request $request, int $id): Response
     {
+        $role = $this->auth->currentRole();
+        if ($role !== 'owner' && $role !== 'admin' && !can('projects.edit') && !can('projects.manage')) {
+            $this->session->flash('error', 'Akses ditolak: Izin [projects.edit] diperlukan.');
+            return Response::redirect('/projects');
+        }
+
         $tenant = $this->auth->currentTenant();
         $tenantId = (int) ($tenant?->id ?? 0);
 
@@ -157,9 +169,9 @@ class ProjectController
 
     public function destroy(Request $request, int $id): Response
     {
-        // RBAC: Hanya role dengan izin projects.delete (default: Owner atau Admin) yang boleh menghapus proyek
+        // RBAC: Hanya role dengan izin projects.delete / projects.manage (default: Owner atau Admin) yang boleh menghapus proyek
         $role = $this->auth->currentRole();
-        if ($role !== 'owner' && $role !== 'admin' && !can('projects.delete')) {
+        if ($role !== 'owner' && $role !== 'admin' && !can('projects.delete') && !can('projects.manage')) {
             $this->session->flash('error', 'Akses ditolak: Hanya Owner atau Admin yang dapat menghapus proyek.');
             return Response::redirect('/projects');
         }
