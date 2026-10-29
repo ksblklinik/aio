@@ -303,4 +303,37 @@ class Connection
     {
         return $this->transactionLevel;
     }
+
+    /**
+     * Dapatkan daftar nama kolom untuk tabel tertentu secara engine-agnostic
+     *
+     * @return array<string>
+     */
+    public function getTableColumns(string $table): array
+    {
+        $cleanTable = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
+        if ($cleanTable === '') {
+            return [];
+        }
+
+        if (str_starts_with($this->dsn, 'sqlite:')) {
+            $rows = $this->selectAll("PRAGMA table_info({$cleanTable})");
+            return array_map(fn($row) => (string) ($row['name'] ?? ''), $rows);
+        }
+
+        // ANSI SQL standard (PostgreSQL / MySQL / standard RDBMS)
+        $rows = $this->selectAll(
+            "SELECT column_name FROM information_schema.columns WHERE table_name = ?",
+            [$cleanTable]
+        );
+        return array_map(fn($row) => (string) ($row['column_name'] ?? $row['COLUMN_NAME'] ?? ''), $rows);
+    }
+
+    /**
+     * Periksa apakah kolom tertentu ada pada tabel secara engine-agnostic
+     */
+    public function hasColumn(string $table, string $column): bool
+    {
+        return in_array($column, $this->getTableColumns($table), true);
+    }
 }

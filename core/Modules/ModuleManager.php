@@ -59,8 +59,14 @@ class ModuleManager
         $this->pdo->exec($sql);
 
         try {
-            $cols = $this->pdo->query("PRAGMA table_info(system_modules)")->fetchAll(PDO::FETCH_ASSOC);
-            $colNames = array_column($cols, 'name');
+            $driver = (string) ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) ?? 'sqlite');
+            if ($driver === 'sqlite') {
+                $cols = $this->pdo->query("PRAGMA table_info(system_modules)")->fetchAll(PDO::FETCH_ASSOC);
+                $colNames = array_column($cols, 'name');
+            } else {
+                $stmt = $this->pdo->query("SELECT column_name FROM information_schema.columns WHERE table_name = 'system_modules'");
+                $colNames = $stmt ? $stmt->fetchAll(PDO::FETCH_COLUMN) : [];
+            }
             if (!in_array('provider', $colNames, true)) {
                 $this->pdo->exec("ALTER TABLE system_modules ADD COLUMN provider TEXT");
             }
@@ -68,7 +74,7 @@ class ModuleManager
                 $this->pdo->exec("ALTER TABLE system_modules ADD COLUMN permissions TEXT");
             }
         } catch (\Throwable $e) {
-            // Ignore PRAGMA errors on mocked PDOs
+            // Ignore schema check errors on mocked PDOs
         }
     }
 
@@ -581,7 +587,8 @@ class ModuleManager
         $route = '/' . $id;
         $dependencies = is_array($data['dependencies'] ?? null) ? $data['dependencies'] : [];
         $tableName = $id;
-        $providerClass = "App\\Modules\\{$folderName}\\{$folderName}ServiceProvider";
+        $baseNamespace = 'App\\Modules';
+        $providerClass = "{$baseNamespace}\\{$folderName}\\{$folderName}ServiceProvider";
         $permissions = [
             "{$id}.view",
             "{$id}.create",
@@ -614,7 +621,7 @@ class ModuleManager
 
 declare(strict_types=1);
 
-namespace App\Modules\\{$folderName};
+namespace {$baseNamespace}\\{$folderName};
 
 use Core\Modules\ModuleProvider;
 
@@ -655,7 +662,7 @@ SQL;
 
 declare(strict_types=1);
 
-namespace App\Modules\\{$folderName}\Database\Seeders;
+namespace {$baseNamespace}\\{$folderName}\Database\Seeders;
 
 use Core\Database\Seeder;
 
@@ -675,7 +682,7 @@ PHP;
 
 declare(strict_types=1);
 
-namespace App\Modules\\{$folderName}\Controllers;
+namespace {$baseNamespace}\\{$folderName}\Controllers;
 
 use Core\Http\Request;
 use Core\Http\Response;
@@ -694,13 +701,14 @@ PHP;
         file_put_contents($moduleDir . "/Controllers/{$folderName}Controller.php", $controllerContent);
 
         // 6. Tulis Routes
+        $authMiddlewareClass = 'App\\Modules\\Auth\\Middleware\\Authenticate';
         $routesContent = <<<PHP
 <?php
 
 declare(strict_types=1);
 
-use App\Modules\\{$folderName}\Controllers\\{$folderName}Controller;
-use App\Modules\Auth\Middleware\Authenticate;
+use {$baseNamespace}\\{$folderName}\Controllers\\{$folderName}Controller;
+use {$authMiddlewareClass};
 use Core\Router;
 
 /** @var Router \$router */

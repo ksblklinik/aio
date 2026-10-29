@@ -323,24 +323,39 @@ class Validator
 
     private function tableHasColumn(string $table, string $column): bool
     {
+        if (function_exists('app') && app()->has(\Core\Database\Connection::class)) {
+            try {
+                return app(\Core\Database\Connection::class)->hasColumn($table, $column);
+            } catch (\Throwable) {
+                // fallback to direct pdo check
+            }
+        }
+
         if ($this->pdo === null) {
             return false;
         }
 
         try {
-            $stmt = $this->pdo->prepare("PRAGMA table_info({$table})");
-            $stmt->execute();
-            $cols = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($cols as $col) {
-                if (($col['name'] ?? '') === $column) {
-                    return true;
+            $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+            $cleanTable = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
+            if ($driver === 'sqlite') {
+                $stmt = $this->pdo->prepare("PRAGMA table_info({$cleanTable})");
+                $stmt->execute();
+                $cols = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($cols as $col) {
+                    if (($col['name'] ?? '') === $column) {
+                        return true;
+                    }
                 }
+                return false;
             }
-        } catch (\Throwable $e) {
+
+            $stmt = $this->pdo->prepare("SELECT column_name FROM information_schema.columns WHERE table_name = ? AND column_name = ?");
+            $stmt->execute([$cleanTable, $column]);
+            return (bool) $stmt->fetchColumn();
+        } catch (\Throwable) {
             return false;
         }
-
-        return false;
     }
 
     private function addError(string $field, string $message): void

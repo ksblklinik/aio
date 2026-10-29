@@ -83,7 +83,9 @@ class ClosedPeriodAuditor implements AuditorInterface
                     }
                 }
             }
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         // 2. Audit temporal sanity (extreme past or future dates)
         try {
@@ -113,7 +115,9 @@ class ClosedPeriodAuditor implements AuditorInterface
                     autoResolvable: false
                 );
             }
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         return new PillarAuditResult(
             pillar: $this->getPillarKey(),

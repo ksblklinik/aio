@@ -101,9 +101,13 @@ class LedgerManager
             $ledgerId = (int) $ledger['id'];
             $currentBalance = (float) $ledger['balance'];
 
-            // 3. Hitung saldo baru
-            $balanceChange = $cleanDir === 'credit' ? $amount : -$amount;
-            $newBalance = round($currentBalance + $balanceChange, 4);
+            // 3. Hitung saldo baru menggunakan fixed-point integer scaling (skala 4 desimal) untuk mencegah IEEE-754 precision drift
+            $scale = 10000;
+            $currInt = (int) round($currentBalance * $scale);
+            $amountInt = (int) round($amount * $scale);
+            $changeInt = $cleanDir === 'credit' ? $amountInt : -$amountInt;
+            $newInt = $currInt + $changeInt;
+            $newBalance = (float) ($newInt / $scale);
 
             if (!$allowNegative && $newBalance < 0.0) {
                 throw new RuntimeException(

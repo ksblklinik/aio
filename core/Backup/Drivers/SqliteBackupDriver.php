@@ -35,7 +35,9 @@ class SqliteBackupDriver implements BackupDriverInterface
         // 1. Flush any pending WAL writes to main database file
         try {
             $pdo->exec('PRAGMA wal_checkpoint(PASSIVE);');
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         // 2. Atomic VACUUM INTO produces an isolated, consistent database snapshot
         $quoted = $pdo->quote($destinationPath);
@@ -80,7 +82,9 @@ class SqliteBackupDriver implements BackupDriverInterface
             // 2. Truncate WAL on live DB before replacement
             try {
                 $this->db->getPdo()->exec('PRAGMA wal_checkpoint(TRUNCATE);');
-            } catch (Throwable) {}
+            } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
             // Release database file locks on active connection
             $this->db->close();

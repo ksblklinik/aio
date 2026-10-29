@@ -96,7 +96,9 @@ class FinanceBillingAuditor implements AuditorInterface
                     );
                 }
             }
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         // 2. Audit financial_accounts current_balance vs financial_transactions ledger
         $accSql = "SELECT id, tenant_id, code, name, initial_balance, current_balance FROM financial_accounts";
@@ -146,7 +148,9 @@ class FinanceBillingAuditor implements AuditorInterface
                     );
                 }
             }
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         return new PillarAuditResult(
             pillar: 'finance',

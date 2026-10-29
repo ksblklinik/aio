@@ -14,7 +14,7 @@ class AuthorizePermission
 {
     public function __construct(
         private Gate $gate,
-        private AuthServiceInterface $auth
+        private ?AuthServiceInterface $auth = null
     ) {
     }
 
@@ -38,8 +38,8 @@ class AuthorizePermission
 
     public function handleWithPermission(Request $request, callable $next, string $permission): Response
     {
-        $user = $this->auth->user();
-        $tenant = $this->auth->currentTenant();
+        $user = $this->auth?->user();
+        $tenant = $this->auth?->currentTenant();
 
         if (!$user) {
             return Response::redirect('/login');

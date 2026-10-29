@@ -57,7 +57,8 @@ class FitnessSafetyAuditor implements AuditorInterface
                     autoResolvable: true
                 );
             }
-        } catch (Throwable) {
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
         }
 
         // 2. Audit stock movements out for expired or quarantined batches
@@ -110,7 +111,8 @@ class FitnessSafetyAuditor implements AuditorInterface
                     );
                 }
             }
-        } catch (Throwable) {
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
         }
 
         return new PillarAuditResult(

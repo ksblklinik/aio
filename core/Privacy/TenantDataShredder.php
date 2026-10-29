@@ -426,17 +426,7 @@ class TenantDataShredder
 
     private function hasColumn(string $tableName, string $columnName): bool
     {
-        try {
-            $cols = $this->db->selectAll("PRAGMA table_info({$tableName})");
-            foreach ($cols as $col) {
-                if (($col['name'] ?? '') === $columnName) {
-                    return true;
-                }
-            }
-            return false;
-        } catch (Throwable) {
-            return false;
-        }
+        return $this->db->hasColumn($tableName, $columnName);
     }
 
     /**
@@ -444,12 +434,7 @@ class TenantDataShredder
      */
     private function getColumnNames(string $tableName): array
     {
-        try {
-            $cols = $this->db->selectAll("PRAGMA table_info({$tableName})");
-            return array_column($cols, 'name');
-        } catch (Throwable) {
-            return [];
-        }
+        return $this->db->getTableColumns($tableName);
     }
 
     /**

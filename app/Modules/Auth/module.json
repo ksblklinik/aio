@@ -8,6 +8,7 @@
   "icon": "ShieldCheck",
   "route": "/login",
   "dependencies": [],
+  "provider": "App\\Modules\\Auth\\Providers\\AuthServiceProvider",
   "is_core": true,
   "is_active": true,
   "table_name": "users"

@@ -245,9 +245,7 @@ class DataPortabilityExporter
                 if ($tableName === 'tenants' || in_array($tableName, self::EXCLUDED_TABLES, true)) {
                     continue;
                 }
-                $cols = $this->db->selectAll("PRAGMA table_info({$tableName})");
-                $colNames = array_column($cols, 'name');
-                if (in_array('tenant_id', $colNames, true)) {
+                if ($this->db->hasColumn($tableName, 'tenant_id')) {
                     $tables[] = $tableName;
                 }
             }

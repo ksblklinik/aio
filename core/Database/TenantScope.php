@@ -47,14 +47,9 @@ class TenantScope
         }
 
         try {
-            $cols = $this->connection->selectAll("PRAGMA table_info({$table})");
-            foreach ($cols as $col) {
-                if (($col['name'] ?? '') === 'deleted_at') {
-                    return self::$hasDeletedAtCache[$table] = true;
-                }
-            }
+            return self::$hasDeletedAtCache[$table] = $this->connection->hasColumn($table, 'deleted_at');
         } catch (\Throwable) {
-            // Abaikan jika bukan SQLite atau PRAGMA gagal
+            // Abaikan jika tabel tidak ditemukan atau gagal
         }
 
         return self::$hasDeletedAtCache[$table] = false;

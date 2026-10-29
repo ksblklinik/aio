@@ -21,7 +21,8 @@
             "Core\\": "core/"
         },
         "files": [
-            "core/helpers.php"
+            "core/helpers.php",
+            "app/helpers.php"
         ]
     },
     "autoload-dev": {

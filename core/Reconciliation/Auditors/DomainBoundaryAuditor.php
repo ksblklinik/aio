@@ -61,7 +61,9 @@ class DomainBoundaryAuditor implements AuditorInterface
                     autoResolvable: false
                 );
             }
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         // 2. Audit invoice_items (quantity <= 0, unit_price < 0, discount < 0)
         try {
@@ -91,7 +93,9 @@ class DomainBoundaryAuditor implements AuditorInterface
                     autoResolvable: false
                 );
             }
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         // 3. Audit items cost_price & selling_price
         try {
@@ -117,7 +121,9 @@ class DomainBoundaryAuditor implements AuditorInterface
                     autoResolvable: false
                 );
             }
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         // 4. Audit tariff split rules (split_percentage < 0 or > 100)
         try {
@@ -143,7 +149,9 @@ class DomainBoundaryAuditor implements AuditorInterface
                     autoResolvable: false
                 );
             }
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         return new PillarAuditResult(
             pillar: $this->getPillarKey(),

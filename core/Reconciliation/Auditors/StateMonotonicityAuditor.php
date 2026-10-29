@@ -74,7 +74,9 @@ class StateMonotonicityAuditor implements AuditorInterface
                     );
                 }
             }
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         // 2. Audit appointments state consistency
         try {
@@ -107,7 +109,9 @@ class StateMonotonicityAuditor implements AuditorInterface
                     );
                 }
             }
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         // 3. Audit invoices cancelled vs payments consistency
         try {
@@ -143,7 +147,9 @@ class StateMonotonicityAuditor implements AuditorInterface
                     );
                 }
             }
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         return new PillarAuditResult(
             pillar: $this->getPillarKey(),

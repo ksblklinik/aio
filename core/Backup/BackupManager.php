@@ -249,7 +249,9 @@ class BackupManager implements BackupManagerInterface
                         'sha256' => $data['sha256_package'] ?? null,
                     ];
                 }
-            } catch (Throwable) {}
+            } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
         }
 
         usort($list, fn($a, $b) => strcmp($b['created_at'], $a['created_at']));

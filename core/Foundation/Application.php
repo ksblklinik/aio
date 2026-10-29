@@ -149,18 +149,6 @@ class Application
         // Session
         $c->singleton(Session::class, fn() => new Session());
 
-        // AuthService & AuthServiceInterface
-        if (class_exists(\App\Modules\Auth\Services\AuthService::class)) {
-            $c->singleton(\App\Modules\Auth\Services\AuthService::class, function ($c) {
-                return new \App\Modules\Auth\Services\AuthService(
-                    $c->get(Connection::class),
-                    $c->get(Session::class),
-                    $c->get(TenantContext::class)
-                );
-            });
-            $c->singleton(\Core\Auth\AuthServiceInterface::class, fn($c) => $c->get(\App\Modules\Auth\Services\AuthService::class));
-        }
-
         // ModuleManager
         $c->singleton(ModuleManager::class, function ($c) use ($base) {
             $db = $c->get(Connection::class);
@@ -226,7 +214,7 @@ class Application
         });
 
         $c->singleton(AuthorizePermission::class, function ($c) {
-            $auth = $c->get(\Core\Auth\AuthServiceInterface::class);
+            $auth = $c->has(\Core\Auth\AuthServiceInterface::class) ? $c->get(\Core\Auth\AuthServiceInterface::class) : null;
             return new AuthorizePermission($c->get(Gate::class), $auth);
         });
 

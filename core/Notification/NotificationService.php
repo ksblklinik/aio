@@ -64,7 +64,9 @@ class NotificationService
                     'created_at' => date('c'),
                 ], (string) $tenantId);
             }
-        } catch (\Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         return (int) $id;
     }

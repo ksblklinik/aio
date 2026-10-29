@@ -113,7 +113,9 @@ class InventoryStockAuditor implements AuditorInterface
                     );
                 }
             }
-        } catch (Throwable) {}
+        } catch (\Throwable $e) {
+            \Core\Log\Logger::getInstance()->warning(static::class . ": " . $e->getMessage());
+        }
 
         return new PillarAuditResult(
             pillar: 'inventory',
