@@ -7,6 +7,12 @@ description: Mencegah regresi styling tema, inkonsistensi kontras (teks tidak te
 
 Skill ini wajib dipatuhi oleh seluruh AI Agent dan pengembang saat mendesain atau memodifikasi antarmuka visual (UI/CSS/Tailwind) di repositori **aio**.
 
+> **Pembagian Peran UI**:
+> * Gunakan **`semantic-ui-tokens`** (skill ini) untuk tata kelola token warna terpusat, CSS variables tema gelap/terang, dan kebijakan *atomic rewrite* kontras.
+> * Gunakan skill pendamping [**`anti-slop-design`**](file:///c:/aplikasi/aio/.agents/skills/anti-slop-design/SKILL.md) untuk estetika layout, variasi asimetris, eliminasi klise AI, dan *tactile micro-interactions* (`active:scale-[0.98]`, `font-mono tabular-nums`).
+
+---
+
 ## 🛑 Akar Masalah yang Dilarang Keras (Anti-Pattern)
 - **DILARANG** melakukan modifikasi warna parsial atau tambal-sulam baris per baris (*patching class-by-class*) di komponen UI yang sedang aktif.
 - **DILARANG** menulis kelas utilitas `dark:` secara sporadis di masing-masing tag HTML (misal: `bg-white dark:bg-slate-900 text-gray-900 dark:text-white`). Pola ini terbukti meninggalkan elemen tertinggal (*zombie elements*) yang mengakibatkan teks hitam di latar gelap atau sebaliknya.

@@ -10,6 +10,10 @@ Gunakan skill ini saat:
 2. Melakukan audit kode sebelum commit (**Ponytail Diff Audit**).
 3. Mendeteksi kode yang terasa terlalu rumit, panjang, atau memiliki lapisan abstraksi berlebih (*code smell*).
 
+> **Harmonisasi Arsitektur**:
+> * Skill ini berjalan seiring dengan [**`codebase-design`**](file:///c:/aplikasi/aio/.agents/skills/codebase-design/SKILL.md) (Prinsip Deep Modules John Ousterhout).
+> * Modul publik wajib menyediakan satu deep entry point (`Contracts/*RegistryInterface.php`), namun bagian internal modul dilarang keras membuat interface semu, DTO berlapis, atau rantai repository/manager perantara yang dangkal.
+
 ---
 
 ## 1. Sikap Mental Ponytail (The Pragmatic Senior Mindset)
@@ -30,8 +34,8 @@ Sebelum membuat git commit, lakukan inspeksi terhadap baris yang Anda ubah (`git
 
 - [ ] **Line Count Justification**: Bisakah perubahan ini dicapai dengan setengah dari jumlah baris yang ditulis?
 - [ ] **Premature Abstraction Check**: 
-  - Apakah Anda baru saja membuat `Interface` yang hanya memiliki 1 implementasi konkret di modul bisnis yang sama? (Jika ya, hapus interfacenya, gunakan kelas langsung kecuali jika merupakan kontrak ekstensi modul).
-  - Apakah Anda membuat `Factory` atau `Service` pembungkus tipis yang hanya memanggil 1 fungsi lain? (Jika ya, inline-kan).
+  - Apakah Anda baru saja membuat `Interface` internal untuk kelas di modul yang sama? (Jika ya, hapus interfacenya dan gunakan kelas langsung. Kontrak interface HANYA diperuntukkan bagi batas publik modul di `Contracts/*RegistryInterface.php` sesuai [`codebase-design`](file:///c:/aplikasi/aio/.agents/skills/codebase-design/SKILL.md)).
+  - Apakah Anda membuat lapisan perantara tipis (misal: Service $\rightarrow$ Manager $\rightarrow$ Repository $\rightarrow$ DAO yang hanya meneruskan parameter)? (Jika ya, satukan langsung ke dalam Deep Module Service).
 - [ ] **Native Capability Check**:
   - Apakah Anda menulis loop manual untuk memfilter array? Ganti dengan `array_filter` atau query SQL bersyarat langsung.
   - Apakah Anda menghitung saldo/stok di memori PHP lalu update? Ganti dengan kalkulasi atomik SQL (`SET stock = stock - ? WHERE stock >= ?`).

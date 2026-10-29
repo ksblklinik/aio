@@ -34,5 +34,5 @@ Gunakan skill ini ketika menghadapi error, bug yang sulit dilacak, atau saat ran
 ### 4. Minimal Fix & Verify (Perbaikan Minimal & Verifikasi)
 - Terapkan perbaikan terkecil yang menyelesaikan masalah secara presisi.
 - Jalankan kembali skrip reproduksi/test: pastikan status berubah menjadi **PASS**.
-- Jalankan seluruh test suite (`npm test`, `pytest`, atau test runner terkait) untuk memastikan **tidak ada regresi** (*no collateral damage*).
+- Jalankan seluruh test suite (`powershell -ExecutionPolicy Bypass -File ./scripts/verify.ps1` atau `php vendor/bin/phpunit` dan `npm run typecheck`) untuk memastikan **tidak ada regresi** (*no collateral damage*).
 - Bersihkan semua log debug sementara sebelum commit.

@@ -26,18 +26,19 @@ Jelaskan masalah yang ingin dipecahkan, motivasi bisnis/teknis, dan dampak jika 
 ```
 
 ### Data Model & Schema
-Jelaskan perubahan tabel, model class, atau interface TypeScript/Go/Python:
-```typescript
-// Contoh interface atau skema
-interface ExampleModel {
-  id: string;
-  name: string;
-  createdAt: Date;
-}
+Jelaskan perubahan tabel, model class, atau interface data:
+```sql
+-- Skema tabel baru / modifikasi
+CREATE TABLE example (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
 ### API Endpoints / Function Signatures
-- `POST /api/v1/example`: Input `{ name: string }`, Output `{ id: string, name: string }`
+- `POST /api/v1/example`: Input `{ name: string }`, Output `{ id: number, name: string }`
 
 ## 4. Edge Cases & Error Scenarios
 - **Kasus 1**: Payload kosong atau invalid format $\rightarrow$ Return validation error 400.
@@ -66,6 +67,6 @@ Pecah pengerjaan ke dalam langkah-langkah kecil (atomik) yang independen:
   - [ ] 3.2 Sambungkan controller ke service logic.
   - [ ] 3.3 Uji integrasi endpoint.
 - [ ] **Phase 4: Final Verification & Clean-up**
-  - [ ] 4.1 Jalankan seluruh test suite (`npm test` / test runner terkait).
-  - [ ] 4.2 Jalankan linter dan type-check.
+  - [ ] 4.1 Jalankan seluruh test suite (`./scripts/verify.ps1` atau `php vendor/bin/phpunit`).
+  - [ ] 4.2 Jalankan linter dan frontend type-check (`npm run typecheck`).
   - [ ] 4.3 Verifikasi performa dan bersihkan log debug.

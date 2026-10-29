@@ -61,6 +61,7 @@ Mengadopsi prinsip desain dari John Ousterhout (*A Philosophy of Software Design
    - Contoh: `billing()->createInvoice($dto)` hanya meminta parameter penting, namun secara atomik mengeksekusi resolusi buku tarif, perhitungan split-fee, alokasi FEFO multi-batch, pencatatan jurnal akuntansi, dan perekaman event Outbox dalam 1 transaksi ACID.
 2. **Larangan *Shallow Wrapper***:
    - Dilarang membuat rantai kelas perantara yang hanya meneruskan parameter 1:1 tanpa memberikan nilai tambah logika (misal: Controller $\rightarrow$ Service $\rightarrow$ Manager $\rightarrow$ Repository $\rightarrow$ DAO yang semuanya hanya meneruskan `findById`).
+   - Selaras dengan [**Ponytail Pragmatism (Rule 09)**](file:///c:/aplikasi/aio/.agents/rules/09-ponytail-pragmatism.md), kelas internal di dalam modul tidak boleh dibungkus interface prematur atau lapisan DTO/Factory yang tidak memberi nilai nyata. Interface HANYA diperuntukkan bagi batas publik modul (`Contracts/*RegistryInterface.php`).
 3. **The Deletion Test (Uji Penghapusan)**:
    - Sebelum mengesahkan modul baru, evaluasi: *"Jika modul ini dihapus kelak, apakah seluruh kompleksitasnya musnah bersama kontraknya, atau justru meninggalkan jejak kebocoran di puluhan file modul lain?"*
    - Jika modul lain harus tahu detail internal implementasi suatu modul, maka abstraksi tersebut bocor (*leaky abstraction*).
