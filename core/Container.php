@@ -48,6 +48,8 @@ class Container implements ContainerInterface
             $concrete = $abstract;
         }
 
+        unset($this->instances[$abstract]);
+
         $this->bindings[$abstract] = [
             'concrete' => $concrete,
             'shared' => $shared,
@@ -169,7 +171,17 @@ class Container implements ContainerInterface
 
         $type = $param->getType();
         if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
-            return $this->get($type->getName());
+            try {
+                return $this->get($type->getName());
+            } catch (\Throwable $e) {
+                if ($param->isDefaultValueAvailable()) {
+                    return $param->getDefaultValue();
+                }
+                if ($param->allowsNull()) {
+                    return null;
+                }
+                throw $e;
+            }
         }
 
         if ($param->isDefaultValueAvailable()) {

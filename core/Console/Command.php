@@ -64,6 +64,36 @@ abstract class Command
         echo "\033[31m✖ " . $message . "\033[0m" . PHP_EOL;
     }
 
+    public function ask(string $question, ?string $default = null): string
+    {
+        $prompt = $default !== null ? "{$question} [{$default}]: " : "{$question}: ";
+        echo "\033[33m? {$prompt}\033[0m";
+
+        if (defined('STDIN') && is_resource(STDIN) && !feof(STDIN)) {
+            $input = fgets(STDIN);
+            if ($input !== false) {
+                $trimmed = trim($input);
+                if ($trimmed !== '') {
+                    return $trimmed;
+                }
+            }
+        }
+
+        return $default ?? '';
+    }
+
+    public function confirm(string $question, bool $default = true): bool
+    {
+        $defaultStr = $default ? 'Y/n' : 'y/N';
+        $answer = $this->ask("{$question} ({$defaultStr})", $default ? 'y' : 'n');
+        return in_array(strtolower($answer), ['y', 'yes', '1', 'true'], true);
+    }
+
+    public function secret(string $question, ?string $default = null): string
+    {
+        return $this->ask($question, $default);
+    }
+
     /**
      * @param array<int, string> $headers
      * @param array<int, array<int|string, mixed>> $rows

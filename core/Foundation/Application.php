@@ -809,7 +809,8 @@ HTML;
         }
 
         // Registrasi seluruh perintah CLI
-        $kernel->register(new ListCommand())
+        $kernel->register(new \Core\Console\Commands\AppInstallCommand())
+            ->register(new ListCommand())
             ->register(new MigrateCommand())
             ->register(new MigrateRollbackCommand())
             ->register(new SeedCommand())

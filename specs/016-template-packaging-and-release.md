@@ -30,9 +30,9 @@ Setelah SPEC-013, SPEC-014, dan SPEC-015 rampung, repositori telah memiliki fond
   - [x] 1.1 Hapus teks statis `aio SaaS` dari backend dan layout React; ganti dengan `config('app.name')` via Inertia shared props.
   - [x] 1.2 Dukung konfigurasi logo dan favicon kustom via asset helper / config.
 
-- [ ] **Phase 2: One-Click App Installer CLI**
-  - [ ] 2.1 Buat sub-perintah `php aio app:install` yang memandu setup `.env`, generate key, migrasi, dan seed interaktif.
-  - [ ] 2.2 Verifikasi kompatibilitas perintah instalasi di Windows (PowerShell) dan Linux (Bash).
+- [x] **Phase 2: One-Click App Installer CLI**
+  - [x] 2.1 Buat sub-perintah `php aio app:install` yang memandu setup `.env`, generate key, migrasi, dan seed interaktif.
+  - [x] 2.2 Verifikasi kompatibilitas perintah instalasi di Windows (PowerShell) dan Linux (Bash).
 
 - [ ] **Phase 3: Reference Module Migration & Data Sanitization**
   - [ ] 3.1 Refactor modul bawaan `Projects` agar menggunakan `ModuleProvider`, migrasi lokal modul, dan permission gate.
