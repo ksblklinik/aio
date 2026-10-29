@@ -322,9 +322,9 @@ class ReconciliationEngineTest extends TestCase
     {
         $manager = new ReconciliationManager($this->db);
 
-        // Create initial clean audit (8 pillars registered)
+        // Create initial clean audit (11 pillars registered)
         $report = $manager->audit();
-        $this->assertCount(8, $report->pillars);
+        $this->assertCount(11, $report->pillars);
 
         // Introduce a drift in financial accounts
         $this->db->statement("

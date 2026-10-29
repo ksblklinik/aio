@@ -81,8 +81,8 @@ class UniversalInvariantsTest extends TestCase
 
         // Mutasi awal masuk
         $this->db->statement("
-            INSERT INTO inventory_movements (tenant_id, movement_number, item_id, type, quantity, stock_before, stock_after)
-            VALUES (?, 'MOV-INIT-001', ?, 'in', 100, 0, 100)
+            INSERT INTO inventory_movements (tenant_id, movement_number, item_id, type, quantity, stock_before, stock_after, notes)
+            VALUES (?, 'MOV-INIT-001', ?, 'in', 100, 0, 100, 'Saldo stok awal farmasi')
         ", [$tenantId, $itemId]);
 
         // 2. Setup Akun Finansial Kasir & Bank
@@ -118,9 +118,9 @@ class UniversalInvariantsTest extends TestCase
         // Pemotongan stok obat fisik: 100 - 10 = 90
         $this->db->statement("UPDATE items SET current_stock = 90 WHERE id = ?", [$itemId]);
         $this->db->statement("
-            INSERT INTO inventory_movements (tenant_id, movement_number, item_id, type, quantity, stock_before, stock_after)
-            VALUES (?, 'MOV-DISPENSE-001', ?, 'out', 10, 100, 90)
-        ", [$tenantId, $itemId]);
+            INSERT INTO inventory_movements (tenant_id, movement_number, item_id, type, quantity, stock_before, stock_after, reference_type, reference_id, notes)
+            VALUES (?, 'MOV-DISPENSE-001', ?, 'out', 10, 100, 90, 'invoice', ?, 'Dispensing obat faktur')
+        ", [$tenantId, $itemId, (string) $invoiceId]);
 
         // Pembayaran campuran: Rp 100.000 Tunai + Rp 100.000 Transfer
         $this->db->statement("

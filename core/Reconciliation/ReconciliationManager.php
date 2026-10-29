@@ -10,7 +10,10 @@ use Core\Reconciliation\Auditors\ClosedPeriodAuditor;
 use Core\Reconciliation\Auditors\CryptographicSealAuditor;
 use Core\Reconciliation\Auditors\DomainBoundaryAuditor;
 use Core\Reconciliation\Auditors\FinanceBillingAuditor;
+use Core\Reconciliation\Auditors\FitnessSafetyAuditor;
 use Core\Reconciliation\Auditors\InventoryStockAuditor;
+use Core\Reconciliation\Auditors\ProvenanceLineageAuditor;
+use Core\Reconciliation\Auditors\RestrictedFundAuditor;
 use Core\Reconciliation\Auditors\StateMonotonicityAuditor;
 use Core\Reconciliation\Auditors\TariffSplitAuditor;
 use Core\Reconciliation\Auditors\TenantReferentialAuditor;
@@ -39,6 +42,9 @@ class ReconciliationManager implements ReconciliationManagerInterface
             $this->registerAuditor(new StateMonotonicityAuditor($this->db));
             $this->registerAuditor(new ClosedPeriodAuditor($this->db));
             $this->registerAuditor(new DomainBoundaryAuditor($this->db));
+            $this->registerAuditor(new ProvenanceLineageAuditor($this->db));
+            $this->registerAuditor(new RestrictedFundAuditor($this->db));
+            $this->registerAuditor(new FitnessSafetyAuditor($this->db));
         } else {
             foreach ($auditors as $auditor) {
                 $this->registerAuditor($auditor);
