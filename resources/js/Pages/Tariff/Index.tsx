@@ -167,7 +167,7 @@ export default function Index({
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setShowPriceBookModal(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg border border-border-subtle bg-surface text-text-main hover:bg-surface-subtle transition shadow-sm"
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg border border-border-subtle bg-surface text-text-main hover:bg-surface-subtle active:scale-[0.98] transition-all duration-150 shadow-sm"
             >
               <Plus className="w-4 h-4 text-brand-primary" />
               Buku Tarif Baru
@@ -175,7 +175,7 @@ export default function Index({
             {activeTab === 'rates' && (
               <button
                 onClick={() => setShowRateModal(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-brand-primary text-white hover:bg-brand-primary-hover transition shadow-sm"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-brand-primary text-white hover:bg-brand-primary-hover active:scale-[0.98] transition-all duration-150 shadow-sm"
               >
                 <Plus className="w-4 h-4" />
                 Tambah Tarif Item
@@ -184,7 +184,7 @@ export default function Index({
             {activeTab === 'splits' && (
               <button
                 onClick={() => setShowSplitRuleModal(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-brand-primary text-white hover:bg-brand-primary-hover transition shadow-sm"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-brand-primary text-white hover:bg-brand-primary-hover active:scale-[0.98] transition-all duration-150 shadow-sm"
               >
                 <Plus className="w-4 h-4" />
                 Tambah Aturan Split
@@ -193,7 +193,7 @@ export default function Index({
             {activeTab === 'settlement' && accruedAllocations.length > 0 && (
               <button
                 onClick={() => setShowSettleModal(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition shadow-sm"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 active:scale-[0.98] transition-all duration-150 shadow-sm"
               >
                 <CreditCard className="w-4 h-4" />
                 Pencairan / Settle Fee

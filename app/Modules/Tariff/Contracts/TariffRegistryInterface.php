@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Modules\Tariff\Contracts;
 
 interface TariffRegistryInterface
@@ -110,4 +112,9 @@ interface TariffRegistryInterface
      * Marks allocations as 'paid' with settlement reference and optional finance journal integration.
      */
     public function settleBeneficiaryFees(int $beneficiaryContactId, array $allocationIds, ?string $settlementReference = null, ?string $paymentAccount = null): array;
+
+    /**
+     * Cancel accrued fee allocations for a given invoice (e.g. on invoice cancellation).
+     */
+    public function cancelInvoiceSplits(int $invoiceId): int;
 }

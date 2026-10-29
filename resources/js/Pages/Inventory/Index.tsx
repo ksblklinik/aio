@@ -183,14 +183,14 @@ export default function Index({
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setShowTransferModal(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg border border-border-subtle bg-surface text-text-main hover:bg-surface-subtle transition shadow-sm"
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg border border-border-subtle bg-surface text-text-main hover:bg-surface-subtle active:scale-[0.98] transition-all duration-150 shadow-sm"
             >
               <ArrowLeftRight className="w-4 h-4 text-brand-primary" />
               Transfer Stok
             </button>
             <button
               onClick={() => setShowItemModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-brand-primary text-white hover:bg-brand-primary-hover transition shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-brand-primary text-white hover:bg-brand-primary-hover active:scale-[0.98] transition-all duration-150 shadow-sm"
             >
               <Plus className="w-4 h-4" />
               Item Baru

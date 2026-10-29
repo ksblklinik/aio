@@ -580,16 +580,20 @@ class BillingService implements BillingRegistryInterface
                 [$cancelNote, $id, $tenantId]
             );
 
-            // Batalkan alokasi fee/jasa medis (accrued) terkait agar tidak menjadi piutang menggantung
+            // Batalkan alokasi fee/jasa medis (accrued) terkait via kontrak Tariff atau fallback lokal
             try {
-                $this->db->statement(
-                    "UPDATE tariff_fee_allocations 
-                     SET status = 'cancelled', updated_at = datetime('now') 
-                     WHERE invoice_id = ? AND tenant_id = ? AND status = 'accrued'",
-                    [$id, $tenantId]
-                );
+                if (function_exists('tariff') && app()->has(\App\Modules\Tariff\Contracts\TariffRegistryInterface::class)) {
+                    tariff()->cancelInvoiceSplits($id);
+                } else {
+                    $this->db->statement(
+                        "UPDATE tariff_fee_allocations 
+                         SET status = 'cancelled', updated_at = datetime('now') 
+                         WHERE invoice_id = ? AND tenant_id = ? AND status = 'accrued'",
+                        [$id, $tenantId]
+                    );
+                }
             } catch (\Throwable) {
-                // Modul tariff mungkin belum dimigrasi di beberapa skenario
+                // Modul tariff mungkin belum aktif atau belum dimigrasi di beberapa skenario
             }
 
             return $this->getInvoice($id) ?? throw new RuntimeException('Gagal memuat invoice.');

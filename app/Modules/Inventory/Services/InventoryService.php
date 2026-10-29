@@ -1078,19 +1078,17 @@ class InventoryService implements InventoryRegistryInterface
 
         $tenantId = $this->getTenantId();
 
-        // Validate source and destination rooms
-        $sourceRoom = $this->db->selectOne(
-            "SELECT id, name FROM facilities_rooms WHERE id = ? AND tenant_id = ?",
-            [$sourceRoomId, $tenantId]
-        );
+        // Validate source and destination rooms via facility registry
+        $sourceRoom = (function_exists('facilities') && app()->has(\App\Modules\Facility\Contracts\FacilityRegistryInterface::class))
+            ? facilities()->getRoom($sourceRoomId)
+            : $this->db->selectOne("SELECT id, name FROM facilities_rooms WHERE id = ? AND tenant_id = ?", [$sourceRoomId, $tenantId]);
         if (!$sourceRoom) {
             throw new RuntimeException("Gudang asal tidak valid atau tidak ditemukan.");
         }
 
-        $destRoom = $this->db->selectOne(
-            "SELECT id, name FROM facilities_rooms WHERE id = ? AND tenant_id = ?",
-            [$destinationRoomId, $tenantId]
-        );
+        $destRoom = (function_exists('facilities') && app()->has(\App\Modules\Facility\Contracts\FacilityRegistryInterface::class))
+            ? facilities()->getRoom($destinationRoomId)
+            : $this->db->selectOne("SELECT id, name FROM facilities_rooms WHERE id = ? AND tenant_id = ?", [$destinationRoomId, $tenantId]);
         if (!$destRoom) {
             throw new RuntimeException("Gudang tujuan tidak valid atau tidak ditemukan.");
         }

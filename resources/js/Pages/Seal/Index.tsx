@@ -163,7 +163,7 @@ export default function Index({
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2.5 text-sm font-semibold rounded-xl bg-primary hover:bg-primary-hover text-primary-contrast transition-colors flex items-center gap-2 shadow-sm self-start md:self-auto"
+            className="px-4 py-2.5 text-sm font-semibold rounded-xl bg-primary hover:bg-primary-hover active:scale-[0.98] text-primary-contrast transition-all duration-150 flex items-center gap-2 shadow-sm self-start md:self-auto"
           >
             <Plus className="w-4 h-4" />
             <span>Terbitkan Segel Dokumen</span>

@@ -759,4 +759,16 @@ class TariffService implements TariffRegistryInterface
             'status' => 'paid'
         ];
     }
+
+    public function cancelInvoiceSplits(int $invoiceId): int
+    {
+        $tenantId = $this->getTenantId();
+        $stmt = $this->db->pdo()->prepare("
+            UPDATE tariff_fee_allocations 
+            SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP 
+            WHERE invoice_id = ? AND tenant_id = ? AND status = 'accrued'
+        ");
+        $stmt->execute([$invoiceId, $tenantId]);
+        return $stmt->rowCount();
+    }
 }

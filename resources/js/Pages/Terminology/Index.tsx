@@ -176,21 +176,21 @@ export default function Index({
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => setShowSystemModal(true)}
-              className="px-4 py-2 text-sm font-medium rounded-xl border border-border-subtle hover:bg-surface-elevated text-text-main transition-colors flex items-center gap-2"
+              className="px-4 py-2 text-sm font-medium rounded-xl border border-border-subtle hover:bg-surface-elevated active:scale-[0.98] text-text-main transition-all duration-150 flex items-center gap-2"
             >
               <Plus className="w-4 h-4 text-text-muted" />
               <span>Tambah Standar</span>
             </button>
             <button
               onClick={() => setShowBulkModal(true)}
-              className="px-4 py-2 text-sm font-medium rounded-xl border border-border-subtle hover:bg-surface-elevated text-text-main transition-colors flex items-center gap-2"
+              className="px-4 py-2 text-sm font-medium rounded-xl border border-border-subtle hover:bg-surface-elevated active:scale-[0.98] text-text-main transition-all duration-150 flex items-center gap-2"
             >
               <Upload className="w-4 h-4 text-text-muted" />
               <span>Bulk Import</span>
             </button>
             <button
               onClick={() => setShowConceptModal(true)}
-              className="px-4 py-2 text-sm font-semibold rounded-xl bg-primary hover:bg-primary-hover text-primary-contrast transition-colors flex items-center gap-2 shadow-sm"
+              className="px-4 py-2 text-sm font-semibold rounded-xl bg-primary hover:bg-primary-hover active:scale-[0.98] text-primary-contrast transition-all duration-150 flex items-center gap-2 shadow-sm"
             >
               <Plus className="w-4 h-4" />
               <span>Tambah Konsep</span>

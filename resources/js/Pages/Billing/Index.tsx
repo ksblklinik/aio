@@ -123,14 +123,14 @@ export default function Index({ invoices, summary, filters }: BillingIndexProps)
           <div className="flex items-center gap-2">
             <a
               href="/billing/pos-checkout"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm transition-colors shadow-xs"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-medium text-sm transition-all duration-150 shadow-xs"
             >
               <ShoppingCart className="w-4 h-4" />
               Kasir Cepat (POS)
             </a>
             <a
               href="/billing/create"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-primary hover:bg-brand-primary/90 text-white font-medium text-sm transition-colors shadow-xs"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-primary hover:bg-brand-primary/90 active:scale-[0.98] text-white font-medium text-sm transition-all duration-150 shadow-xs"
             >
               <Plus className="w-4 h-4" />
               Buat Faktur Baru

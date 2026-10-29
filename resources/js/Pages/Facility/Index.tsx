@@ -214,14 +214,14 @@ export default function Index({
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setShowLocationModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-surface-subtle text-text-main border border-border-subtle hover:bg-surface transition-colors shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-surface-subtle text-text-main border border-border-subtle hover:bg-surface active:scale-[0.98] transition-all duration-150 shadow-sm"
             >
               <Plus className="w-4 h-4" />
               Gedung Baru
             </button>
             <button
               onClick={() => setShowRoomModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-brand-primary text-white hover:bg-brand-primary-hover transition-colors shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-brand-primary text-white hover:bg-brand-primary-hover active:scale-[0.98] transition-all duration-150 shadow-sm"
             >
               <Plus className="w-4 h-4" />
               Ruangan Baru

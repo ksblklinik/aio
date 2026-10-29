@@ -41,15 +41,17 @@ class TariffController
         $splitRules = $this->tariffService->listSplitRules();
         $allocations = $this->tariffService->listAllocations();
 
-        // Ambil daftar items untuk form tarif & split rules
-        $itemsStmt = $this->db->pdo()->prepare("SELECT id, code, name, type, selling_price FROM items WHERE tenant_id = ? AND is_active = 1 ORDER BY name ASC");
-        $itemsStmt->execute([$tenantId]);
-        $items = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
+        // Ambil daftar items via registry
+        $items = function_exists('items') ? items()->searchItems('', limit: 100) : [];
 
-        // Ambil daftar contacts untuk penjamin (vendor) dan performer (employee)
-        $contactsStmt = $this->db->pdo()->prepare("SELECT id, code, name, type FROM contacts WHERE tenant_id = ? AND is_active = 1 ORDER BY name ASC");
-        $contactsStmt->execute([$tenantId]);
-        $contacts = $contactsStmt->fetchAll(PDO::FETCH_ASSOC);
+        // Ambil daftar contacts via registry
+        $contactsList = function_exists('contacts') ? contacts()->search('', limit: 100) : [];
+        $contacts = array_map(fn($c) => [
+            'id' => $c->id,
+            'code' => $c->code,
+            'name' => $c->name,
+            'type' => $c->type,
+        ], $contactsList);
 
         if ($this->inertia) {
             return $this->inertia->render('Tariff/Index', [
