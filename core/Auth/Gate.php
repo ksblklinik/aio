@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Core\Auth;
 
-use App\Modules\Workspaces\Models\User;
 use Core\Database\Connection;
 
 class Gate
@@ -26,19 +25,23 @@ class Gate
     /**
      * Memeriksa apakah user memiliki permission tertentu dalam konteks tenant
      */
-    public function allows(User|int|null $user, string $permission, ?int $tenantId = null): bool
+    public function allows(object|int|null $user, string $permission, ?int $tenantId = null): bool
     {
         if ($user === null) {
             return false;
         }
 
-        $userId = $user instanceof User ? (int) $user->id : (int) $user;
-
-        // 1. Cek apakah user adalah Platform Superadmin (superadmin selalu lolos)
+        $userId = 0;
         $isSuperadmin = false;
-        if ($user instanceof User) {
-            $isSuperadmin = $user->isSuperadmin;
+
+        if ($user instanceof AuthenticatableInterface) {
+            $userId = (int) ($user->getAuthIdentifier() ?? 0);
+            $isSuperadmin = $user->isSuperadmin();
+        } elseif (is_object($user)) {
+            $userId = (int) ($user->id ?? 0);
+            $isSuperadmin = !empty($user->isSuperadmin);
         } else {
+            $userId = (int) $user;
             $userRow = $this->db->selectOne("SELECT is_superadmin FROM users WHERE id = ?", [$userId]);
             $isSuperadmin = !empty($userRow['is_superadmin']);
         }
@@ -100,12 +103,12 @@ class Gate
         return $this->cache[$cacheKey] = false;
     }
 
-    public function denies(User|int|null $user, string $permission, ?int $tenantId = null): bool
+    public function denies(object|int|null $user, string $permission, ?int $tenantId = null): bool
     {
         return !$this->allows($user, $permission, $tenantId);
     }
 
-    public function authorize(User|int|null $user, string $permission, ?int $tenantId = null): void
+    public function authorize(object|int|null $user, string $permission, ?int $tenantId = null): void
     {
         if ($this->denies($user, $permission, $tenantId)) {
             throw new AuthorizationException("Aksi tidak diizinkan: izin '{$permission}' diperlukan.");
@@ -117,17 +120,23 @@ class Gate
      *
      * @return array<string>
      */
-    public function getPermissionsForUser(User|int|null $user, int $tenantId): array
+    public function getPermissionsForUser(object|int|null $user, int $tenantId): array
     {
         if ($user === null) {
             return [];
         }
 
-        $userId = $user instanceof User ? (int) $user->id : (int) $user;
+        $userId = 0;
+        $isSuperadmin = false;
 
-        // Platform Superadmin
-        $isSuperadmin = $user instanceof User ? $user->isSuperadmin : false;
-        if (!$isSuperadmin) {
+        if ($user instanceof AuthenticatableInterface) {
+            $userId = (int) ($user->getAuthIdentifier() ?? 0);
+            $isSuperadmin = $user->isSuperadmin();
+        } elseif (is_object($user)) {
+            $userId = (int) ($user->id ?? 0);
+            $isSuperadmin = !empty($user->isSuperadmin);
+        } else {
+            $userId = (int) $user;
             $userRow = $this->db->selectOne("SELECT is_superadmin FROM users WHERE id = ?", [$userId]);
             $isSuperadmin = !empty($userRow['is_superadmin']);
         }

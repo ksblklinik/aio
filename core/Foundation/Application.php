@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Core\Foundation;
 
-use App\Modules\Auth\Services\AuthService;
 use Core\Audit\AuditLogger;
 use Core\Auth\ApiTokenService;
 use Core\Config\Config;
@@ -150,14 +149,17 @@ class Application
         // Session
         $c->singleton(Session::class, fn() => new Session());
 
-        // AuthService
-        $c->singleton(AuthService::class, function ($c) {
-            return new AuthService(
-                $c->get(Connection::class),
-                $c->get(Session::class),
-                $c->get(TenantContext::class)
-            );
-        });
+        // AuthService & AuthServiceInterface
+        if (class_exists(\App\Modules\Auth\Services\AuthService::class)) {
+            $c->singleton(\App\Modules\Auth\Services\AuthService::class, function ($c) {
+                return new \App\Modules\Auth\Services\AuthService(
+                    $c->get(Connection::class),
+                    $c->get(Session::class),
+                    $c->get(TenantContext::class)
+                );
+            });
+            $c->singleton(\Core\Auth\AuthServiceInterface::class, fn($c) => $c->get(\App\Modules\Auth\Services\AuthService::class));
+        }
 
         // ModuleManager
         $c->singleton(ModuleManager::class, function ($c) use ($base) {
@@ -172,10 +174,11 @@ class Application
         // AuditLogger (mendukung request opsional baik di Web maupun CLI)
         $c->singleton(AuditLogger::class, function ($c) {
             $request = $c->has(Request::class) ? $c->get(Request::class) : null;
+            $auth = $c->has(\Core\Auth\AuthServiceInterface::class) ? $c->get(\Core\Auth\AuthServiceInterface::class) : null;
             return new AuditLogger(
                 $c->get(Connection::class),
                 $c->get(TenantContext::class),
-                $c->get(AuthService::class),
+                $auth,
                 $request
             );
         });
@@ -223,7 +226,8 @@ class Application
         });
 
         $c->singleton(AuthorizePermission::class, function ($c) {
-            return new AuthorizePermission($c->get(Gate::class), $c->get(AuthService::class));
+            $auth = $c->get(\Core\Auth\AuthServiceInterface::class);
+            return new AuthorizePermission($c->get(Gate::class), $auth);
         });
 
         // Universal Tenant-Isolated File Storage
@@ -613,7 +617,7 @@ class Application
     {
         $c = $this->container;
         $session = $c->get(Session::class);
-        $authService = $c->get(AuthService::class);
+        $authService = $c->has(\Core\Auth\AuthServiceInterface::class) ? $c->get(\Core\Auth\AuthServiceInterface::class) : null;
         $moduleManager = $c->get(ModuleManager::class);
         $notificationService = $c->get(NotificationService::class);
         $db = $c->get(Connection::class);
@@ -628,24 +632,24 @@ class Application
             ],
             'csrf_token' => fn() => $session->token(),
             'auth' => fn() => [
-                'user' => $authService->user() ? [
+                'user' => $authService?->user() ? [
                     'id' => $authService->user()->id,
                     'name' => $authService->user()->name,
                     'email' => $authService->user()->email,
-                    'is_superadmin' => $authService->user()->isSuperadmin,
+                    'is_superadmin' => !empty($authService->user()->isSuperadmin),
                 ] : null,
-                'tenant' => $authService->currentTenant() ? [
+                'tenant' => $authService?->currentTenant() ? [
                     'id' => $authService->currentTenant()->id,
                     'name' => $authService->currentTenant()->name,
                     'slug' => $authService->currentTenant()->slug,
                     'plan' => $authService->currentTenant()->plan,
                 ] : null,
-                'role' => $authService->currentRole(),
-                'is_superadmin' => $authService->isSuperadmin(),
-                'tenants' => $authService->user() ? $authService->user()->getTenants($db) : [],
+                'role' => (method_exists($authService, 'currentRole')) ? $authService->currentRole() : null,
+                'is_superadmin' => (method_exists($authService, 'isSuperadmin')) ? $authService->isSuperadmin() : false,
+                'tenants' => ($authService?->user() && method_exists($authService->user(), 'getTenants')) ? $authService->user()->getTenants($db) : [],
                 'permissions' => function () use ($authService, $c) {
-                    $user = $authService->user();
-                    $tenant = $authService->currentTenant();
+                    $user = $authService?->user();
+                    $tenant = $authService?->currentTenant();
                     if (!$user || !$tenant) {
                         return [];
                     }
@@ -655,7 +659,7 @@ class Application
                 },
             ],
             'active_modules' => function () use ($authService, $moduleManager) {
-                $tenant = $authService->currentTenant();
+                $tenant = $authService?->currentTenant();
                 return $tenant 
                     ? $moduleManager->getActiveNavItemsForTenant((int) $tenant->id) 
                     : $moduleManager->getActiveNavItems();

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Core\Console\Commands;
 
-use App\Modules\Workspaces\Models\User;
 use Core\Console\Command;
 use Core\Database\Connection;
 
@@ -27,14 +26,14 @@ class CreateSuperadminCommand extends Command
         /** @var Connection $db */
         $db = $this->container->get(Connection::class);
 
-        $existing = User::findByEmail($db, (string) $email);
+        $existing = $db->selectOne("SELECT id, name, email FROM users WHERE email = ?", [trim(strtolower((string) $email))]);
 
         if ($existing) {
             $db->statement(
                 "UPDATE users SET is_superadmin = 1 WHERE id = ?",
-                [$existing->id]
+                [(int) $existing['id']]
             );
-            $this->success("Pengguna [{$existing->name} <{$existing->email}>] berhasil dipromosikan menjadi Platform Superadmin.");
+            $this->success("Pengguna [{$existing['name']} <{$existing['email']}>] berhasil dipromosikan menjadi Platform Superadmin.");
             return 0;
         }
 

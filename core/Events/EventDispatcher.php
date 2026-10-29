@@ -57,7 +57,7 @@ class EventDispatcher
                     $event->toPayload()
                 );
             } catch (Throwable $e) {
-                error_log("Webhook auto-bridge dispatch failed: " . $e->getMessage());
+                \Core\Log\Logger::getInstance()->warning("Webhook auto-bridge dispatch failed: " . $e->getMessage());
             }
         }
     }

@@ -31,7 +31,10 @@ class PerformanceSentinelTest extends TestCase
         $this->tempDbPath = $this->tempDir . DIRECTORY_SEPARATOR . 'test_sentinel.sqlite';
         $this->db = new Connection("sqlite:{$this->tempDbPath}");
 
-        $this->profiler = new QueryProfiler(slowThresholdMs: 15.0);
+        $this->profiler = new QueryProfiler(
+            slowThresholdMs: 15.0,
+            storagePath: $this->tempDir . DIRECTORY_SEPARATOR . 'slow_queries.json'
+        );
         $this->memory = new MemorySentinel(warningThresholdBytes: 67108864);
         $this->sentinel = new PerformanceSentinel($this->db, $this->profiler, $this->memory);
 

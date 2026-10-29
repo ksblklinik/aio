@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Core\Audit;
 
-use App\Modules\Auth\Services\AuthService;
+use Core\Auth\AuthServiceInterface;
 use Core\Database\Connection;
 use Core\Database\TenantContext;
 use Core\Http\Request;
@@ -14,7 +14,7 @@ class AuditLogger
     public function __construct(
         private Connection $db,
         private ?TenantContext $tenantContext = null,
-        private ?AuthService $authService = null,
+        private ?AuthServiceInterface $authService = null,
         private ?Request $request = null
     ) {
     }

@@ -251,7 +251,7 @@ class WorkflowManager
 
                 if ($this->gate !== null) {
                     $intTenant = $tenantId !== null ? (int) $tenantId : null;
-                    $userForGate = ($actor instanceof \App\Modules\Workspaces\Models\User || is_int($actor) || $actor === null)
+                    $userForGate = ($actor instanceof \Core\Auth\AuthenticatableInterface || is_object($actor) || is_int($actor) || $actor === null)
                         ? $actor
                         : (isset($actor->id) ? (int) $actor->id : null);
 

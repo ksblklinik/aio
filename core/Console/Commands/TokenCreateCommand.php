@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Core\Console\Commands;
 
-use App\Modules\Workspaces\Models\User;
 use Core\Auth\ApiTokenService;
 use Core\Console\Command;
 use Core\Database\Connection;
@@ -27,7 +26,7 @@ class TokenCreateCommand extends Command
 
         /** @var Connection $db */
         $db = $this->container->get(Connection::class);
-        $user = User::findByEmail($db, (string) $email);
+        $user = $db->selectOne("SELECT id, name, email FROM users WHERE email = ?", [trim(strtolower((string) $email))]);
 
         if (!$user) {
             $this->error("Pengguna dengan email [{$email}] tidak ditemukan.");
@@ -36,7 +35,13 @@ class TokenCreateCommand extends Command
 
         $tenantId = isset($options['tenant']) ? (int) $options['tenant'] : null;
         if ($tenantId === null) {
-            $tenants = $user->getTenants($db);
+            $tenants = $db->select(
+                "SELECT t.id, t.name FROM tenants t 
+                 INNER JOIN tenant_user tu ON tu.tenant_id = t.id 
+                 WHERE tu.user_id = ? 
+                 ORDER BY t.id ASC",
+                [(int) $user['id']]
+            );
             if (empty($tenants)) {
                 $this->error("Pengguna [{$email}] belum terdaftar dalam workspace manapun.");
                 return 1;
@@ -54,13 +59,13 @@ class TokenCreateCommand extends Command
 
         /** @var ApiTokenService $tokenService */
         $tokenService = $this->container->get(ApiTokenService::class);
-        $created = $tokenService->createToken($tenantId, (int) $user->id, (string) $name, $abilities, $expiresAt);
+        $created = $tokenService->createToken($tenantId, (int) $user['id'], (string) $name, $abilities, $expiresAt);
 
         $this->success("Personal Access Token berhasil dibuat!");
         $this->line("  - Token ID:     {$created['id']}");
         $this->line("  - Nama Token:   {$created['name']}");
         $this->line("  - Workspace ID: {$tenantId}");
-        $this->line("  - Pemilik:      {$user->name} <{$user->email}>");
+        $this->line("  - Pemilik:      {$user['name']} <{$user['email']}>");
         $this->line("  - Hak Akses:    " . implode(', ', $abilities));
         $this->line("  - Kedaluwarsa:  " . ($expiresAt ?: 'Tidak terbatas'));
         $this->line("");

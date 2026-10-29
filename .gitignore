@@ -45,6 +45,8 @@ storage/app/
 storage/backups/
 storage/exports/
 storage/privacy/
+storage/diagnostics/
+storage/logs/
 *.enc
 *.aio.gz
 

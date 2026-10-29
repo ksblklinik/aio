@@ -6,11 +6,12 @@ namespace App\Modules\Auth\Services;
 
 use App\Modules\Workspaces\Models\Tenant;
 use App\Modules\Workspaces\Models\User;
+use Core\Auth\AuthServiceInterface;
 use Core\Database\Connection;
 use Core\Database\TenantContext;
 use Core\Http\Session;
 
-class AuthService
+class AuthService implements AuthServiceInterface
 {
     private ?User $cachedUser = null;
     private ?Tenant $cachedTenant = null;

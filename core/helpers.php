@@ -143,13 +143,16 @@ if (!function_exists('can')) {
     {
         try {
             $gate = app(\Core\Auth\Gate::class);
-            $auth = app(\App\Modules\Auth\Services\AuthService::class);
-            if (!$gate instanceof \Core\Auth\Gate || !$auth instanceof \App\Modules\Auth\Services\AuthService) {
+            $auth = app()->has(\Core\Auth\AuthServiceInterface::class)
+                ? app(\Core\Auth\AuthServiceInterface::class)
+                : (app()->has('auth') ? app('auth') : null);
+
+            if (!$gate instanceof \Core\Auth\Gate || !is_object($auth)) {
                 return false;
             }
 
-            $user = $auth->user();
-            $tenant = $auth->currentTenant();
+            $user = method_exists($auth, 'user') ? $auth->user() : null;
+            $tenant = method_exists($auth, 'currentTenant') ? $auth->currentTenant() : null;
             if (!$user || !$tenant) {
                 return false;
             }

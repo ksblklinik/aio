@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Core\Middleware;
 
-use App\Modules\Auth\Services\AuthService;
 use Closure;
+use Core\Auth\AuthServiceInterface;
 use Core\Auth\Gate;
 use Core\Http\Request;
 use Core\Http\Response;
@@ -14,7 +14,7 @@ class AuthorizePermission
 {
     public function __construct(
         private Gate $gate,
-        private AuthService $auth
+        private AuthServiceInterface $auth
     ) {
     }
 

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Workspaces\Models;
 
+use Core\Auth\AuthenticatableInterface;
 use Core\Database\Connection;
 
-class User
+class User implements AuthenticatableInterface
 {
     public function __construct(
         public ?int $id = null,
@@ -16,6 +17,16 @@ class User
         public ?string $createdAt = null,
         public bool $isSuperadmin = false
     ) {
+    }
+
+    public function getAuthIdentifier(): int|string|null
+    {
+        return $this->id;
+    }
+
+    public function isSuperadmin(): bool
+    {
+        return $this->isSuperadmin;
     }
 
     public static function fromArray(array $row): self
