@@ -4,7 +4,7 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 📌 Status Terakhir Sesi (Last Updated: 2026-10-29 20:10 WIB)
+## 📌 Status Terakhir Sesi (Last Updated: 2026-10-29 20:30 WIB)
 
 * **Conversation ID Terakhir**: `4d7528e5-6993-4060-b918-14aabb4463fe`
 * **Active Git Branch**: `main`
@@ -53,8 +53,8 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **Harmonisasi & Mitigasi Komprehensif Rules & Skills**: `Completed` (Audit & mitigasi 10 Rules & 11 Skills: mid-flight spec revision protocol di Rule 01, zero state leakage & fixed-point math di Rule 02, anti-zombie debugging & CI fallback di Rule 03, clean workspace rule di Rule 04, repo-map trigger di Rule 05, Ponytail MCP filter di Rule 06, contrast-safe status colors di Rule 07, IoC container boundary di Rule 08, testing rigor non-negotiable di Rule 09, auditor registration protocol di Rule 10, dan gerbang eksekusi atomik pada seluruh skill).
   - **Audit & Decoupling Layer 1 Core (Rules 08/09/10 & Skills codebase-design/code-review)**: `Completed` (Audit 225 file Core, 0 upward references ke Level 2, pemisahan `app/helpers.php`, modular `AuthServiceProvider`, netralitas engine `getTableColumns()` & `hasColumn()`, eliminasi 19 silent swallowed exceptions, fixed-point integer scaling di `LedgerManager`, commits `2f1c0d4` & `8aabd1a`).
   - **Audit & Hardening Level 2 Shared Foundation Modules (Rules 07/08 & Skills codebase-design/anti-slop-design)**: `Completed` (Audit 9 modul Level 2, kepatuhan manifest & anatomi 100%, eliminasi cross-module raw SQL tampering di Billing, Inventory, dan Tariff, penegakan `declare(strict_types=1)`, serta injeksi tactile micro-interactions `active:scale-[0.98]` pada UI, commit `6b81260`).
-  - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `In Progress` (Phase 1 Completed: Dynamic Branding & Configuration Cleanup, commit `5fc2894`).
-* **Test Suite Status**: **538 tests (3105 assertions) PASS 100%**, `npm run typecheck` clean.
+  - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `In Progress` (Phase 1 & 2 Completed: Dynamic Branding & One-Click Installer CLI, commits `5fc2894` & `3f54b93`).
+* **Test Suite Status**: **542 tests (3125 assertions) PASS 100%**, `npm run typecheck` clean.
 * **Database File**: `database.sqlite` di root repositori (36 migrasi applied).
 
 ---
@@ -241,12 +241,13 @@ Seluruh fondasi Core (Level 1) dan Modul Shared Universal (Level 2) telah **100%
      - 6 Auditor Core aktif di `core/Reconciliation/Auditors/` (total 11 pilar integritas terdaftar di `ReconciliationManager`).
      - Pengujian Invarian Lintas Entitas (`UniversalInvariantsTest` & `ExpandedUniversalInvariantsTest`): Memvalidasi 100% integritas data pada model operasi Profit dan Non-Profit.
    - **Disiplin Rekayasa Agen**: **Rule 09** (Ponytail Pragmatism), **Rule 10** (Universal Invariants Charter), **Rule 07** (`anti-slop-design`), **Skill `codebase-design`** (Platform-Neutral Deep Architecture), dan **Rule 05** (Caveman No-Fluff).
-   - **Test Suite**: **538 tests (3105 assertions) PASS 100%**, `npm run typecheck` clean, branch `main`.
+   - **Test Suite**: **542 tests (3125 assertions) PASS 100%**, `npm run typecheck` clean, branch `main`.
    - **SPEC-016 (Template Packaging & Release)**:
      - Phase 1 (Dynamic Branding & Configuration Cleanup): `Completed & Verified` (commit `5fc2894`).
-     - Seluruh elemen branding (App name, tagline, logo, favicon) kini dinamis dikonfigurasi via `.env`, `config/app.php`, universal helper `asset()`, dan Inertia shared props.
+     - Phase 2 (One-Click App Installer CLI): `Completed & Verified` (commit `3f54b93`). Sub-perintah `php aio app:install` siap pakai dengan mode interaktif prompt maupun `--non-interactive`, auto-generate `APP_KEY`, eksekusi migrasi, seeding, dan pembuatan superadmin.
 
 2. **Langkah Langsung Berikutnya**:
-   - **SPEC-016 Phase 2: One-Click App Installer CLI (`php aio app:install`)**:
-     - Buat sub-perintah `AppInstallCommand.php` yang memandu setup `.env`, generate key, migrasi, dan seed interaktif/non-interaktif.
-     - Verifikasi kompatibilitas di Windows PowerShell dan Linux Bash.
+   - **SPEC-016 Phase 3: Reference Module Migration & Data Sanitization**:
+     - 3.1 Refactor modul bawaan `Projects` agar menggunakan `ModuleProvider`, migrasi lokal modul, dan permission gate.
+     - 3.2 Bersihkan database lokal dari data pengujian manual; sediakan seeder bersih di `database/seeders/`.
+     - 3.3 Pastikan `.gitignore` secara ketat mengabaikan file database sqlite lokal dan log aktif.
