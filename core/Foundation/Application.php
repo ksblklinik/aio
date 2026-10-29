@@ -116,8 +116,16 @@ class Application
             if (!isset($connections['sqlite'])) {
                 $connections['sqlite'] = [
                     'driver' => 'sqlite',
+                    'path' => config('database.path', $base . '/database.sqlite'),
                     'database' => config('database.path', $base . '/database.sqlite'),
                 ];
+            } else {
+                $sqlitePath = $connections['sqlite']['path'] ?? $connections['sqlite']['database'] ?? ($base . '/database.sqlite');
+                if ($sqlitePath !== ':memory:' && !str_starts_with($sqlitePath, '/') && !preg_match('/^[A-Za-z]:[\\\\\/]/', $sqlitePath)) {
+                    $sqlitePath = $base . '/' . ltrim($sqlitePath, '/\\');
+                }
+                $connections['sqlite']['path'] = $sqlitePath;
+                $connections['sqlite']['database'] = $sqlitePath;
             }
             return new \Core\Database\DatabaseManager($default, $connections);
         });

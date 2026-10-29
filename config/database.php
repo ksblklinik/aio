@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+$rawDbPath = env('DB_PATH', 'database.sqlite');
+$dbPath = ($rawDbPath === ':memory:' || str_starts_with($rawDbPath, '/') || preg_match('/^[A-Za-z]:[\\\\\/]/', $rawDbPath))
+    ? $rawDbPath
+    : dirname(__DIR__) . DIRECTORY_SEPARATOR . ltrim($rawDbPath, '/\\');
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -18,7 +23,8 @@ return [
     'connections' => [
         'sqlite' => [
             'driver' => 'sqlite',
-            'path' => env('DB_PATH', dirname(__DIR__) . '/database.sqlite'),
+            'path' => $dbPath,
+            'database' => $dbPath,
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
     ],
@@ -28,5 +34,5 @@ return [
     | Convenience Accessors
     |--------------------------------------------------------------------------
     */
-    'path' => env('DB_PATH', dirname(__DIR__) . '/database.sqlite'),
+    'path' => $dbPath,
 ];
