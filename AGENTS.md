@@ -16,7 +16,7 @@ Dokumen ini mendefinisikan aturan kerja (constitution) standar untuk pengembanga
 - Jika ada ambiguitas, tanyakan secara langsung atau gunakan rekomendasi slash command `/grill-me`.
 
 ### 2. Phase 2: Spec & Plan (Spesifikasi Teknis)
-- Setiap fitur/perubahan signifikan harus memiliki dokumen spec di folder [`specs/`](file:///c:/aplikasi/aio/specs).
+- Setiap fitur/perubahan signifikan harus memiliki dokumen spec di folder [`specs/`](file:///c:/aplikasi/aio/specs) yang mematuhi arsitektur modular netral ([`codebase-design`](file:///c:/aplikasi/aio/.agents/skills/codebase-design/SKILL.md)).
 - Gunakan format dari [`specs/templates/SPEC_TEMPLATE.md`](file:///c:/aplikasi/aio/specs/templates/SPEC_TEMPLATE.md).
 - Dokumen spec harus memuat daftar tugas atomik (*Atomic Task Checklist*) bertingkat `[ ]` yang dapat dilacak progresnya.
 

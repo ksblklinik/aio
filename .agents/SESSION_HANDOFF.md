@@ -4,7 +4,7 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 📌 Status Terakhir Sesi (Last Updated: 2026-10-29 15:10 WIB)
+## 📌 Status Terakhir Sesi (Last Updated: 2026-10-29 15:45 WIB)
 
 * **Conversation ID Terakhir**: `4d7528e5-6993-4060-b918-14aabb4463fe`
 * **Active Git Branch**: `main`
@@ -49,6 +49,7 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **Rule 07 & Skill `anti-slop-design`**: `Active` (Eliminasi klise AI, tactile micro-interactions `active:scale-[0.98]`, `focus-visible`, tabular numbers, dual-theme semantic tokens, dan 7-Axis Quality Gating).
   - **Rule 09 & Skill `ponytail-pragmatism`**: `Active` (Adopsi Project Ponytail: 7-step decision ladder, anti-bloat, native PHP/SQL first).
   - **Rule 10 ([`10-universal-invariants-charter.md`](file:///c:/aplikasi/aio/.agents/rules/10-universal-invariants-charter.md))**: `Active` (Konstitusi 30 Invarian Universal, 8 Matriks Mitigasi Benturan, dan 3 Tingkatan Gerbang Eksekusi).
+  - **Skill `codebase-design` ([`codebase-design`](file:///c:/aplikasi/aio/.agents/skills/codebase-design/SKILL.md))**: `Active` (Standar Arsitektur Modular Netral Platform: model profit/non-profit hibrida, ANSI SQL engine-agnostic, Deep Modules vs Shallow Wrappers Ousterhout, topologi 3 lapis, cetak biru anatomi modul, dan 4-phase audit protocol).
   - **Harmonisasi Rules & Skills**: `Completed` (Adopsi Caveman No-Fluff di Rule 05, portabilitas multi-DB di Rule 06/08, Anti-Schema Drift di Rule 02, pembersihan path basi ke `aio`, regenerasi 311 file simbol di `REPO_MAP.md`, penyelarasan format commit `(SPEC-XXX)`, dan template `.env` PHP).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
 * **Test Suite Status**: **534 tests (3085 assertions) PASS 100%**, `npm run typecheck` clean.
@@ -243,12 +244,13 @@ Seluruh fondasi Core (Level 1) dan Modul Shared Universal (Level 2) telah **100%
        10. `RestrictedFundAuditor` (Inv 25: Integritas Amanah Dana Terikat & Anti-Defisit)
        11. `FitnessSafetyAuditor` (Inv 28: Karantina, Recall & Kedaluwarsa)
      - Pengujian Invarian Lintas Entitas (`UniversalInvariantsTest` & `ExpandedUniversalInvariantsTest`): Memvalidasi 100% integritas data pada model operasi Profit (klinik komersial) dan Non-Profit (posko bencana, donasi barang Rp 0, kas terikat).
-   - **Disiplin Rekayasa Agen**: **Rule 09** (Ponytail Pragmatism), **Rule 10** (Universal Invariants Charter), dan **Rule 05** (Caveman No-Fluff).
+   - **Disiplin Rekayasa Agen**: **Rule 09** (Ponytail Pragmatism), **Rule 10** (Universal Invariants Charter), **Rule 07** (`anti-slop-design`), **Skill `codebase-design`** (Platform-Neutral Deep Architecture), dan **Rule 05** (Caveman No-Fluff).
    - **Test Suite**: **534 tests (3085 assertions) PASS 100%**, `npm run typecheck` clean, branch `main`.
 
 2. **Langkah Langsung Berikutnya**:
-   - **Opsi A**: Memulai perancangan Modul Klinis Level 3 (EMR / Rekam Medis Elektronik / Rawat Jalan) berbasis invarian universal dan terminologi standar.
-   - **Opsi B**: Eksplorasi atau pendalaman modul pendukung lainnya sesuai arahan pengguna.
+   - **Pilihan 1**: Memulai perancangan Modul Klinis Level 3 (EMR / Rekam Medis Elektronik / Rawat Jalan) berbasis invarian universal dan terminologi standar ICD-10/LOINC/KFA.
+   - **Pilihan 2**: Modul Farmasi Racikan & Dispensing (Level 3) mengonsumsi modul Inventory FEFO & Tariffs.
+   - **Pilihan 3**: Modul Posko Darurat & Manajemen Logistik Bencana (Level 3) mengonsumsi Contact, Facility, Inventory, dan Restricted Fund Accounting.
 
 
 
