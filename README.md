@@ -15,7 +15,7 @@
 
 ```bash
 # 1. Klon repositori atau gunakan tombol "Use this template" di GitHub
-git clone https://github.com/your-org/aio.git my-saas-app
+git clone https://github.com/ksblklinik/aio.git my-saas-app
 cd my-saas-app
 
 # 2. Pasang dependensi PHP dan Node.js
@@ -71,12 +71,15 @@ Buka peramban Anda di: `http://localhost:8000`
 │       AUTONOMOUS BUSINESS MODULES    │  │       CORE SERVICES          │
 │       (app/Modules/*)                │  │       (core/*)               │
 │  - Projects & Tasks (Reference)      │  │  - Tenancy Isolation Scope   │
-│  - Billing & Invoicing               │  │  - Dynamic RBAC & Permissions│
-│  - Inventory & Multi-Warehouse       │  │  - Transactional Outbox      │
-│  - Finance & Double-Entry Ledger     │  │  - Async Queue & Webhooks    │
-│  - Facility & Resource Booking       │  │  - Privacy & Crypto-Shredding│
-│  - Schedule & Appointments           │  │  - Performance Sentinel      │
-│  - Contacts & Terminology            │  │  - Disaster Recovery Backup  │
+│  - Contact Registry (CRM/Entities)   │  │  - Dynamic RBAC & Perms      │
+│  - Finance (Double-Entry Ledger)     │  │  - Transactional Outbox      │
+│  - Inventory & Multi-Warehouse (FEFO)│  │  - Async Queue & Webhooks    │
+│  - Billing & Invoicing (Multi-Payer) │  │  - Privacy & Crypto-Shredding│
+│  - Facility & Spaces (3-Tier)        │  │  - Performance Sentinel      │
+│  - Schedule & Appointments Queue     │  │  - Disaster Recovery Backup  │
+│  - Tariffs & Split-Fee Engine        │  │  - Mutex & Concurrency Lock  │
+│  - Terminology & Semantic Coding     │  │  - Cross-Module Reconciler   │
+│  - Cryptographic Seal & Verification │  │  - Watchdog & Circuit Breaker│
 └──────────────────────────────────────┘  └──────────────────────────────┘
                                     │
 ┌───────────────────────────────────▼────────────────────────────────────┐
@@ -113,7 +116,10 @@ Aplikasi dilengkapi dengan CLI binary serbaguna:
 | `php aio backup:run` | Membuat backup terenkripsi database lokal |
 | `php aio route:list` | Menampilkan seluruh daftar rute HTTP yang terdaftar |
 
-Untuk panduan lengkap membuat modul kustom, baca: [docs/MODULE_DEVELOPMENT.md](docs/MODULE_DEVELOPMENT.md).
+### 📚 Dokumentasi Terkait
+- [docs/MODULE_DEVELOPMENT.md](docs/MODULE_DEVELOPMENT.md) — Panduan membuat modul bisnis otonom baru via `php aio make:module`.
+- [docs/GITHUB_TEMPLATE_SETUP.md](docs/GITHUB_TEMPLATE_SETUP.md) — Panduan konfigurasi repositori sebagai GitHub Template.
+- [docs/DEVICE_INTEGRATION_GUIDE.md](docs/DEVICE_INTEGRATION_GUIDE.md) — Panduan integrasi hardware (printer thermal ESC/POS, barcode scanner, PWA offline).
 
 ---
 
@@ -134,7 +140,7 @@ powershell -ExecutionPolicy Bypass -File ./scripts/verify.ps1
 Pemeriksaan mencakup:
 1. **Security Scan**: Pemindaian token/secret mentah dan file sensitif.
 2. **Spec Sync**: Memastikan progress pekerjaan sinkron dengan dokumen di folder `specs/`.
-3. **Automated Tests**: Rangkaian 540+ pengujian unit PHPUnit dan typecheck TypeScript.
+3. **Automated Tests**: Rangkaian **544 pengujian unit PHPUnit (3.136 assertions)** dan typecheck TypeScript (`tsc --noEmit`).
 4. **Git Hygiene**: Memvalidasi kebersihan working tree dan ketiadaan artefak kotor.
 
 ---
