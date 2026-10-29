@@ -53,7 +53,7 @@ Setiap agen dan kontributor wajib mematuhi seluruh aturan berikut:
 4. [04-git-discipline.md](file:///c:/aplikasi/aio/.agents/rules/04-git-discipline.md) — Conventional Commits, anti spec-drift, dan branch per spec.
 5. [05-context-token-efficiency.md](file:///c:/aplikasi/aio/.agents/rules/05-context-token-efficiency.md) — Efisiensi token, surgical reading/diffs, repo-map, dan No-Fluff brevity (Caveman).
 6. [06-mcp-lifecycle-recommendation.md](file:///c:/aplikasi/aio/.agents/rules/06-mcp-lifecycle-recommendation.md) — Rekomendasi proaktif server MCP dan tata kelola plugin.
-7. [07-semantic-ui-tokens.md](file:///c:/aplikasi/aio/.agents/rules/07-semantic-ui-tokens.md) — Disiplin semantic tokens dan integritas tema dark/light mode.
+7. [07-semantic-ui-tokens.md](file:///c:/aplikasi/aio/.agents/rules/07-semantic-ui-tokens.md) — Disiplin semantic tokens, anti-slop design, tactile micro-interactions, dan integritas tema dark/light mode.
 8. [08-zero-infrastructure-leakage.md](file:///c:/aplikasi/aio/.agents/rules/08-zero-infrastructure-leakage.md) — Pencegahan kebocoran infrastruktur dan larangan tambal lokal di modul bisnis.
 9. [09-ponytail-pragmatism.md](file:///c:/aplikasi/aio/.agents/rules/09-ponytail-pragmatism.md) — Pragmatisme Ponytail, 7-Step Decision Ladder, anti-bloatware, dan minimalis diffs.
-10. [10-universal-invariants-charter.md](file:///c:/aplikasi/aio/.agents/rules/10-universal-invariants-charter.md) — Konstitusi 23 Invarian Universal, matriks mitigasi benturan, dan tiering eksekusi.
+10. [10-universal-invariants-charter.md](file:///c:/aplikasi/aio/.agents/rules/10-universal-invariants-charter.md) — Konstitusi 30 Invarian Universal, 8 matriks mitigasi benturan, dan 3 tingkatan gerbang eksekusi.
