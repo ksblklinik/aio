@@ -39,10 +39,10 @@ Setelah SPEC-013, SPEC-014, dan SPEC-015 rampung, repositori telah memiliki fond
   - [x] 3.2 Bersihkan database lokal dari data pengujian manual; sediakan seeder bersih di `database/seeders/`.
   - [x] 3.3 Pastikan `.gitignore` secara ketat mengabaikan file database sqlite lokal dan log aktif.
 
-- [ ] **Phase 4: Developer Documentation & Guidelines**
-  - [ ] 4.1 Perbarui `README.md` dengan panduan instalasi 3 menit dari template.
-  - [ ] 4.2 Tulis `docs/MODULE_DEVELOPMENT.md` yang memandu developer membuat modul bisnis baru dari nol dengan `php aio make:module`.
-  - [ ] 4.3 Tambahkan arsitektur diagram di dokumentasi.
+- [x] **Phase 4: Developer Documentation & Guidelines**
+  - [x] 4.1 Perbarui `README.md` dengan panduan instalasi 3 menit dari template.
+  - [x] 4.2 Tulis `docs/MODULE_DEVELOPMENT.md` yang memandu developer membuat modul bisnis baru dari nol dengan `php aio make:module`.
+  - [x] 4.3 Tambahkan arsitektur diagram di dokumentasi.
 
 - [ ] **Phase 5: Final Quality Gate, Tagging & GitHub Template Release**
   - [ ] 5.1 Jalankan full verification gate (`./scripts/verify.ps1`, `phpunit`, `tsc --noEmit`, asset build).
