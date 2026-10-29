@@ -4,7 +4,7 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
 
 ---
 
-## 📌 Status Terakhir Sesi (Last Updated: 2026-10-29 16:50 WIB)
+## 📌 Status Terakhir Sesi (Last Updated: 2026-10-29 19:05 WIB)
 
 * **Conversation ID Terakhir**: `4d7528e5-6993-4060-b918-14aabb4463fe`
 * **Active Git Branch**: `main`
@@ -52,6 +52,7 @@ Dokumen ini adalah *Single Source of Truth* untuk transfer konteks antar-sesi AI
   - **Skill `codebase-design` ([`codebase-design`](file:///c:/aplikasi/aio/.agents/skills/codebase-design/SKILL.md))**: `Active` (Standar Arsitektur Modular Netral Platform: model profit/non-profit hibrida, ANSI SQL engine-agnostic, Deep Modules vs Shallow Wrappers Ousterhout, topologi 3 lapis, cetak biru anatomi modul, dan 4-phase audit protocol).
   - **Harmonisasi & Mitigasi Komprehensif Rules & Skills**: `Completed` (Audit & mitigasi 10 Rules & 11 Skills: mid-flight spec revision protocol di Rule 01, zero state leakage & fixed-point math di Rule 02, anti-zombie debugging & CI fallback di Rule 03, clean workspace rule di Rule 04, repo-map trigger di Rule 05, Ponytail MCP filter di Rule 06, contrast-safe status colors di Rule 07, IoC container boundary di Rule 08, testing rigor non-negotiable di Rule 09, auditor registration protocol di Rule 10, dan gerbang eksekusi atomik pada seluruh skill).
   - **Audit & Decoupling Layer 1 Core (Rules 08/09/10 & Skills codebase-design/code-review)**: `Completed` (Audit komprehensif seluruh modul di `core/`, eliminasi kopling ke atas ke `App\Modules\*` via kontrak `Core\Auth\AuthenticatableInterface` & `Core\Auth\AuthServiceInterface`, eliminasi raw `error_log` di `EventDispatcher`, isolasi profiler test context, commit `2f1c0d4`).
+  - **Audit & Hardening Level 2 Shared Foundation Modules (Rules 07/08 & Skills codebase-design/anti-slop-design)**: `Completed` (Audit 9 modul Level 2, kepatuhan manifest & anatomi 100%, eliminasi cross-module raw SQL tampering di Billing, Inventory, dan Tariff, penegakan `declare(strict_types=1)`, serta injeksi tactile micro-interactions `active:scale-[0.98]` pada UI, commit `6b81260`).
   - **SPEC-016 ([`specs/016-template-packaging-and-release.md`](file:///c:/aplikasi/aio/specs/016-template-packaging-and-release.md))**: `Deferred` (Template Packaging, Sanitasi & Release Checklist).
 * **Test Suite Status**: **534 tests (3085 assertions) PASS 100%**, `npm run typecheck` clean.
 * **Database File**: `database.sqlite` di root repositori (36 migrasi applied).
@@ -228,30 +229,27 @@ Seluruh fondasi Core (Level 1) dan Modul Shared Universal (Level 2) telah **100%
 
 ## 🎯 Status Sesi Terkini & Langkah Langsung Berikutnya:
 1. **Status Fondasi Saat Ini**:
-   - **Core (Level 1)**: Telah melalui audit & hardening 14 celah keamanan & resiliensi (SPEC-044).
-   - **Modul Fondasi Bersama (Level 2)**: Telah melalui audit & hardening 6 celah integritas & konkurensi (SPEC-045).
+   - **Core (Level 1)**: Telah melalui audit komprehensif & decoupling penuh dari modul aplikasi (SPEC-044 & commit `2f1c0d4`). Tidak ada ketergantungan upward ke `App\Modules\*`.
+   - **Modul Fondasi Bersama (Level 2)**: 9 modul (`Contact`, `Finance`, `Inventory`, `Billing`, `Facility`, `Schedule`, `Tariff`, `Terminology`, `Seal`) telah diaudit 100% (commit `6b81260`):
+     - Kepatuhan Manifest (`module.json`) & Anatomi Modul: 100%.
+     - Strict Typing (`declare(strict_types=1)`): 100% di semua contracts, services, dan controllers.
+     - Zombie Debugging (`var_dump`, `print_r`, `dd`, `error_log`): 0 pelanggaran.
+     - Decoupling Lintas-Modul: Mengeliminasi raw SQL tampering (Billing $\rightarrow$ Tariff, Inventory $\rightarrow$ Facility, Tariff $\rightarrow$ Items/Contacts) dan menggantikannya dengan Contract/Registry API.
+     - UI Tactile Micro-Interactions (Rule 07 & `anti-slop-design`): Injeksi `active:scale-[0.98] transition-all` pada seluruh antarmuka Level 2.
    - **Tata Kelola Invarian Universal (SPEC-046 & SPEC-048)**: `Completed`.
      - Konstitusi 30 Invarian Universal disahkan di [Rule 10](file:///c:/aplikasi/aio/.agents/rules/10-universal-invariants-charter.md) dengan 8 matriks mitigasi benturan dan 3 tingkatan gerbang eksekusi.
-     - 6 Auditor Core aktif di `core/Reconciliation/Auditors/` (total 11 pilar integritas terdaftar di `ReconciliationManager`):
-       1. `FinanceBillingAuditor`
-       2. `InventoryStockAuditor`
-       3. `TariffSplitAuditor`
-       4. `CryptographicSealAuditor`
-       5. `TenantReferentialAuditor`
-       6. `StateMonotonicityAuditor`
-       7. `ClosedPeriodAuditor`
-       8. `DomainBoundaryAuditor`
-       9. `ProvenanceLineageAuditor` (Inv 24: Silsilah DAG Lot & Mutasi)
-       10. `RestrictedFundAuditor` (Inv 25: Integritas Amanah Dana Terikat & Anti-Defisit)
-       11. `FitnessSafetyAuditor` (Inv 28: Karantina, Recall & Kedaluwarsa)
-     - Pengujian Invarian Lintas Entitas (`UniversalInvariantsTest` & `ExpandedUniversalInvariantsTest`): Memvalidasi 100% integritas data pada model operasi Profit (klinik komersial) dan Non-Profit (posko bencana, donasi barang Rp 0, kas terikat).
+     - 6 Auditor Core aktif di `core/Reconciliation/Auditors/` (total 11 pilar integritas terdaftar di `ReconciliationManager`).
+     - Pengujian Invarian Lintas Entitas (`UniversalInvariantsTest` & `ExpandedUniversalInvariantsTest`): Memvalidasi 100% integritas data pada model operasi Profit dan Non-Profit.
    - **Disiplin Rekayasa Agen**: **Rule 09** (Ponytail Pragmatism), **Rule 10** (Universal Invariants Charter), **Rule 07** (`anti-slop-design`), **Skill `codebase-design`** (Platform-Neutral Deep Architecture), dan **Rule 05** (Caveman No-Fluff).
    - **Test Suite**: **534 tests (3085 assertions) PASS 100%**, `npm run typecheck` clean, branch `main`.
 
-2. **Langkah Langsung Berikutnya**:
-   - **Pilihan 1**: Memulai perancangan Modul Klinis Level 3 (EMR / Rekam Medis Elektronik / Rawat Jalan) berbasis invarian universal dan terminologi standar ICD-10/LOINC/KFA.
-   - **Pilihan 2**: Modul Farmasi Racikan & Dispensing (Level 3) mengonsumsi modul Inventory FEFO & Tariffs.
-   - **Pilihan 3**: Modul Posko Darurat & Manajemen Logistik Bencana (Level 3) mengonsumsi Contact, Facility, Inventory, dan Restricted Fund Accounting.
+2. **Langkah Langsung Berikutnya (Level 3 Domain Modules)**:
+   - **Pilihan 1 (Rekomendasi Utama)**: Perancangan & Implementasi **SPEC-049: Electronic Medical Record (EMR) / Rekam Medis Rawat Jalan & Triase Klinis** (Level 3 Domain Module).
+     - Mengonsumsi Level 2: `Contact` (Pasien/Dokter), `Schedule` (Antrean/Kunjungan), `Facility` (Ruangan Poli/Bed), `Terminology` (ICD-10, LOINC, KFA), `Tariff` (Tindakan Medis), `Billing` (Faktur Layanan), `Seal` (TTE Resume Medis).
+     - Menegakkan Invarian: Invarian 6 (Audit Trail), Invarian 17 (Privacy/PDP Consent), Invarian 24 (Silsilah Data Rekam Medis Monotonik Anti-Tampering).
+   - **Pilihan 2**: Perancangan & Implementasi **SPEC-050: Modul Farmasi Racikan & Dispensing Apotek** (Level 3).
+   - **Pilihan 3**: Perancangan & Implementasi **SPEC-051: Modul Posko Darurat & Logistik Medis Bencana** (Level 3 Non-Profit).
+
 
 
 
