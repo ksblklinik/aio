@@ -1,8 +1,9 @@
 # SPEC-016: Template Packaging & Release
 
-- **Status**: `Draft`
+- **Status**: `Completed`
 - **Owner / Author**: Antigravity & User
 - **Tanggal Dibuat**: 2026-10-26
+- **Tanggal Diselesaikan**: 2026-10-29
 - **Target File / Modul**: `README.md`, `docs/`, `scripts/`, `.github/`
 
 ---
@@ -44,7 +45,7 @@ Setelah SPEC-013, SPEC-014, dan SPEC-015 rampung, repositori telah memiliki fond
   - [x] 4.2 Tulis `docs/MODULE_DEVELOPMENT.md` yang memandu developer membuat modul bisnis baru dari nol dengan `php aio make:module`.
   - [x] 4.3 Tambahkan arsitektur diagram di dokumentasi.
 
-- [ ] **Phase 5: Final Quality Gate, Tagging & GitHub Template Release**
-  - [ ] 5.1 Jalankan full verification gate (`./scripts/verify.ps1`, `phpunit`, `tsc --noEmit`, asset build).
-  - [ ] 5.2 Berikan git tag `v1.0.0-core`.
-  - [ ] 5.3 Buat panduan konfigurasi repo GitHub baru dengan flag *Template repository*.
+- [x] **Phase 5: Final Quality Gate, Tagging & GitHub Template Release**
+  - [x] 5.1 Jalankan full verification gate (`./scripts/verify.ps1`, `phpunit`, `tsc --noEmit`, asset build).
+  - [x] 5.2 Berikan git tag `v1.0.0-core`.
+  - [x] 5.3 Buat panduan konfigurasi repo GitHub baru dengan flag *Template repository*.
