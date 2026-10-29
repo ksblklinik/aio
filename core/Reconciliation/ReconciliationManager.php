@@ -6,9 +6,12 @@ namespace Core\Reconciliation;
 
 use Core\Database\Connection;
 use Core\Reconciliation\Auditors\AuditorInterface;
+use Core\Reconciliation\Auditors\ClosedPeriodAuditor;
 use Core\Reconciliation\Auditors\CryptographicSealAuditor;
+use Core\Reconciliation\Auditors\DomainBoundaryAuditor;
 use Core\Reconciliation\Auditors\FinanceBillingAuditor;
 use Core\Reconciliation\Auditors\InventoryStockAuditor;
+use Core\Reconciliation\Auditors\StateMonotonicityAuditor;
 use Core\Reconciliation\Auditors\TariffSplitAuditor;
 use Core\Reconciliation\Auditors\TenantReferentialAuditor;
 use Throwable;
@@ -33,6 +36,9 @@ class ReconciliationManager implements ReconciliationManagerInterface
             $this->registerAuditor(new TariffSplitAuditor($this->db));
             $this->registerAuditor(new CryptographicSealAuditor($this->db));
             $this->registerAuditor(new TenantReferentialAuditor($this->db));
+            $this->registerAuditor(new StateMonotonicityAuditor($this->db));
+            $this->registerAuditor(new ClosedPeriodAuditor($this->db));
+            $this->registerAuditor(new DomainBoundaryAuditor($this->db));
         } else {
             foreach ($auditors as $auditor) {
                 $this->registerAuditor($auditor);

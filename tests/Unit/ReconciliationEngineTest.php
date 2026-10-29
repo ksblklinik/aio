@@ -6,9 +6,13 @@ namespace Tests\Unit;
 
 use Core\Container;
 use Core\Database\Connection;
+use Core\Database\Migrator;
+use Core\Reconciliation\Auditors\ClosedPeriodAuditor;
 use Core\Reconciliation\Auditors\CryptographicSealAuditor;
+use Core\Reconciliation\Auditors\DomainBoundaryAuditor;
 use Core\Reconciliation\Auditors\FinanceBillingAuditor;
 use Core\Reconciliation\Auditors\InventoryStockAuditor;
+use Core\Reconciliation\Auditors\StateMonotonicityAuditor;
 use Core\Reconciliation\Auditors\TariffSplitAuditor;
 use Core\Reconciliation\Auditors\TenantReferentialAuditor;
 use Core\Reconciliation\ReconciliationManager;
@@ -43,181 +47,12 @@ class ReconciliationEngineTest extends TestCase
 
     private function createSchema(): void
     {
-        // 1. Tenants table
-        $this->db->statement("
-            CREATE TABLE tenants (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL
-            );
-        ");
-        $this->db->statement("INSERT INTO tenants (id, name) VALUES (1, 'Klinik Utama'), (2, 'Klinik Cabang');");
+        // Anti-Schema Drift: Run all official core migrations
+        $migrator = new Migrator($this->db);
+        $migrator->runMigrationsFrom(dirname(__DIR__, 2) . '/database/migrations');
 
-        // 2. Contacts
-        $this->db->statement("
-            CREATE TABLE contacts (
-                id INTEGER PRIMARY KEY,
-                tenant_id INTEGER NOT NULL,
-                name TEXT NOT NULL
-            );
-        ");
-
-        // 3. Invoices & Payments & Items
-        $this->db->statement("
-            CREATE TABLE invoices (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                invoice_number TEXT NOT NULL,
-                grand_total REAL NOT NULL DEFAULT 0,
-                amount_paid REAL NOT NULL DEFAULT 0,
-                amount_due REAL NOT NULL DEFAULT 0,
-                payment_status TEXT NOT NULL DEFAULT 'unpaid',
-                updated_at TEXT
-            );
-        ");
-        $this->db->statement("
-            CREATE TABLE invoice_items (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                invoice_id INTEGER NOT NULL,
-                subtotal REAL NOT NULL DEFAULT 0
-            );
-        ");
-        $this->db->statement("
-            CREATE TABLE invoice_payments (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                invoice_id INTEGER NOT NULL,
-                amount REAL NOT NULL DEFAULT 0,
-                payment_date TEXT
-            );
-        ");
-
-        // 4. Financial Accounts & Transactions
-        $this->db->statement("
-            CREATE TABLE financial_accounts (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                code TEXT NOT NULL DEFAULT 'ACC-001',
-                name TEXT NOT NULL,
-                initial_balance REAL NOT NULL DEFAULT 0,
-                current_balance REAL NOT NULL DEFAULT 0,
-                updated_at TEXT
-            );
-        ");
-        $this->db->statement("
-            CREATE TABLE financial_transactions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                type TEXT NOT NULL,
-                source_account_id INTEGER,
-                target_account_id INTEGER,
-                amount REAL NOT NULL DEFAULT 0,
-                status TEXT NOT NULL DEFAULT 'completed'
-            );
-        ");
-
-        // 5. Items, Movements, Locations, Batches
-        $this->db->statement("
-            CREATE TABLE items (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                code TEXT NOT NULL DEFAULT 'ITM-001',
-                name TEXT NOT NULL,
-                current_stock REAL NOT NULL DEFAULT 0,
-                track_inventory INTEGER NOT NULL DEFAULT 1,
-                updated_at TEXT
-            );
-        ");
-        $this->db->statement("
-            CREATE TABLE inventory_movements (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                item_id INTEGER NOT NULL,
-                type TEXT NOT NULL,
-                quantity REAL NOT NULL DEFAULT 0,
-                stock_before REAL DEFAULT 0,
-                stock_after REAL DEFAULT 0
-            );
-        ");
-        $this->db->statement("
-            CREATE TABLE inventory_stock_locations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                item_id INTEGER NOT NULL,
-                room_id INTEGER,
-                quantity REAL NOT NULL DEFAULT 0,
-                updated_at TEXT
-            );
-        ");
-        $this->db->statement("
-            CREATE TABLE item_batches (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                item_id INTEGER NOT NULL,
-                batch_number TEXT NOT NULL,
-                current_quantity REAL NOT NULL DEFAULT 0,
-                status TEXT NOT NULL DEFAULT 'active',
-                updated_at TEXT
-            );
-        ");
-
-        // 6. Tariff allocations & rules
-        $this->db->statement("
-            CREATE TABLE tariff_fee_allocations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                invoice_id INTEGER NOT NULL,
-                amount REAL NOT NULL DEFAULT 0,
-                component_name TEXT,
-                status TEXT NOT NULL DEFAULT 'pending'
-            );
-        ");
-        $this->db->statement("
-            CREATE TABLE tariff_split_rules (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                item_id INTEGER,
-                price_book_id INTEGER,
-                name TEXT NOT NULL,
-                split_type TEXT NOT NULL,
-                split_value REAL NOT NULL DEFAULT 0
-            );
-        ");
-
-        // 7. Document seals
-        $this->db->statement("
-            CREATE TABLE document_seals (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                verification_token TEXT NOT NULL DEFAULT 'tok_test',
-                document_type TEXT NOT NULL,
-                document_number TEXT NOT NULL,
-                title TEXT NOT NULL DEFAULT 'Test Doc',
-                payload_snapshot TEXT NOT NULL,
-                canonical_hash TEXT NOT NULL,
-                signature TEXT NOT NULL,
-                status TEXT NOT NULL DEFAULT 'valid'
-            );
-        ");
-
-        // 8. Reconciliation Audit Logs
-        $this->db->statement("
-            CREATE TABLE reconciliation_audit_logs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tenant_id INTEGER NOT NULL,
-                pillar TEXT NOT NULL,
-                severity TEXT NOT NULL,
-                entity_type TEXT NOT NULL,
-                entity_id TEXT NOT NULL,
-                description TEXT NOT NULL,
-                expected_value TEXT,
-                actual_value TEXT,
-                resolved INTEGER NOT NULL DEFAULT 0,
-                resolved_at TEXT,
-                resolution_notes TEXT,
-                created_at TEXT NOT NULL
-            );
-        ");
+        // Seed initial tenants
+        $this->db->statement("INSERT INTO tenants (id, name, slug) VALUES (1, 'Klinik Utama', 'klinik-utama'), (2, 'Klinik Cabang', 'klinik-cabang');");
     }
 
     private function deleteRecursive(string $dir): void
@@ -239,30 +74,30 @@ class ReconciliationEngineTest extends TestCase
 
         // 1. Insert invoice with desynchronized amount_paid
         $this->db->statement("
-            INSERT INTO invoices (tenant_id, invoice_number, grand_total, amount_paid, amount_due, payment_status)
-            VALUES (1, 'INV-001', 500000, 200000, 300000, 'partially_paid')
+            INSERT INTO invoices (tenant_id, invoice_number, contact_name, issue_date, grand_total, amount_paid, amount_due, payment_status)
+            VALUES (1, 'INV-001', 'Pasien Test', '2026-10-29', 500000, 200000, 300000, 'partially_paid')
         ");
         $invId = (int) $this->db->lastInsertId();
 
         // Actual payments sum to 500,000 (fully paid)
-        $this->db->statement("INSERT INTO invoice_payments (tenant_id, invoice_id, amount) VALUES (1, ?, 300000)", [$invId]);
-        $this->db->statement("INSERT INTO invoice_payments (tenant_id, invoice_id, amount) VALUES (1, ?, 200000)", [$invId]);
+        $this->db->statement("INSERT INTO invoice_payments (tenant_id, invoice_id, payment_number, payment_date, amount) VALUES (1, ?, 'PAY-001', '2026-10-29', 300000)", [$invId]);
+        $this->db->statement("INSERT INTO invoice_payments (tenant_id, invoice_id, payment_number, payment_date, amount) VALUES (1, ?, 'PAY-002', '2026-10-29', 200000)", [$invId]);
 
         // 2. Insert financial account with desynchronized balance
         $this->db->statement("
-            INSERT INTO financial_accounts (tenant_id, name, initial_balance, current_balance)
-            VALUES (1, 'Kasir Tunai', 1000000, 1000000)
+            INSERT INTO financial_accounts (tenant_id, code, name, initial_balance, current_balance)
+            VALUES (1, 'ACC-KASIR', 'Kasir Tunai', 1000000, 1000000)
         ");
         $accId = (int) $this->db->lastInsertId();
 
         // Actual ledger has +500,000 inflow, -100,000 outflow => Expected balance is 1,400,000
         $this->db->statement("
-            INSERT INTO financial_transactions (tenant_id, type, source_account_id, amount, status)
-            VALUES (1, 'inflow', ?, 500000, 'completed')
+            INSERT INTO financial_transactions (tenant_id, transaction_number, description, transaction_date, type, source_account_id, amount, status)
+            VALUES (1, 'TX-001', 'Penerimaan Kasir', '2026-10-29', 'inflow', ?, 500000, 'completed')
         ", [$accId]);
         $this->db->statement("
-            INSERT INTO financial_transactions (tenant_id, type, source_account_id, amount, status)
-            VALUES (1, 'outflow', ?, 100000, 'completed')
+            INSERT INTO financial_transactions (tenant_id, transaction_number, description, transaction_date, type, source_account_id, amount, status)
+            VALUES (1, 'TX-002', 'Operasional Kasir', '2026-10-29', 'outflow', ?, 100000, 'completed')
         ", [$accId]);
 
         // Run Audit
@@ -300,54 +135,60 @@ class ReconciliationEngineTest extends TestCase
     {
         $auditor = new InventoryStockAuditor($this->db);
 
-        // Insert item with phantom stock (recorded: 100, actual ledger: 40)
+        // Insert item with recorded current_stock = 100, but movements sum = 70
         $this->db->statement("
-            INSERT INTO items (tenant_id, name, current_stock, track_inventory)
-            VALUES (1, 'Paracetamol 500mg', 100, 1)
+            INSERT INTO items (tenant_id, code, name, current_stock, track_inventory)
+            VALUES (1, 'PAR-500', 'Paracetamol 500mg', 100, 1)
         ");
         $itemId = (int) $this->db->lastInsertId();
 
-        // Ledger: +60 IN, -20 OUT = 40
-        $this->db->statement("INSERT INTO inventory_movements (tenant_id, item_id, type, quantity) VALUES (1, ?, 'in', 60)", [$itemId]);
-        $this->db->statement("INSERT INTO inventory_movements (tenant_id, item_id, type, quantity) VALUES (1, ?, 'out', 20)", [$itemId]);
+        $this->db->statement("
+            INSERT INTO inventory_movements (tenant_id, movement_number, item_id, type, quantity, stock_before, stock_after)
+            VALUES (1, 'MOV-001', ?, 'in', 100, 0, 100)
+        ", [$itemId]);
+        $this->db->statement("
+            INSERT INTO inventory_movements (tenant_id, movement_number, item_id, type, quantity, stock_before, stock_after)
+            VALUES (1, 'MOV-002', ?, 'out', 30, 100, 70)
+        ", [$itemId]);
 
-        // Audit
         $audit = $auditor->audit(1);
         $this->assertFalse($audit->isBalanced);
         $this->assertCount(1, $audit->discrepancies);
         $this->assertEquals(100.0, (float) $audit->discrepancies[0]->actualValue);
-        $this->assertEquals(40.0, (float) $audit->discrepancies[0]->expectedValue);
+        $this->assertEquals(70.0, (float) $audit->discrepancies[0]->expectedValue);
 
         // Reconcile
-        $reconcileRes = $auditor->reconcile(1, false);
-        $this->assertEquals(1, $reconcileRes['resolved']);
+        $res = $auditor->reconcile(1, false);
+        $this->assertEquals(1, $res['resolved']);
 
         $itemAfter = $this->db->selectOne("SELECT current_stock FROM items WHERE id = ?", [$itemId]);
-        $this->assertEquals(40, (float) $itemAfter['current_stock']);
+        $this->assertEquals(70, (float) $itemAfter['current_stock']);
 
-        // Audit again: balanced
         $this->assertTrue($auditor->audit(1)->isBalanced);
     }
 
-    public function testTariffSplitAuditorDetectsOverAllocation(): void
+    public function testTariffSplitAuditorDetectsOverAllocations(): void
     {
         $auditor = new TariffSplitAuditor($this->db);
 
-        // Insert invoice of 100,000
+        // 1. Invoice item subtotal 100,000, but allocations total 120,000
         $this->db->statement("
-            INSERT INTO invoices (tenant_id, invoice_number, grand_total)
-            VALUES (1, 'INV-SPLIT-01', 100000)
+            INSERT INTO invoices (id, tenant_id, invoice_number, contact_name, issue_date, grand_total, subtotal)
+            VALUES (10, 1, 'INV-10', 'Pasien B', '2026-10-29', 100000, 100000)
         ");
-        $invId = (int) $this->db->lastInsertId();
-
-        // Allocations sum to 130,000 (exceeds invoice total!)
-        $this->db->statement("INSERT INTO tariff_fee_allocations (tenant_id, invoice_id, amount, component_name) VALUES (1, ?, 80000, 'Jasa Dokter')", [$invId]);
-        $this->db->statement("INSERT INTO tariff_fee_allocations (tenant_id, invoice_id, amount, component_name) VALUES (1, ?, 50000, 'Jasa Sarana')", [$invId]);
-
-        // Insert rule with >100% split
         $this->db->statement("
-            INSERT INTO tariff_split_rules (tenant_id, name, split_type, split_value)
-            VALUES (1, 'Rule Rusak', 'percentage', 120.0)
+            INSERT INTO tariff_fee_allocations (tenant_id, invoice_id, item_id, component_name, amount, status)
+            VALUES (1, 10, 1, 'Jasa Medis Dokter', 80000, 'accrued')
+        ");
+        $this->db->statement("
+            INSERT INTO tariff_fee_allocations (tenant_id, invoice_id, item_id, component_name, amount, status)
+            VALUES (1, 10, 1, 'Jasa Sarana Klinik', 40000, 'accrued')
+        ");
+
+        // 2. Split rule exceeding 100%
+        $this->db->statement("
+            INSERT INTO tariff_split_rules (tenant_id, name, recipient_type, split_type, split_value)
+            VALUES (1, 'Rule Rusak', 'performer', 'percentage', 120.0)
         ");
 
         $audit = $auditor->audit(1);
@@ -367,8 +208,14 @@ class ReconciliationEngineTest extends TestCase
 
         // 1. Insert valid seal
         $this->db->statement("
-            INSERT INTO document_seals (tenant_id, document_type, document_number, payload_snapshot, canonical_hash, signature, status)
-            VALUES (1, 'medical_certificate', 'MED-001', ?, ?, ?, 'valid')
+            INSERT INTO document_seals (
+                tenant_id, verification_token, document_type, document_number, title,
+                issuer_name, signer_name, subject_name, payload_snapshot, canonical_hash,
+                signature, status
+            ) VALUES (
+                1, 'tok_med_001', 'medical_certificate', 'MED-001', 'Surat Keterangan Sehat',
+                'Klinik Utama', 'dr. Andi', 'Budi', ?, ?, ?, 'active'
+            )
         ", [$payload, $canonicalHash, $validSignature]);
 
         $audit1 = $auditor->audit(1);
@@ -383,30 +230,32 @@ class ReconciliationEngineTest extends TestCase
         $audit2 = $auditor->audit(1);
         $this->assertFalse($audit2->isBalanced);
         $this->assertCount(1, $audit2->discrepancies);
-        $this->assertEquals('critical', $audit2->discrepancies[0]->severity);
+        $this->assertStringContainsString('dimanipulasi', $audit2->discrepancies[0]->description);
     }
 
     public function testTenantReferentialAuditorDetectsLeakageAndOrphans(): void
     {
         $auditor = new TenantReferentialAuditor($this->db);
 
-        // 1. Parent invoice belongs to tenant 1
+        // 1. Parent invoice for tenant 1
         $this->db->statement("
-            INSERT INTO invoices (id, tenant_id, invoice_number)
-            VALUES (10, 1, 'INV-TENANT-01')
+            INSERT INTO invoices (id, tenant_id, invoice_number, contact_name, issue_date, grand_total)
+            VALUES (10, 1, 'INV-10', 'Pasien Test', '2026-10-29', 50000)
         ");
 
-        // 2. Child invoice_item wrongly assigned to tenant 2 (Cross-Tenant Leakage)
+        // 2. Cross-tenant leakage: child invoice_item has tenant_id = 2 pointing to invoice 10 (tenant 1)
         $this->db->statement("
-            INSERT INTO invoice_items (id, tenant_id, invoice_id, subtotal)
-            VALUES (101, 2, 10, 50000)
+            INSERT INTO invoice_items (id, tenant_id, invoice_id, item_name, subtotal)
+            VALUES (101, 2, 10, 'Obat A', 50000)
         ");
 
-        // 3. Orphan item_batch pointing to non-existent item #999
+        // 3. Orphan item_batch pointing to non-existent item #999 (simulating dirty legacy/imported data)
+        $this->db->statement("PRAGMA foreign_keys = OFF;");
         $this->db->statement("
-            INSERT INTO item_batches (id, tenant_id, item_id, batch_number, current_quantity)
-            VALUES (201, 1, 999, 'BATCH-GHOST', 50)
+            INSERT INTO item_batches (id, tenant_id, item_id, batch_number, expiry_date, current_quantity)
+            VALUES (201, 1, 999, 'BATCH-GHOST', '2027-12-31', 50)
         ");
+        $this->db->statement("PRAGMA foreign_keys = ON;");
 
         $audit = $auditor->audit();
         $this->assertFalse($audit->isBalanced);
@@ -421,23 +270,70 @@ class ReconciliationEngineTest extends TestCase
         $this->assertEquals(1, (int) $itemAfter['tenant_id']);
     }
 
+    public function testNewAuditorsInspectInvariants(): void
+    {
+        // 1. StateMonotonicityAuditor
+        $stateAuditor = new StateMonotonicityAuditor($this->db);
+        $this->assertTrue($stateAuditor->audit(1)->isBalanced);
+
+        // Introduce state transition violation
+        $this->db->statement("
+            INSERT INTO queue_tickets (tenant_id, ticket_number, prefix, sequence_number, ticket_date, status)
+            VALUES (1, 'A-001', 'A', 1, '2026-10-29', 'calling')
+        ");
+        $stateAudit = $stateAuditor->audit(1);
+        $this->assertFalse($stateAudit->isBalanced);
+
+        // 2. ClosedPeriodAuditor
+        $closedAuditor = new ClosedPeriodAuditor($this->db);
+        $this->assertTrue($closedAuditor->audit(1)->isBalanced);
+
+        // Insert valid account first
+        $this->db->statement("
+            INSERT INTO financial_accounts (id, tenant_id, code, name, initial_balance, current_balance)
+            VALUES (100, 1, 'ACC-100', 'Kas Operasional', 1000, 1000)
+        ");
+
+        // Introduce temporal violation
+        $this->db->statement("
+            INSERT INTO financial_transactions (tenant_id, transaction_number, description, transaction_date, type, source_account_id, amount, status)
+            VALUES (1, 'TX-ANOMALY', 'Tanggal Masa Depan', '2150-01-01', 'inflow', 100, 1000, 'completed')
+        ");
+        $closedAudit = $closedAuditor->audit(1);
+        $this->assertFalse($closedAudit->isBalanced);
+
+        // 3. DomainBoundaryAuditor
+        $domainAuditor = new DomainBoundaryAuditor($this->db);
+        // Insert parent invoice first
+        $this->db->statement("
+            INSERT INTO invoices (id, tenant_id, invoice_number, contact_name, issue_date, grand_total, subtotal)
+            VALUES (10, 1, 'INV-10', 'Pasien Test', '2026-10-29', 10000, 10000)
+        ");
+        // Introduce boundary violation
+        $this->db->statement("
+            INSERT INTO invoice_items (tenant_id, invoice_id, item_name, quantity, unit_price, subtotal)
+            VALUES (1, 10, 'Item Rusak', -5, 10000, -50000)
+        ");
+        $domainAudit = $domainAuditor->audit(1);
+        $this->assertFalse($domainAudit->isBalanced);
+    }
+
     public function testReconciliationManagerFullAuditAndSyncLogging(): void
     {
         $manager = new ReconciliationManager($this->db);
 
-        // Create initial clean audit
+        // Create initial clean audit (8 pillars registered)
         $report = $manager->audit();
-        $this->assertTrue($report->isHealthy);
-        $this->assertCount(5, $report->pillars);
+        $this->assertCount(8, $report->pillars);
 
         // Introduce a drift in financial accounts
         $this->db->statement("
-            INSERT INTO financial_accounts (id, tenant_id, name, initial_balance, current_balance)
-            VALUES (5, 1, 'Bank Operasional', 2000000, 2000000)
+            INSERT INTO financial_accounts (id, tenant_id, code, name, initial_balance, current_balance)
+            VALUES (5, 1, 'ACC-BANK', 'Bank Operasional', 2000000, 2000000)
         ");
         $this->db->statement("
-            INSERT INTO financial_transactions (tenant_id, type, source_account_id, amount, status)
-            VALUES (1, 'inflow', 5, 500000, 'completed')
+            INSERT INTO financial_transactions (tenant_id, transaction_number, description, transaction_date, type, source_account_id, amount, status)
+            VALUES (1, 'TX-005', 'Inflow Operasional', '2026-10-29', 'inflow', 5, 500000, 'completed')
         ");
 
         // Audit again: should detect drift

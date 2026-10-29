@@ -74,7 +74,9 @@ class FinanceBillingAuditor implements AuditorInterface
 
                 // Check payment status consistency
                 $expectedStatus = 'unpaid';
-                if ($recordedPaid >= $grandTotal && $grandTotal > 0) {
+                if ($grandTotal == 0.0) {
+                    $expectedStatus = 'paid';
+                } elseif ($recordedPaid >= $grandTotal) {
                     $expectedStatus = 'paid';
                 } elseif ($recordedPaid > 0) {
                     $expectedStatus = 'partially_paid';

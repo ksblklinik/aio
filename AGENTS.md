@@ -56,3 +56,4 @@ Setiap agen dan kontributor wajib mematuhi seluruh aturan berikut:
 7. [07-semantic-ui-tokens.md](file:///c:/aplikasi/aio/.agents/rules/07-semantic-ui-tokens.md) — Disiplin semantic tokens dan integritas tema dark/light mode.
 8. [08-zero-infrastructure-leakage.md](file:///c:/aplikasi/aio/.agents/rules/08-zero-infrastructure-leakage.md) — Pencegahan kebocoran infrastruktur dan larangan tambal lokal di modul bisnis.
 9. [09-ponytail-pragmatism.md](file:///c:/aplikasi/aio/.agents/rules/09-ponytail-pragmatism.md) — Pragmatisme Ponytail, 7-Step Decision Ladder, anti-bloatware, dan minimalis diffs.
+10. [10-universal-invariants-charter.md](file:///c:/aplikasi/aio/.agents/rules/10-universal-invariants-charter.md) — Konstitusi 23 Invarian Universal, matriks mitigasi benturan, dan tiering eksekusi.
