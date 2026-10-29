@@ -14,7 +14,7 @@ use Throwable;
 
 class AppInstallCommand extends Command
 {
-    protected string $signature = 'app:install {--force : Timpa konfigurasi atau database} {--no-seed : Lewati seeding database} {--admin-name= : Nama superadmin awal} {--admin-email= : Email superadmin awal} {--admin-password= : Password superadmin awal} {--app-name= : Nama kustom aplikasi} {--non-interactive : Jalankan secara otomatis tanpa interaksi prompt}';
+    protected string $signature = 'app:install {--force : Timpa konfigurasi atau database} {--no-seed : Lewati seeding database} {--admin-name= : Nama superadmin awal} {--admin-email= : Email superadmin awal} {--admin-password= : Password superadmin awal} {--app-name= : Nama kustom aplikasi} {--env-file= : Jalur kustom file .env} {--non-interactive : Jalankan secara otomatis tanpa interaksi prompt}';
     protected string $description = 'Menjalankan wizard instalasi satu-langkah (setup .env, generate APP_KEY, migrasi database, seeding, dan akun superadmin)';
 
     public function handle(array $arguments = [], array $options = []): int
@@ -33,7 +33,7 @@ class AppInstallCommand extends Command
         // 1. Setup File .env
         // ---------------------------------------------------------------------
         $this->info("[1/5] Memeriksa file konfigurasi lingkungan (.env)...");
-        $envPath = $basePath . DIRECTORY_SEPARATOR . '.env';
+        $envPath = isset($options['env-file']) ? (string) $options['env-file'] : ($basePath . DIRECTORY_SEPARATOR . '.env');
         $examplePath = $basePath . DIRECTORY_SEPARATOR . '.env.example';
 
         if (!file_exists($envPath) || $force) {

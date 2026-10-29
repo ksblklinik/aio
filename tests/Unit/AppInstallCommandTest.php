@@ -65,6 +65,7 @@ class AppInstallCommandTest extends TestCase
         $exitCode = $command->handle([], [
             'non-interactive' => true,
             'no-seed' => true,
+            'env-file' => $this->tempDir . '/.env',
             'app-name' => 'Klinik Terpadu AIO',
             'admin-name' => 'Direktur Medis',
             'admin-email' => 'direktur@klinik.local',
@@ -110,6 +111,7 @@ class AppInstallCommandTest extends TestCase
         ob_start();
         $exitCode = $command->handle([], [
             'non-interactive' => true,
+            'env-file' => $this->tempDir . '/.env',
             'admin-email' => 'promoted@aio.local',
         ]);
         $output = (string) ob_get_clean();
@@ -136,6 +138,7 @@ class AppInstallCommandTest extends TestCase
         $exitCode = $command->handle([], [
             'non-interactive' => true,
             'no-seed' => true,
+            'env-file' => $this->tempDir . '/.env',
             'admin-email' => 'sole_admin@aio.local',
         ]);
         $output = (string) ob_get_clean();
