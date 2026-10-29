@@ -21,3 +21,8 @@ Mencegah degradasi arsitektur, duplikasi kode, dan kebocoran logika platform/inf
 
 4. **Kepatuhan Terhadap Manifesto Modul**:
    - Setiap folder yang berada di dalam `app/Modules/` WAJIB memiliki `module.json` standar dan struktur rute `routes.php` yang terisolasi.
+
+5. **Portabilitas & Netralitas Engine Database Modul Bisnis**:
+   - Modul bisnis (`app/Modules/*`) HANYA boleh berkomunikasi dengan database melalui `Core\Database\Connection` dan wajib menggunakan standar SQL netral (*ANSI SQL*) atau helper query yang disediakan Core.
+   - Dilarang keras meng-hardcode pemanggilan driver spesifik (misal: koneksi Redis mentah, fungsi khusus SQLite/Postgres proprietary) di dalam modul bisnis.
+   - Hal ini menjamin saat Core mengaktifkan adapter PostgreSQL, MySQL, atau Redis di masa depan, modul bisnis tetap portabel dan kompatibel tanpa perlu penulisan ulang (*zero rewrite*).

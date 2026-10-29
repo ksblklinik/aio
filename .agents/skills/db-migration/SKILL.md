@@ -10,24 +10,26 @@ Gunakan skill ini setiap kali ada kebutuhan mengubah skema database (tabel baru,
 ## Alur Kerja
 
 ### 1. Inspeksi Skema Saat Ini
-- Periksa skema database yang aktif saat ini:
-  - Melalui file skema (misal: `schema.prisma`, `schema.ts` di Drizzle, file SQL migrasi sebelumnya).
-  - Atau melalui server MCP database jika terhubung (`sqlite-db`, `postgres-db`).
-- Pastikan tidak ada *schema drift* (perbedaan antara definisi kode dan kondisi riil database lokal).
+- Periksa skema database yang aktif saat ini di folder `database/migrations/` dan migrasi yang sudah tercatat.
+- Gunakan `Core\Database\Migrator` untuk memeriksa status migrasi yang belum dijalankan.
+- Pastikan tidak ada *schema drift* (perbedaan antara file migrasi dan kondisi riil database).
 
-### 2. Desain Perubahan Skema
-- Pastikan perubahan mendukung backwards compatibility jika memungkinkan:
+### 2. Desain Perubahan Skema & Portabilitas Multi-DB
+- **ANSI SQL Portability First**:
+  - Prioritaskan tipe data dan sintaks SQL standar (`INTEGER`, `TEXT`, `REAL`, `TIMESTAMP`, `FOREIGN KEY`) yang kompatibel lintas engine (SQLite, PostgreSQL, MySQL).
+  - Hindari fungsi bawaan vendor yang terlalu spesifik pada level tabel bisnis.
+- **Backwards Compatibility**:
   - Hindari menghapus kolom langsung jika ada data yang masih aktif digunakan.
   - Untuk kolom non-nullable baru pada tabel yang sudah memiliki data, tentukan nilai *default value* yang aman.
-  - Tambahkan indeks pada kolom yang sering dijadikan filter query atau foreign key.
+  - Tambahkan indeks pada kolom yang sering dijadikan filter query (`tenant_id`, `status`, foreign key).
 
 ### 3. Pembuatan Skrip Migrasi (Up & Down)
-- Buat file migrasi dengan penomoran urut dan nama deskriptif (misal: `0002_create_users_table.sql` atau via ORM migration tool).
-- Setiap migrasi wajib memiliki dua arah:
-  - **Up Migration**: Perubahan skema maju.
-  - **Down Migration / Rollback**: Skrip untuk membatalkan perubahan secara bersih jika terjadi kegagalan.
+- Buat file migrasi di `database/migrations/` dengan format penamaan berurutan: `YYYY_MM_DD_HHMMSS_<deskripsi>.sql`.
+- Setiap migrasi wajib memiliki dua penanda arah:
+  - `-- @up`: Perubahan skema maju.
+  - `-- @down`: Skrip untuk membatalkan perubahan secara bersih (*rollback*).
 
 ### 4. Eksekusi & Verifikasi
-- Jalankan migrasi di lingkungan lokal atau test environment.
-- Verifikasi skema baru berhasil terbentuk (query `PRAGMA table_info` di SQLite atau `\d` di Postgres).
-- Perbarui dokumen spec (bagian *Data Model & Schema*) agar tetap sinkron.
+- Jalankan migrasi di lingkungan lokal (`database.sqlite`) dan verifikasi melalui test suite.
+- **Wajib Verifikasi via Test**: Pastikan test suite baru mengeksekusi migrasi menggunakan `\Core\Database\Migrator::runMigrationsFrom(__DIR__ . '/../../database/migrations')`.
+- Perbarui dokumen spec (bagian *Data Model & Schema*) agar dokumentasi tetap sinkron dengan skema aktif.

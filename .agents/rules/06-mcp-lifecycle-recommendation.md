@@ -12,14 +12,14 @@ Agen **wajib secara proaktif menganalisis dan merekomendasikan server MCP baru**
 Agen harus memberikan rekomendasi MCP pada saat:
 
 ### A. Fase Perancangan Spec (Phase 1 & 2)
-1. **Adopsi Database Baru**:
-   - Jika spec melibatkan PostgreSQL, MySQL, Redis, atau Supabase $\rightarrow$ Rekomendasikan MCP Database terkait (misal: `@modelcontextprotocol/server-postgres`).
-   - *Manfaat bagi pengguna*: Agen dapat langsung memeriksa relasi tabel, foreign keys, dan tipe kolom nyata tanpa menebak-nebak skema.
+1. **Adopsi Database & Infrastruktur Enterprise Core**:
+   - Jika spec tingkat Core merancang adapter atau sinkronisasi untuk PostgreSQL, MySQL, atau Redis (sebagai engine cloud terpusat atau distributed cache) $\rightarrow$ Rekomendasikan MCP Database terkait (misal: `@modelcontextprotocol/server-postgres`).
+   - *Prinsip Arsitektur*: SQLite WAL tetap menjadi baseline default untuk node edge/offline-first. Integrasi engine database eksternal HANYA boleh diinisialisasi di level `core/`, bukan di modul bisnis.
 2. **Kebutuhan UI E2E / Visual Verification**:
    - Jika spec membangun antarmuka web yang kompleks $\rightarrow$ Rekomendasikan MCP Browser (misal: Playwright atau Puppeteer MCP).
    - *Manfaat bagi pengguna*: Agen dapat memverifikasi rendering UI dan mengambil screenshot pengujian otomatis.
 3. **Integrasi Eksternal / API Pihak Ketiga**:
-   - Jika spec menghubungkan sistem dengan layanan eksternal (GitHub, OpenAPI, Stripe, dll.) $\rightarrow$ Rekomendasikan MCP resmi layanan tersebut atau MCP Fetch/OpenAPI.
+   - Jika spec menghubungkan sistem dengan layanan eksternal (GitHub, OpenAPI, SatuSehat, Payment Gateway, dll.) $\rightarrow$ Rekomendasikan MCP resmi layanan tersebut atau MCP Fetch/OpenAPI.
 
 ### B. Fase Investigasi / Debugging (Phase 4)
 - Jika agen kesulitan melacak error yang berkaitan dengan state database atau log sistem terpusat $\rightarrow$ Usulkan penambahan MCP untuk mengakses log/state tersebut secara langsung.
@@ -30,7 +30,7 @@ Agen harus memberikan rekomendasi MCP pada saat:
 Ketika merekomendasikan MCP baru, agen harus menyajikan:
 1. **Nama & Fungsi MCP**: Layanan apa yang disediakan dan mengapa proyek ini membutuhkannya sekarang.
 2. **Keuntungan Nyata**: Perbandingan jika menggunakan MCP vs menggunakan perintah CLI manual.
-3. **Snippet Konfigurasi**: Blok JSON siap pakai yang akan ditambahkan ke workspace plugin di `.agents/plugins/jstudio/mcp_config.json` (atau global `~/.gemini/config/mcp_config.json`).
+3. **Snippet Konfigurasi**: Blok JSON siap pakai yang akan ditambahkan ke `.agents/mcp_config.json` (atau global `~/.gemini/config/mcp_config.json`).
 4. **Persetujuan Pengguna**: Meminta persetujuan sebelum menambahkan konfigurasi ke file MCP terkait.
 
 ---

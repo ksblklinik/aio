@@ -23,9 +23,9 @@ Gunakan skill ini ketika menambahkan variabel konfigurasi baru, mengintegrasikan
     ```
 
 ### 2. Runtime Schema Validation (Fail-Fast)
-- Terapkan validasi variabel environment saat bootstrapping aplikasi (misal menggunakan modul validasi Zod, Joi, atau Envalid).
-- Pastikan aplikasi gagal start dengan pesan error yang jelas jika ada variabel wajib yang belum didefinisikan, daripada mengalami error null pointer di tengah jalan.
+- Terapkan validasi variabel environment penting saat bootstrapping kernel aplikasi (fail-fast via `config()` check atau exception terarah jika `APP_KEY` / database DSN kosong).
+- Pastikan aplikasi gagal start dengan pesan error yang jelas jika ada variabel wajib yang belum didefinisikan, daripada mengalami runtime crash di tengah jalan.
 
 ### 3. Pencegahan Kebocoran (Guardrail)
-- Pastikan `.env*` (kecuali `.env.example`) tetap terdaftar di [`.gitignore`](file:///c:/aplikasi/jstudio/.gitignore).
+- Pastikan `.env*` (kecuali `.env.example`) tetap terdaftar di [`.gitignore`](file:///c:/aplikasi/aio/.gitignore).
 - Jangan pernah meng-hardcode API key, token rahasia, atau kredensial database di dalam file kode aplikasi atau dokumen spec publik.

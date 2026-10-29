@@ -7,7 +7,7 @@ Efisiensi token diterapkan untuk **menjaga ketajaman daya ingat (attention reten
 
 ## 2. Praktik Pembacaan File Terarah (Surgical Reading & Repo-Map)
 - **Konsultasikan Peta Simbol Terlebih Dahulu (.agents/REPO_MAP.md)**:
-  - Sebelum menjelajahi file-file kode secara manual untuk memahami arsitektur, baca file [.agents/REPO_MAP.md](file:///c:/aplikasi/jstudio/.agents/REPO_MAP.md). Peta ini memuat ringkasan class, interface, fungsi, dan method seluruh codebase secara padat token.
+  - Sebelum menjelajahi file-file kode secara manual untuk memahami arsitektur, baca file [.agents/REPO_MAP.md](file:///c:/aplikasi/aio/.agents/REPO_MAP.md). Peta ini memuat ringkasan class, interface, fungsi, dan method seluruh codebase secara padat token.
   - Untuk memperbarui peta kode kapan saja, jalankan:
     ```powershell
     powershell -ExecutionPolicy Bypass -File ./scripts/map.ps1
@@ -48,3 +48,12 @@ Efisiensi token **TIDAK BOLEH** mengorbankan kualitas rekayasa perangkat lunak:
 1. **Dilarang menyingkat dokumen spesifikasi**: Penjelasan *edge cases*, tipe data, skema, dan batasan arsitektur harus tetap lengkap dan presisi.
 2. **Dilarang melewatkan penulisan test**: Test unit dan integrasi adalah jaring pengaman utama.
 3. **Dilarang menghapus komentar dokumentasi atau kode penjelas penting**.
+
+---
+
+## 7. Disiplin Komunikasi Output (No-Fluff Technical Brevity / Caveman Principle)
+Untuk mencegah pemborosan token pada respon obrolan agen:
+1. **Zero Conversational Pleasantries**: Dilarang menggunakan kalimat basa-basi klise pembuka atau penutup (*"Tentu, saya akan senang membantu...", "Terima kasih atas arahannya..."*). Langsung masuk ke substansi teknis.
+2. **High-Density Signal**: Sajikan ringkasan temuan, status eksekusi, dan keputusan dalam bentuk format padat pemindaian (*scannable table* atau *bullet points*), bukan narasi paragraf panjang bertele-tele.
+3. **Diffs Over Full Restatements**: Hindari mencetak ulang seluruh isi berkas di dalam pesan chat jika perubahan hanya beberapa baris. Cukup tampilkan diff atau jelaskan fungsinya secara ringkas.
+4. **Exactness Retained (Non-Negotiable)**: Penyingkatan gaya bahasa **DILARANG KERAS** mengaburkan akurasi teknis. Nama method, rute, tabel, tipe data, parameter CLI, path berkas, dan peringatan mitigasi keamanan WAJIB tetap 100% presisi (*byte-for-byte exact*).
