@@ -12,7 +12,7 @@ class HomeController extends Controller
     public function index(Request $request): Response
     {
         return $this->render('Welcome', [
-            'appName' => 'aio SaaS Engine',
+            'appName' => config('app.name', 'aio SaaS Engine'),
             'phpVersion' => PHP_VERSION,
         ]);
     }

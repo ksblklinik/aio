@@ -88,6 +88,23 @@ HTML;
     }
 }
 
+if (!function_exists('asset')) {
+    /**
+     * Helper universal untuk menghasilkan URL publik aset aplikasi.
+     */
+    function asset(string $path): string
+    {
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        $appUrl = rtrim((string) config('app.url', ''), '/');
+        $normalizedPath = '/' . ltrim($path, '/');
+
+        return $appUrl !== '' ? $appUrl . $normalizedPath : $normalizedPath;
+    }
+}
+
 if (!function_exists('event')) {
     /**
      * Helper global untuk memancarkan Domain Event ke EventDispatcher.

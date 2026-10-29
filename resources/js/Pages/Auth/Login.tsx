@@ -21,7 +21,15 @@ interface LoginProps {
 }
 
 export default function Login({ demoUsers = [], isLocal = false }: LoginProps) {
-  const { props } = usePage<{ flash?: { error?: string | null; success?: string | null }; csrf_token?: string }>();
+  const { props } = usePage<{ 
+    app?: { name?: string; tagline?: string; logo?: string | null; favicon?: string | null };
+    flash?: { error?: string | null; success?: string | null }; 
+    csrf_token?: string 
+  }>();
+  const appName = props.app?.name || 'aio SaaS';
+  const appTagline = props.app?.tagline || 'Unified Full-Stack SaaS Framework with Multi-Tenancy';
+  const appLogo = props.app?.logo || null;
+
   const { data, setData, post, processing, errors } = useForm({
     email: '',
     password: '',
@@ -54,14 +62,18 @@ export default function Login({ demoUsers = [], isLocal = false }: LoginProps) {
       <div className="w-full max-w-md space-y-6 relative z-10">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex h-12 w-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 items-center justify-center shadow-lg shadow-indigo-500/30">
-            <Zap className="h-6 w-6 text-white" />
-          </div>
+          {appLogo ? (
+            <img src={appLogo} alt={appName} className="inline-block h-12 w-12 object-contain rounded-2xl shadow-lg" />
+          ) : (
+            <div className="inline-flex h-12 w-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 items-center justify-center shadow-lg shadow-indigo-500/30">
+              <Zap className="h-6 w-6 text-white" />
+            </div>
+          )}
           <h2 className="text-2xl font-extrabold tracking-tight text-white">
             Masuk ke Akun Anda
           </h2>
           <p className="text-xs text-slate-400">
-            Unified Full-Stack SaaS Framework with Multi-Tenancy
+            {appTagline}
           </p>
         </div>
 

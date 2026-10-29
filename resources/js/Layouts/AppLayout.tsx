@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, usePage, router } from '@inertiajs/react';
+import { Link, usePage, router, Head } from '@inertiajs/react';
 import { 
   LayoutDashboard, 
   ChevronDown, 
@@ -22,6 +22,14 @@ import {
 import DevPersonaBar from '../Components/DevPersonaBar';
 import ThemeToggle from '../Components/ThemeToggle';
 import DynamicIcon from '../Components/DynamicIcon';
+
+interface AppProp {
+  name?: string;
+  tagline?: string;
+  env?: string;
+  logo?: string | null;
+  favicon?: string | null;
+}
 
 interface AuthProp {
   user: { id: number; name: string; email: string; is_superadmin?: boolean } | null;
@@ -51,6 +59,7 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
   const { props } = usePage<{ 
+    app?: AppProp;
     auth?: AuthProp; 
     active_modules?: ActiveModuleNav[];
     flash?: { success?: string | null; error?: string | null };
@@ -130,15 +139,25 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
 
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
 
+  const appName = props.app?.name || 'aio SaaS';
+  const appTagline = props.app?.tagline || 'Unified Platform';
+  const appLogo = props.app?.logo || null;
+
   return (
     <div className="min-h-screen bg-canvas text-text-main flex flex-col md:flex-row antialiased font-sans transition-colors duration-150">
+      <Head title={title ? `${title} - ${appName}` : `${appName} - ${appTagline}`} />
+
       {/* Mobile Top Header */}
       <div className="md:hidden bg-surface border-b border-border-subtle px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-brand-primary flex items-center justify-center text-white shadow-sm">
-            <Zap className="h-4 w-4" />
-          </div>
-          <span className="font-bold text-text-main text-base">aio SaaS</span>
+          {appLogo ? (
+            <img src={appLogo} alt={appName} className="h-8 w-8 object-contain rounded-lg" />
+          ) : (
+            <div className="h-8 w-8 rounded-lg bg-brand-primary flex items-center justify-center text-white shadow-sm">
+              <Zap className="h-4 w-4" />
+            </div>
+          )}
+          <span className="font-bold text-text-main text-base">{appName}</span>
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
@@ -169,15 +188,19 @@ export default function AppLayout({ children, title, tenant }: AppLayoutProps) {
         <div className="space-y-6">
           {/* Logo & Brand Header */}
           <div className="flex items-center gap-3 px-2 py-1">
-            <div className="h-9 w-9 rounded-lg bg-brand-primary flex items-center justify-center text-white shadow-sm shrink-0">
-              <Zap className="h-5 w-5" />
-            </div>
+            {appLogo ? (
+              <img src={appLogo} alt={appName} className="h-9 w-9 object-contain rounded-lg shrink-0" />
+            ) : (
+              <div className="h-9 w-9 rounded-lg bg-brand-primary flex items-center justify-center text-white shadow-sm shrink-0">
+                <Zap className="h-5 w-5" />
+              </div>
+            )}
             <div>
               <div className="font-bold text-lg text-text-main tracking-tight leading-tight">
-                aio SaaS
+                {appName}
               </div>
               <div className="text-[11px] font-semibold text-brand-primary uppercase tracking-wider">
-                Unified Framework
+                {appTagline}
               </div>
             </div>
           </div>

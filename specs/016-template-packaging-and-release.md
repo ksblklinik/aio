@@ -26,9 +26,9 @@ Setelah SPEC-013, SPEC-014, dan SPEC-015 rampung, repositori telah memiliki fond
 
 ## 3. Atomic Task Checklist
 
-- [ ] **Phase 1: Dynamic Branding & Configuration Cleanup**
-  - [ ] 1.1 Hapus teks statis `aio SaaS` dari backend dan layout React; ganti dengan `config('app.name')` via Inertia shared props.
-  - [ ] 1.2 Dukung konfigurasi logo dan favicon kustom via asset helper / config.
+- [x] **Phase 1: Dynamic Branding & Configuration Cleanup**
+  - [x] 1.1 Hapus teks statis `aio SaaS` dari backend dan layout React; ganti dengan `config('app.name')` via Inertia shared props.
+  - [x] 1.2 Dukung konfigurasi logo dan favicon kustom via asset helper / config.
 
 - [ ] **Phase 2: One-Click App Installer CLI**
   - [ ] 2.1 Buat sub-perintah `php aio app:install` yang memandu setup `.env`, generate key, migrasi, dan seed interaktif.

@@ -613,10 +613,16 @@ class Application
         $inertia = Inertia::getInstance();
         $inertia->setRequest($request);
         $inertia->setVersion('1.0.0');
+        $logo = config('app.logo');
+        $favicon = config('app.favicon', '/favicon.ico');
+
         $inertia->share([
             'app' => [
                 'name' => config('app.name', 'aio SaaS'),
+                'tagline' => config('app.tagline', 'Unified Platform'),
                 'env' => config('app.env', 'local'),
+                'logo' => $logo ? asset($logo) : null,
+                'favicon' => asset($favicon),
             ],
             'csrf_token' => fn() => $session->token(),
             'auth' => fn() => [

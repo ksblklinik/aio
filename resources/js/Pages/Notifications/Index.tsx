@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import AppLayout from '../../Layouts/AppLayout';
 import { 
   Bell, 
@@ -126,8 +126,6 @@ export default function NotificationsIndex({
 
   return (
     <AppLayout title="Pusat Notifikasi">
-      <Head title="Pusat Notifikasi - aio SaaS" />
-
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-surface p-6 rounded-2xl border border-border-subtle shadow-xs">

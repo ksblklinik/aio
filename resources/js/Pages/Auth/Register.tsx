@@ -3,7 +3,14 @@ import { Link, useForm, usePage } from '@inertiajs/react';
 import { Zap, Mail, Lock, User, Building2, ArrowRight, AlertCircle } from 'lucide-react';
 
 export default function Register() {
-  const { props } = usePage<{ flash?: { error?: string | null }; csrf_token?: string }>();
+  const { props } = usePage<{ 
+    app?: { name?: string; tagline?: string; logo?: string | null; favicon?: string | null };
+    flash?: { error?: string | null }; 
+    csrf_token?: string 
+  }>();
+  const appName = props.app?.name || 'aio SaaS';
+  const appLogo = props.app?.logo || null;
+
   const { data, setData, post, processing, errors } = useForm({
     name: '',
     email: '',
@@ -26,11 +33,15 @@ export default function Register() {
       <div className="w-full max-w-md space-y-6 relative z-10">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex h-12 w-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 items-center justify-center shadow-lg shadow-indigo-500/30">
-            <Zap className="h-6 w-6 text-white" />
-          </div>
+          {appLogo ? (
+            <img src={appLogo} alt={appName} className="inline-block h-12 w-12 object-contain rounded-2xl shadow-lg" />
+          ) : (
+            <div className="inline-flex h-12 w-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 items-center justify-center shadow-lg shadow-indigo-500/30">
+              <Zap className="h-6 w-6 text-white" />
+            </div>
+          )}
           <h2 className="text-2xl font-extrabold tracking-tight text-white">
-            Mulai dengan aio SaaS
+            Mulai dengan {appName}
           </h2>
           <p className="text-xs text-slate-400">
             Daftarkan diri Anda & buat workspace tenant otomatis

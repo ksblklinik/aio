@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Head, useForm, router } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
 import AppLayout from '../../Layouts/AppLayout';
 import { 
   Webhook, 
@@ -144,8 +144,6 @@ export default function WebhooksIndex({
 
   return (
     <AppLayout title="Webhooks & Integrasi Outbound">
-      <Head title="Webhooks - aio SaaS" />
-
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-surface p-6 rounded-2xl border border-border-subtle shadow-xs">
